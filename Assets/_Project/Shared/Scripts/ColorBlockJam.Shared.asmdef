@@ -3,8 +3,10 @@
     "rootNamespace": "ColorBlockJam.Shared",
     "references": [
         "ColorBlockJam.Core",
+        "VContainer",
         "UniTask",
         "LitMotion",
+        "LitMotion.Extensions",
         "UnityEngine.UI",
         "Unity.TextMeshPro"
     ],

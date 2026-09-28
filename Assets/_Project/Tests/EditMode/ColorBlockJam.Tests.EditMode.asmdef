@@ -1,0 +1,28 @@
+{
+    "name": "ColorBlockJam.Tests.EditMode",
+    "rootNamespace": "ColorBlockJam.Tests",
+    "references": [
+        "ColorBlockJam.Core",
+        "ColorBlockJam.Level",
+        "ColorBlockJam.Economy",
+        "ColorBlockJam.Progression",
+        "ColorBlockJam.Gameplay",
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

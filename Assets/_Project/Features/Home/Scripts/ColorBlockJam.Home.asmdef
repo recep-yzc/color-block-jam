@@ -1,0 +1,23 @@
+{
+    "name": "ColorBlockJam.Home",
+    "rootNamespace": "ColorBlockJam.Home",
+    "references": [
+        "ColorBlockJam.Core",
+        "ColorBlockJam.Shared",
+        "ColorBlockJam.Economy",
+        "ColorBlockJam.Progression",
+        "VContainer",
+        "UniTask",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

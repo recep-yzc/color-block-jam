@@ -1,0 +1,20 @@
+{
+    "name": "ColorBlockJam.Shared",
+    "rootNamespace": "ColorBlockJam.Shared",
+    "references": [
+        "ColorBlockJam.Core",
+        "UniTask",
+        "LitMotion",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

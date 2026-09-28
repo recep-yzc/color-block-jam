@@ -104,3 +104,18 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# Markdown files (README.md is a required deliverable, keep it)
+*.md
+*.md.meta
+!/README.md
+
+# JetBrains IDE settings
+.idea/
+*.iml
+
+# Claude
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+.mcp.json

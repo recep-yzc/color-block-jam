@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Framework.UI.Views;
-using UnityEngine;
+using UnityEngine.InputSystem;
 using VContainer;
 using VContainer.Unity;
 using Object = UnityEngine.Object;
@@ -17,6 +17,9 @@ namespace Framework.UI.Popups
         private readonly LifetimeScope ownerScope;
         private readonly Dictionary<Type, Popup> instances = new();
         private readonly List<Popup> openPopups = new();
+
+        // Android's back button arrives as the keyboard escape key.
+        private readonly InputAction backAction = new("Back", InputActionType.Button, "<Keyboard>/escape");
 
         public PopupService(PopupLayer layer, PopupCatalog catalog, IObjectResolver resolver)
         {
@@ -36,11 +39,13 @@ namespace Framework.UI.Popups
         {
             layer.Backdrop.Clicked += OnBackdropClicked;
             layer.Backdrop.HideImmediate();
+            backAction.Enable();
         }
 
         public void Dispose()
         {
             layer.Backdrop.Clicked -= OnBackdropClicked;
+            backAction.Dispose();
 
             foreach (var popup in instances.Values)
             {
@@ -50,8 +55,7 @@ namespace Framework.UI.Popups
 
         public void Tick()
         {
-            // Android back button.
-            if (Input.GetKeyDown(KeyCode.Escape) && TopPopup != null && TopPopup.CloseOnBackButton)
+            if (backAction.WasPressedThisFrame() && TopPopup != null && TopPopup.CloseOnBackButton)
             {
                 TopPopup.RequestClose();
             }

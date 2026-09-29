@@ -651,7 +651,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5725742830968387254, guid: d423158a373f66d41af519d581ffcc5a, type: 3}
       propertyPath: m_text
-      value: Leaderboard
+      value: Collection
       objectReference: {fileID: 0}
     - target: {fileID: 5725742830968387254, guid: d423158a373f66d41af519d581ffcc5a, type: 3}
       propertyPath: m_fontSize
@@ -1852,7 +1852,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6998641942370678237, guid: c09bba468c901fa4f961e3f0d1af9171, type: 3}
       propertyPath: m_text
-      value: 'Leaderboard
+      value: 'Collection
 
         <size=60%>Coming Soon</size>'
       objectReference: {fileID: 0}

@@ -17,7 +17,6 @@ namespace Framework.Boot
         public UniTask RunAsync(CancellationToken cancellationToken)
         {
             Application.targetFrameRate = settings.TargetFrameRate;
-            Input.multiTouchEnabled = settings.MultiTouchEnabled;
             Screen.sleepTimeout = settings.PreventScreenSleep ? SleepTimeout.NeverSleep : SleepTimeout.SystemSetting;
             return UniTask.CompletedTask;
         }

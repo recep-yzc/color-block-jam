@@ -13,5 +13,4 @@ MonoBehaviour:
   m_Name: AppSettings
   m_EditorClassIdentifier: 
   targetFrameRate: 60
-  multiTouchEnabled: 0
   preventScreenSleep: 1

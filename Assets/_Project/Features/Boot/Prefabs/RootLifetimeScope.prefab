@@ -49,3 +49,4 @@ MonoBehaviour:
   autoRun: 1
   autoInjectGameObjects: []
   appSettings: {fileID: 11400000, guid: b0c8c9abdab4a1742a85c8b3f0835720, type: 2}
+  economyConfig: {fileID: 11400000, guid: da0eec09e861170439c86835e8d40cea, type: 2}

@@ -1,6 +1,8 @@
 using ColorBlockJam.Core.Persistence;
 using ColorBlockJam.Core.SceneManagement;
 using ColorBlockJam.Core.Startup;
+using ColorBlockJam.Economy;
+using ColorBlockJam.Progression;
 using ColorBlockJam.Settings;
 using UnityEngine;
 using VContainer;
@@ -15,16 +17,20 @@ namespace ColorBlockJam.Boot
     public sealed class RootLifetimeScope : LifetimeScope
     {
         [SerializeField] private AppSettings appSettings;
+        [SerializeField] private EconomyConfig economyConfig;
 
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(appSettings);
+            builder.RegisterInstance(economyConfig);
 
             builder.Register<SceneLoader>(Lifetime.Singleton).As<ISceneLoader>();
             builder.Register<PlayerPrefsStorage>(Lifetime.Singleton).As<IKeyValueStorage>();
 
             builder.Register<SettingsService>(Lifetime.Singleton).As<ISettingsService>();
             builder.Register<HapticService>(Lifetime.Singleton).As<IHapticService>();
+            builder.Register<CoinWallet>(Lifetime.Singleton).As<ICoinWallet>();
+            builder.Register<ProgressionService>(Lifetime.Singleton).As<IProgressionService>();
 
             builder.Register<ApplyAppSettingsTask>(Lifetime.Singleton).As<IStartupTask>();
         }

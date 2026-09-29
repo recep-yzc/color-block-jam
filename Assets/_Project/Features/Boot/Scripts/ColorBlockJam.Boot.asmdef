@@ -7,7 +7,9 @@
         "UniTask",
         "UnityEngine.UI",
         "Unity.TextMeshPro",
-        "ColorBlockJam.Settings"
+        "ColorBlockJam.Settings",
+        "ColorBlockJam.Economy",
+        "ColorBlockJam.Progression"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

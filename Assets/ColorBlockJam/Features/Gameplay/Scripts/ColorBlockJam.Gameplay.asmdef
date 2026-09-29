@@ -8,6 +8,7 @@
         "Framework.Settings",
         "ColorBlockJam.Shared",
         "ColorBlockJam.Level",
+        "ColorBlockJam.Gameplay.Logic",
         "ColorBlockJam.Economy",
         "ColorBlockJam.Progression",
         "VContainer",
@@ -15,7 +16,8 @@
         "LitMotion",
         "LitMotion.Extensions",
         "UnityEngine.UI",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

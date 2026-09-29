@@ -2,15 +2,17 @@
     "name": "ColorBlockJam.Home",
     "rootNamespace": "ColorBlockJam.Home",
     "references": [
-        "ColorBlockJam.Core",
+        "Framework.Core",
+        "Framework.UI",
+        "Framework.Navigation",
+        "Framework.Settings",
         "ColorBlockJam.Shared",
         "ColorBlockJam.Economy",
         "ColorBlockJam.Progression",
         "VContainer",
         "UniTask",
         "UnityEngine.UI",
-        "Unity.TextMeshPro",
-        "ColorBlockJam.Settings"
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

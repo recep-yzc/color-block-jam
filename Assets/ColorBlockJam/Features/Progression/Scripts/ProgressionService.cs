@@ -1,4 +1,4 @@
-using ColorBlockJam.Core.Persistence;
+using Framework.Core.Persistence;
 
 namespace ColorBlockJam.Progression
 {

@@ -2,11 +2,11 @@
     "name": "ColorBlockJam.Tests.EditMode",
     "rootNamespace": "ColorBlockJam.Tests",
     "references": [
-        "ColorBlockJam.Core",
         "ColorBlockJam.Level",
         "ColorBlockJam.Economy",
         "ColorBlockJam.Progression",
         "ColorBlockJam.Gameplay",
+        "Framework.Core",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

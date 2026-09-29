@@ -1,5 +1,5 @@
-using ColorBlockJam.Shared.UI.Buttons;
-using ColorBlockJam.Shared.UI.Views;
+using Framework.UI.Buttons;
+using Framework.UI.Views;
 using TMPro;
 using UnityEngine;
 

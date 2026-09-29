@@ -1,8 +1,9 @@
 using System.Threading;
-using ColorBlockJam.Core.SceneManagement;
 using ColorBlockJam.Progression;
-using ColorBlockJam.Shared.UI.Views;
+using ColorBlockJam.Shared;
 using Cysharp.Threading.Tasks;
+using Framework.Core.SceneManagement;
+using Framework.UI.Views;
 
 namespace ColorBlockJam.Home
 {
@@ -33,7 +34,7 @@ namespace ColorBlockJam.Home
         {
             // One tap starts one load.
             View.PlayButton.Interactable = false;
-            sceneLoader.LoadAsync(SceneNames.Gameplay, CancellationToken.None).Forget();
+            sceneLoader.LoadAsync(GameScenes.Gameplay, CancellationToken.None).Forget();
         }
     }
 }

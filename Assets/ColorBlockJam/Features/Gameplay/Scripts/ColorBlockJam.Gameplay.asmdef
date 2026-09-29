@@ -2,7 +2,10 @@
     "name": "ColorBlockJam.Gameplay",
     "rootNamespace": "ColorBlockJam.Gameplay",
     "references": [
-        "ColorBlockJam.Core",
+        "Framework.Core",
+        "Framework.UI",
+        "Framework.Pooling",
+        "Framework.Settings",
         "ColorBlockJam.Shared",
         "ColorBlockJam.Level",
         "ColorBlockJam.Economy",
@@ -10,6 +13,7 @@
         "VContainer",
         "UniTask",
         "LitMotion",
+        "LitMotion.Extensions",
         "UnityEngine.UI",
         "Unity.TextMeshPro"
     ],

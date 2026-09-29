@@ -1,0 +1,54 @@
+using LitMotion;
+using LitMotion.Extensions;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Framework.UI.Buttons
+{
+    /// <summary>
+    /// Tints graphics with one color while the toggle is on and another while it is off.
+    /// </summary>
+    public sealed class ToggleColorVisual : ToggleStateVisual
+    {
+        [SerializeField] private Graphic[] graphics;
+        [SerializeField] private Color onColor = Color.white;
+        [SerializeField] private Color offColor = new(0.5f, 0.5f, 0.5f, 1f);
+        [SerializeField, Min(0.01f)] private float duration = 0.15f;
+
+        private MotionHandle[] motions;
+
+        public override void Apply(bool isOn, bool instant)
+        {
+            motions ??= new MotionHandle[graphics.Length];
+            var color = isOn ? onColor : offColor;
+
+            for (var i = 0; i < graphics.Length; i++)
+            {
+                motions[i].TryCancel();
+
+                if (instant)
+                {
+                    graphics[i].color = color;
+                    continue;
+                }
+
+                motions[i] = LMotion.Create(graphics[i].color, color, duration)
+                    .WithScheduler(UIMotion.Scheduler)
+                    .BindToColor(graphics[i]);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (motions == null)
+            {
+                return;
+            }
+
+            foreach (var motion in motions)
+            {
+                motion.TryCancel();
+            }
+        }
+    }
+}

@@ -2,7 +2,8 @@
     "name": "ColorBlockJam.Progression",
     "rootNamespace": "ColorBlockJam.Progression",
     "references": [
-        "ColorBlockJam.Core"
+        "Framework.Core",
+        "VContainer"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

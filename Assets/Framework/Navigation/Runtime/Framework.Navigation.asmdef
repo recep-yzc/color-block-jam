@@ -1,0 +1,21 @@
+{
+    "name": "Framework.Navigation",
+    "rootNamespace": "Framework.Navigation",
+    "references": [
+        "Framework.Core",
+        "Framework.UI",
+        "VContainer",
+        "LitMotion",
+        "LitMotion.Extensions",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

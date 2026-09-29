@@ -1,8 +1,8 @@
 using ColorBlockJam.Economy;
-using ColorBlockJam.Settings;
-using ColorBlockJam.Shared.UI.Popups;
-using ColorBlockJam.Shared.UI.Views;
 using Cysharp.Threading.Tasks;
+using Framework.Settings;
+using Framework.UI.Popups;
+using Framework.UI.Views;
 
 namespace ColorBlockJam.Home
 {

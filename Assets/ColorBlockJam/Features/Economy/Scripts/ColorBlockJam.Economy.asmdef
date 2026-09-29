@@ -2,7 +2,8 @@
     "name": "ColorBlockJam.Economy",
     "rootNamespace": "ColorBlockJam.Economy",
     "references": [
-        "ColorBlockJam.Core"
+        "Framework.Core",
+        "VContainer"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

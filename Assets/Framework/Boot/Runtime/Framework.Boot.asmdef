@@ -1,0 +1,20 @@
+{
+    "name": "Framework.Boot",
+    "rootNamespace": "Framework.Boot",
+    "references": [
+        "Framework.Core",
+        "VContainer",
+        "UniTask",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

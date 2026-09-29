@@ -3,7 +3,9 @@
     "rootNamespace": "ColorBlockJam.Economy",
     "references": [
         "Framework.Core",
-        "VContainer"
+        "Framework.UI",
+        "VContainer",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

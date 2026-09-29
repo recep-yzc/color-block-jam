@@ -2,6 +2,7 @@
     "name": "ColorBlockJam.Tests.EditMode",
     "rootNamespace": "ColorBlockJam.Tests",
     "references": [
+        "ColorBlockJam.Gameplay.Logic",
         "ColorBlockJam.Level",
         "ColorBlockJam.Economy",
         "ColorBlockJam.Progression",

@@ -1,4 +1,3 @@
-using LitMotion;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -18,8 +17,8 @@ namespace Framework.UI.Buttons
         [Tooltip("The part the feedback moves. Leave empty to move the whole button.")]
         [SerializeField] private RectTransform feedbackTarget;
 
-        private Vector3 restScale;
-        private MotionHandle feedbackMotion;
+        private ButtonFeedbackTarget feedbackRest;
+        private ButtonFeedbackMotions feedbackMotions;
         private bool isPressed;
 
         public bool Interactable
@@ -40,14 +39,13 @@ namespace Framework.UI.Buttons
         protected virtual void Awake()
         {
             feedbackTarget = feedbackTarget != null ? feedbackTarget : (RectTransform)transform;
-            restScale = feedbackTarget.localScale;
+            feedbackRest = new ButtonFeedbackTarget(feedbackTarget);
         }
 
         protected virtual void OnDisable()
         {
             isPressed = false;
-            feedbackMotion.TryCancel();
-            feedbackTarget.localScale = restScale;
+            feedbackMotions.CancelAndReset(feedbackRest);
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -100,10 +98,16 @@ namespace Framework.UI.Buttons
                 return;
             }
 
-            feedbackMotion.TryCancel();
-            feedbackMotion = pressed
-                ? feedback.PlayPress(feedbackTarget, restScale)
-                : feedback.PlayRelease(feedbackTarget, restScale);
+            feedbackMotions.Cancel();
+
+            if (pressed)
+            {
+                feedback.PlayPress(feedbackRest, ref feedbackMotions);
+            }
+            else
+            {
+                feedback.PlayRelease(feedbackRest, ref feedbackMotions);
+            }
         }
     }
 }

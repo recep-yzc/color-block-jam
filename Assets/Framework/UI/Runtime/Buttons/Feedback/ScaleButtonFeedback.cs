@@ -1,9 +1,11 @@
 using LitMotion;
-using LitMotion.Extensions;
 using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
+    /// <summary>
+    /// Shrinks while pressed and springs back on release.
+    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Scale", fileName = "ScaleButtonFeedback")]
     public sealed class ScaleButtonFeedback : ButtonFeedback
     {
@@ -18,20 +20,14 @@ namespace Framework.UI.Buttons
         [SerializeField, Min(0.01f)] private float releaseDuration = 0.25f;
         [SerializeField] private Ease releaseEase = Ease.OutBack;
 
-        public override MotionHandle PlayPress(RectTransform target, Vector3 restScale)
+        public override void PlayPress(in ButtonFeedbackTarget target, ref ButtonFeedbackMotions motions)
         {
-            return LMotion.Create(target.localScale, restScale * pressedScale, pressDuration)
-                .WithEase(pressEase)
-                .WithScheduler(UIMotion.Scheduler)
-                .BindToLocalScale(target);
+            motions.Scale = ScaleTo(target.Transform, target.RestScale * pressedScale, pressDuration, pressEase);
         }
 
-        public override MotionHandle PlayRelease(RectTransform target, Vector3 restScale)
+        public override void PlayRelease(in ButtonFeedbackTarget target, ref ButtonFeedbackMotions motions)
         {
-            return LMotion.Create(target.localScale, restScale, releaseDuration)
-                .WithEase(releaseEase)
-                .WithScheduler(UIMotion.Scheduler)
-                .BindToLocalScale(target);
+            motions.Scale = ScaleTo(target.Transform, target.RestScale, releaseDuration, releaseEase);
         }
     }
 }

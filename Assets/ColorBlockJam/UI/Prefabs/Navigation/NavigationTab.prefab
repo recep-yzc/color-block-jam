@@ -248,6 +248,7 @@ MonoBehaviour:
   icon: {fileID: 6431660508190118522}
   selectedLabel: {fileID: 8649195781520329247}
   isLocked: 0
+  separator: {fileID: 7292491435715538320}
 --- !u!1 &8649195781520329247
 GameObject:
   m_ObjectHideFlags: 0

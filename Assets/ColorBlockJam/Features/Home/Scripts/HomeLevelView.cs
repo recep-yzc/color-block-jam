@@ -17,13 +17,31 @@ namespace ColorBlockJam.Home
         [Tooltip("Parent of the level tiles. The lowest tile shows the current level, the ones above it the next levels.")]
         [SerializeField] private RectTransform pathNodesRoot;
 
+        private int currentLevel;
+        private bool isStarted;
+
         public ActionButton PlayButton => playButton;
+
+        private void Start()
+        {
+            isStarted = true;
+            NumberTiles();
+        }
 
         public void SetLevel(int level)
         {
+            currentLevel = level;
             levelLabel.SetText("Level {0}", level);
 
-            // Presenters run before the first layout pass, so place the tiles before measuring them.
+            // Layout groups only work after OnEnable, so tiles are measured from Start on.
+            if (isStarted)
+            {
+                NumberTiles();
+            }
+        }
+
+        private void NumberTiles()
+        {
             LayoutRebuilder.ForceRebuildLayoutImmediate(pathNodesRoot);
 
             var nodes = pathNodesRoot.GetComponentsInChildren<LevelPathNodeView>(true);
@@ -31,7 +49,7 @@ namespace ColorBlockJam.Home
 
             for (var i = 0; i < nodes.Length; i++)
             {
-                nodes[i].SetLevel(level + i);
+                nodes[i].SetLevel(currentLevel + i);
             }
         }
 

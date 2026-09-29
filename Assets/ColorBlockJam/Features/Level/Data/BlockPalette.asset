@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74c2a0cac23cfd74ba5bbdebd804a6c1, type: 3}
+  m_Name: BlockPalette
+  m_EditorClassIdentifier: 
+  entries:
+  - name: Red
+    color: {r: 0.93333334, g: 0.23137255, b: 0.2627451, a: 1}
+  - name: Orange
+    color: {r: 0.98039216, g: 0.54901963, b: 0.14117648, a: 1}
+  - name: Yellow
+    color: {r: 0.9843137, g: 0.81960785, b: 0.15686275, a: 1}
+  - name: Lime
+    color: {r: 0.6039216, g: 0.85882354, b: 0.20784314, a: 1}
+  - name: Green
+    color: {r: 0.13333334, g: 0.7058824, b: 0.3529412, a: 1}
+  - name: Cyan
+    color: {r: 0.17254902, g: 0.79607844, b: 0.91764706, a: 1}
+  - name: Blue
+    color: {r: 0.18431373, g: 0.40784314, b: 0.8901961, a: 1}
+  - name: Purple
+    color: {r: 0.5568628, g: 0.29411766, b: 0.8901961, a: 1}
+  - name: Pink
+    color: {r: 0.9490196, g: 0.36078432, b: 0.70980394, a: 1}
+  - name: White
+    color: {r: 0.9529412, g: 0.9529412, b: 0.9529412, a: 1}

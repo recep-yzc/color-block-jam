@@ -6,12 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/_Project/Scenes/Splash.unity
+    path: Assets/ColorBlockJam/Scenes/Splash.unity
     guid: c2a4cfec8563ad242969518e1541c547
   - enabled: 1
-    path: Assets/_Project/Scenes/Main.unity
+    path: Assets/ColorBlockJam/Scenes/Main.unity
     guid: 03fef744fe2af4d4cb36fa97b45d16d9
   - enabled: 1
-    path: Assets/_Project/Scenes/Gameplay.unity
+    path: Assets/ColorBlockJam/Scenes/Gameplay.unity
     guid: fda77680d959e7d4692fa483a0ea9139
   m_configObjects: {}

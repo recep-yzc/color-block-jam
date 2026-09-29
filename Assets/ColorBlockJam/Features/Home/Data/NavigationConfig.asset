@@ -24,7 +24,10 @@ MonoBehaviour:
   edgeResistance: 0.3
   pageTransitionDuration: 0.3
   pageTransitionEase: 8
-  selectedTabIconScale: 1.3
-  selectedTabIconLift: 40
+  selectedTabIconScale: 1.5
+  selectedTabIconLift: 55
+  selectedTabLabelScale: 1
+  selectedTabLabelLift: 0
+  selectedTabExtraWidth: 50
   tabTransitionDuration: 0.2
   tabTransitionEase: 26

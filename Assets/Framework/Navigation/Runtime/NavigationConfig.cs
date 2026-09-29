@@ -29,10 +29,23 @@ namespace Framework.Navigation
         [SerializeField, Min(0.01f)] private float pageTransitionDuration = 0.3f;
         [SerializeField] private Ease pageTransitionEase = Ease.OutCubic;
 
-        [Header("Tabs")]
-        [SerializeField, Min(1f)] private float selectedTabIconScale = 1.3f;
+        [Header("Selected Tab Icon")]
+        [Tooltip("Scale of the icon of the selected tab.")]
+        [SerializeField, Min(0.1f)] private float selectedTabIconScale = 1.3f;
         [Tooltip("How far the icon of the selected tab moves up, in canvas units.")]
         [SerializeField] private float selectedTabIconLift = 40f;
+
+        [Header("Selected Tab Label")]
+        [Tooltip("Scale of the label of the selected tab.")]
+        [SerializeField, Min(0.1f)] private float selectedTabLabelScale = 1f;
+        [Tooltip("How far the label of the selected tab moves up, in canvas units.")]
+        [SerializeField] private float selectedTabLabelLift;
+
+        [Header("Selected Tab Width")]
+        [Tooltip("Extra width of the selected tab, in canvas units. The other tabs share the rest of the bar.")]
+        [SerializeField, Min(0f)] private float selectedTabExtraWidth;
+
+        [Header("Tab Transition")]
         [SerializeField, Min(0.01f)] private float tabTransitionDuration = 0.2f;
         [SerializeField] private Ease tabTransitionEase = Ease.OutBack;
 
@@ -48,6 +61,9 @@ namespace Framework.Navigation
 
         public float SelectedTabIconScale => selectedTabIconScale;
         public float SelectedTabIconLift => selectedTabIconLift;
+        public float SelectedTabLabelScale => selectedTabLabelScale;
+        public float SelectedTabLabelLift => selectedTabLabelLift;
+        public float SelectedTabExtraWidth => selectedTabExtraWidth;
         public float TabTransitionDuration => tabTransitionDuration;
         public Ease TabTransitionEase => tabTransitionEase;
 

@@ -10,6 +10,7 @@ namespace Framework.Navigation
     /// <summary>
     /// A button in the <see cref="TabBar"/> that opens the page with the same id.
     /// Drop the prefab under the tab bar and pick its id; the tab bar places it.
+    /// A locked tab keeps its place in the order but only gives touch feedback, so it needs no page.
     /// </summary>
     public sealed class NavigationTab : ButtonBase, INavigationItem
     {
@@ -17,6 +18,8 @@ namespace Framework.Navigation
         [SerializeField] private RectTransform icon;
         [Tooltip("Optional. Shown only while the tab is selected.")]
         [SerializeField] private GameObject selectedLabel;
+        [Tooltip("A locked tab does not open a page.")]
+        [SerializeField] private bool isLocked;
 
         private Vector2 iconRestPosition;
         private MotionHandle iconScaleMotion;
@@ -72,7 +75,10 @@ namespace Framework.Navigation
 
         protected override void OnClick()
         {
-            Clicked?.Invoke(this);
+            if (!isLocked)
+            {
+                Clicked?.Invoke(this);
+            }
         }
     }
 }

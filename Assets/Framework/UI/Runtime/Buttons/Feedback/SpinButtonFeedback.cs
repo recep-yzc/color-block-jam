@@ -1,0 +1,35 @@
+using LitMotion;
+using UnityEngine;
+
+namespace Framework.UI.Buttons
+{
+    /// <summary>
+    /// Winds up while pressed and spins one full turn on release.
+    /// </summary>
+    [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Spin", fileName = "SpinButtonFeedback")]
+    public sealed class SpinButtonFeedback : ButtonFeedback
+    {
+        [SerializeField, Range(0.5f, 1f)] private float pressedScale = 0.88f;
+        [Tooltip("Wind-up angle while pressed, in degrees, against the spin direction.")]
+        [SerializeField] private float windUpAngle = 25f;
+        [SerializeField, Min(0.01f)] private float pressDuration = 0.1f;
+        [Tooltip("True spins clockwise.")]
+        [SerializeField] private bool clockwise = true;
+        [SerializeField, Min(0.01f)] private float spinDuration = 0.45f;
+        [SerializeField] private Ease spinEase = Ease.OutCubic;
+
+        private float Direction => clockwise ? -1f : 1f;
+
+        public override void PlayPress(in ButtonFeedbackTarget target, ref ButtonFeedbackMotions motions)
+        {
+            motions.Scale = ScaleTo(target.Transform, target.RestScale * pressedScale, pressDuration, Ease.OutQuad);
+            motions.Rotation = RotateTo(target.Transform, target.RestAngle - Direction * windUpAngle, pressDuration, Ease.OutQuad);
+        }
+
+        public override void PlayRelease(in ButtonFeedbackTarget target, ref ButtonFeedbackMotions motions)
+        {
+            motions.Scale = ScaleTo(target.Transform, target.RestScale, spinDuration, Ease.OutBack);
+            motions.Rotation = RotateTo(target.Transform, target.RestAngle + Direction * 360f, spinDuration, spinEase);
+        }
+    }
+}

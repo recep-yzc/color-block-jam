@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1d01203f5260df439dae8a715af56d9, type: 3}
+  m_Name: JellyFeedback
+  m_EditorClassIdentifier: 
+  squash: {x: 1.12, y: 0.86}
+  pressDuration: 0.1
+  wobble: {x: -0.1, y: 0.14}
+  wobbleDuration: 0.5
+  wobbleFrequency: 5

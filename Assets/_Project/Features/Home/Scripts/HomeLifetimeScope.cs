@@ -1,4 +1,6 @@
+using ColorBlockJam.Settings;
 using ColorBlockJam.Shared.Navigation;
+using ColorBlockJam.Shared.UI.Popups;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -13,14 +15,21 @@ namespace ColorBlockJam.Home
         [SerializeField] private NavigationConfig navigationConfig;
         [SerializeField] private PageNavigator pageNavigator;
         [SerializeField] private TabBar tabBar;
+        [SerializeField] private HomeHudView homeHud;
+        [SerializeField] private PopupLayer popupLayer;
 
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(navigationConfig);
             builder.RegisterComponent(pageNavigator);
             builder.RegisterComponent(tabBar);
-
             builder.RegisterEntryPoint<NavigationPresenter>();
+
+            builder.RegisterComponent(homeHud);
+            builder.RegisterEntryPoint<HomeHudPresenter>();
+
+            builder.RegisterPopupLayer(popupLayer);
+            builder.RegisterEntryPoint<SettingsPopupPresenter>();
         }
     }
 }

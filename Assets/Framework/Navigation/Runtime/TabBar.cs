@@ -74,6 +74,7 @@ namespace Framework.Navigation
                 selectedTab.SetSelected(true, config, instant);
             }
 
+            UpdateSeparators();
             ResizeTabs(instant);
         }
 
@@ -109,6 +110,17 @@ namespace Framework.Navigation
         private void OnDestroy()
         {
             resizeMotion.TryCancel();
+        }
+
+        // A separator sits on the right edge of its tab, so the selected tab hides its own and its left neighbour's.
+        private void UpdateSeparators()
+        {
+            for (var i = 0; i < tabs.Count; i++)
+            {
+                var isLast = i == tabs.Count - 1;
+                var touchesSelection = tabs[i] == selectedTab || (!isLast && tabs[i + 1] == selectedTab);
+                tabs[i].SetSeparatorVisible(!isLast && !touchesSelection);
+            }
         }
 
         private void ResizeTabs(bool instant)

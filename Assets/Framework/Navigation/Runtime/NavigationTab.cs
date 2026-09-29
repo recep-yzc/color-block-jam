@@ -20,6 +20,8 @@ namespace Framework.Navigation
         [SerializeField] private GameObject selectedLabel;
         [Tooltip("A locked tab does not open a page.")]
         [SerializeField] private bool isLocked;
+        [Tooltip("Optional. Divider on the right edge. The tab bar hides it next to the selected tab and after the last tab.")]
+        [SerializeField] private GameObject separator;
 
         private Vector2 iconRestPosition;
         private Vector2 labelRestPosition;
@@ -72,6 +74,14 @@ namespace Framework.Navigation
                 selected ? config.SelectedTabLabelScale : 1f,
                 selected ? config.SelectedTabLabelLift : 0f,
                 config, instant || !selected);
+        }
+
+        public void SetSeparatorVisible(bool visible)
+        {
+            if (separator != null)
+            {
+                separator.SetActive(visible);
+            }
         }
 
         private static void Animate(RectTransform target, Vector2 restPosition, ref MotionHandle scaleMotion, ref MotionHandle liftMotion,

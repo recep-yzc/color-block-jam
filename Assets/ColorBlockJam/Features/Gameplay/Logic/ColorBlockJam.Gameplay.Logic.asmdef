@@ -1,0 +1,16 @@
+{
+    "name": "ColorBlockJam.Gameplay.Logic",
+    "rootNamespace": "ColorBlockJam.Gameplay.Logic",
+    "references": [
+        "ColorBlockJam.Level"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

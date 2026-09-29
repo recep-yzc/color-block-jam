@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: NavigationConfig
   m_EditorClassIdentifier: 
   pageOrder:
+  - locked_left
   - shop
   - home
-  - leaderboard
+  - collection
+  - locked_right
   defaultPageId: home
   swipeDistanceThreshold: 0.2
   swipeSpeedThreshold: 1500

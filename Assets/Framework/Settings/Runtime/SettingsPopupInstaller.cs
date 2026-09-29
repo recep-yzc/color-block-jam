@@ -1,20 +1,11 @@
-using Framework.Core.Installers;
-using UnityEngine;
-using VContainer;
-using VContainer.Unity;
+using Framework.UI.Popups;
 
 namespace Framework.Settings
 {
     /// <summary>
     /// Put on the settings popup prefab, next to its InstallerScope. Gives the popup its presenter.
     /// </summary>
-    [RequireComponent(typeof(SettingsPopup))]
-    public sealed class SettingsPopupInstaller : MonoInstaller
+    public sealed class SettingsPopupInstaller : PopupPresenterInstaller<SettingsPopup, SettingsPopupPresenter>
     {
-        public override void Install(IContainerBuilder builder)
-        {
-            builder.RegisterComponent(GetComponent<SettingsPopup>());
-            builder.RegisterEntryPoint<SettingsPopupPresenter>();
-        }
     }
 }

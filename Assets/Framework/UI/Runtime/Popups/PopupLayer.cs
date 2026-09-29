@@ -1,20 +1,16 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Framework.UI.Popups
 {
     /// <summary>
-    /// Scene root of the popups. Drop popup prefabs under it; they are registered by type automatically.
+    /// Scene parent of the popup instances and their backdrop.
     /// It has its own canvas, so popup animations do not rebuild the rest of the screen.
     /// </summary>
     public sealed class PopupLayer : MonoBehaviour
     {
         [SerializeField] private PopupBackdrop backdrop;
 
-        private Popup[] popups;
-
         public PopupBackdrop Backdrop => backdrop;
-        public IReadOnlyList<Popup> Popups => popups ??= GetComponentsInChildren<Popup>(true);
 
         /// <summary>Puts the popup on top of the others and the backdrop right below it.</summary>
         public void BringToFront(Popup popup)

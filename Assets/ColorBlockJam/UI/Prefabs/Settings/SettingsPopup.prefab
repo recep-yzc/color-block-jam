@@ -591,6 +591,8 @@ GameObject:
   - component: {fileID: 7526141269152434684}
   - component: {fileID: 1937651838725497278}
   - component: {fileID: 3520381107686963961}
+  - component: {fileID: 2631049865284804076}
+  - component: {fileID: 568225114664457767}
   m_Layer: 5
   m_Name: SettingsPopup
   m_TagString: Untagged
@@ -647,6 +649,36 @@ MonoBehaviour:
   hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
   closeOnBackdropClick: 1
   closeOnBackButton: 1
+  destroyOnHide: 0
+--- !u!114 &2631049865284804076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8836521097755188101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e64fad24db076ba478194488e6bf34e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  parentReference:
+    TypeName: 
+  autoRun: 1
+  autoInjectGameObjects: []
+  assetInstallers: []
+--- !u!114 &568225114664457767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8836521097755188101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 739231164522d984f9c23e60c905a543, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &3044147756876466908
 PrefabInstance:
   m_ObjectHideFlags: 0

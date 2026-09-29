@@ -5,15 +5,16 @@ using VContainer;
 namespace Framework.UI.Popups
 {
     /// <summary>
-    /// Adds the popup service for the popups under <see cref="layer"/> to the scene.
+    /// Adds the popup service to the scene. Popups from <see cref="catalog"/> open under <see cref="layer"/>.
     /// </summary>
     public sealed class PopupInstaller : MonoInstaller
     {
         [SerializeField] private PopupLayer layer;
+        [SerializeField] private PopupCatalog catalog;
 
         public override void Install(IContainerBuilder builder)
         {
-            builder.RegisterPopupLayer(layer);
+            builder.RegisterPopups(layer, catalog);
         }
     }
 }

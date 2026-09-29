@@ -2,20 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Framework.UI.Views;
 using UnityEngine;
+using VContainer;
 using VContainer.Unity;
+using Object = UnityEngine.Object;
 
 namespace Framework.UI.Popups
 {
     public sealed class PopupService : IPopupService, IInitializable, ITickable, IDisposable
     {
         private readonly PopupLayer layer;
-        private readonly Dictionary<Type, Popup> popupsByType = new();
+        private readonly PopupCatalog catalog;
+        private readonly LifetimeScope ownerScope;
+        private readonly Dictionary<Type, Popup> instances = new();
         private readonly List<Popup> openPopups = new();
 
-        public PopupService(PopupLayer layer)
+        public PopupService(PopupLayer layer, PopupCatalog catalog, IObjectResolver resolver)
         {
             this.layer = layer;
+            this.catalog = catalog;
+
+            // The scope that built this service. Popups with their own scope become its children,
+            // so their presenters can use the scene's services.
+            ownerScope = resolver.ApplicationOrigin as LifetimeScope;
         }
 
         public bool HasOpenPopup => openPopups.Count > 0;
@@ -24,25 +34,18 @@ namespace Framework.UI.Popups
 
         public void Initialize()
         {
-            foreach (var popup in layer.Popups)
-            {
-                popupsByType.Add(popup.GetType(), popup);
-                popup.CloseRequested += OnCloseRequested;
-                popup.HideImmediate();
-            }
-
             layer.Backdrop.Clicked += OnBackdropClicked;
             layer.Backdrop.HideImmediate();
         }
 
         public void Dispose()
         {
-            foreach (var popup in layer.Popups)
+            layer.Backdrop.Clicked -= OnBackdropClicked;
+
+            foreach (var popup in instances.Values)
             {
                 popup.CloseRequested -= OnCloseRequested;
             }
-
-            layer.Backdrop.Clicked -= OnBackdropClicked;
         }
 
         public void Tick()
@@ -56,12 +59,14 @@ namespace Framework.UI.Popups
 
         public UniTask ShowAsync<TPopup>(CancellationToken cancellationToken = default) where TPopup : Popup
         {
-            return ShowAsync(Get<TPopup>(), cancellationToken);
+            return ShowAsync(GetOrCreate(typeof(TPopup)), cancellationToken);
         }
 
         public UniTask HideAsync<TPopup>(CancellationToken cancellationToken = default) where TPopup : Popup
         {
-            return HideAsync(Get<TPopup>(), cancellationToken);
+            return instances.TryGetValue(typeof(TPopup), out var popup)
+                ? HideAsync(popup, cancellationToken)
+                : UniTask.CompletedTask;
         }
 
         private async UniTask ShowAsync(Popup popup, CancellationToken cancellationToken)
@@ -95,16 +100,37 @@ namespace Framework.UI.Popups
             }
 
             await popup.HideAsync(cancellationToken);
+
+            // Skip when the popup was opened again during its hide transition.
+            if (popup.DestroyOnHide && popup.State == ViewState.Hidden)
+            {
+                Destroy(popup);
+            }
         }
 
-        private Popup Get<TPopup>() where TPopup : Popup
+        private Popup GetOrCreate(Type popupType)
         {
-            if (popupsByType.TryGetValue(typeof(TPopup), out var popup))
+            if (instances.TryGetValue(popupType, out var popup))
             {
                 return popup;
             }
 
-            throw new InvalidOperationException($"There is no {typeof(TPopup).Name} under {layer.name}. Add its prefab to the popup layer.");
+            using (LifetimeScope.EnqueueParent(ownerScope))
+            {
+                popup = Object.Instantiate(catalog.GetPrefab(popupType), layer.transform);
+            }
+
+            popup.HideImmediate();
+            popup.CloseRequested += OnCloseRequested;
+            instances.Add(popupType, popup);
+            return popup;
+        }
+
+        private void Destroy(Popup popup)
+        {
+            instances.Remove(popup.GetType());
+            popup.CloseRequested -= OnCloseRequested;
+            Object.Destroy(popup.gameObject);
         }
 
         private void OnCloseRequested(Popup popup)

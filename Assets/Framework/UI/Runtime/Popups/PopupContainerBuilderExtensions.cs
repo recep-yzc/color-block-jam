@@ -6,18 +6,13 @@ namespace Framework.UI.Popups
     public static class PopupContainerBuilderExtensions
     {
         /// <summary>
-        /// Registers the popup service and every popup under <paramref name="layer"/> by its own type,
-        /// so presenters can ask for their popup directly.
+        /// Registers the popup service that opens the popups of <paramref name="catalog"/> under <paramref name="layer"/>.
         /// </summary>
-        public static void RegisterPopupLayer(this IContainerBuilder builder, PopupLayer layer)
+        public static void RegisterPopups(this IContainerBuilder builder, PopupLayer layer, PopupCatalog catalog)
         {
             builder.RegisterComponent(layer);
+            builder.RegisterInstance(catalog);
             builder.RegisterEntryPoint<PopupService>().As<IPopupService>();
-
-            foreach (var popup in layer.Popups)
-            {
-                builder.RegisterInstance(popup).As(popup.GetType());
-            }
         }
     }
 }

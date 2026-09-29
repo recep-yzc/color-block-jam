@@ -1,8 +1,9 @@
 using System;
+using ColorBlockJam.Shared.UI;
+using ColorBlockJam.Shared.UI.Buttons;
 using LitMotion;
 using LitMotion.Extensions;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace ColorBlockJam.Shared.Navigation
 {
@@ -10,8 +11,7 @@ namespace ColorBlockJam.Shared.Navigation
     /// A button in the <see cref="TabBar"/> that opens the page with the same id.
     /// Drop the prefab under the tab bar and pick its id; the tab bar places it.
     /// </summary>
-    [RequireComponent(typeof(RectTransform))]
-    public sealed class NavigationTab : MonoBehaviour, INavigationItem, IPointerClickHandler
+    public sealed class NavigationTab : ButtonBase, INavigationItem
     {
         [SerializeField, NavigationId] private string pageId;
         [SerializeField] private RectTransform icon;
@@ -27,8 +27,9 @@ namespace ColorBlockJam.Shared.Navigation
         public string PageId => pageId;
         public RectTransform RectTransform => (RectTransform)transform;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             iconRestPosition = icon.anchoredPosition;
         }
 
@@ -36,11 +37,6 @@ namespace ColorBlockJam.Shared.Navigation
         {
             iconScaleMotion.TryCancel();
             iconLiftMotion.TryCancel();
-        }
-
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            Clicked?.Invoke(this);
         }
 
         public void SetSelected(bool selected, NavigationConfig config, bool instant)
@@ -65,13 +61,18 @@ namespace ColorBlockJam.Shared.Navigation
 
             iconScaleMotion = LMotion.Create(icon.localScale, Vector3.one * targetScale, config.TabTransitionDuration)
                 .WithEase(config.TabTransitionEase)
-                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
+                .WithScheduler(UIMotion.Scheduler)
                 .BindToLocalScale(icon);
 
             iconLiftMotion = LMotion.Create(icon.anchoredPosition.y, targetY, config.TabTransitionDuration)
                 .WithEase(config.TabTransitionEase)
-                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
+                .WithScheduler(UIMotion.Scheduler)
                 .BindToAnchoredPositionY(icon);
+        }
+
+        protected override void OnClick()
+        {
+            Clicked?.Invoke(this);
         }
     }
 }

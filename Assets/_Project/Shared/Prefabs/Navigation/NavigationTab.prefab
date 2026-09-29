@@ -165,6 +165,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae95bcbea4be2c944ac4dddf049eef6d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  interactable: 1
+  feedback: {fileID: 11400000, guid: bbcfac1c233d74645978a0eb564d9e91, type: 2}
+  feedbackTarget: {fileID: 0}
   pageId: home
   icon: {fileID: 6431660508190118522}
   selectedLabel: {fileID: 8649195781520329247}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ColorBlockJam.Shared.UI;
 using LitMotion;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -162,7 +163,7 @@ namespace ColorBlockJam.Shared.Navigation
 
             transition = LMotion.Create(content.anchoredPosition.x, target, config.PageTransitionDuration)
                 .WithEase(config.PageTransitionEase)
-                .WithScheduler(MotionScheduler.UpdateIgnoreTimeScale)
+                .WithScheduler(UIMotion.Scheduler)
                 .Bind(this, static (position, navigator) => navigator.SetContentPosition(position));
         }
 

@@ -3,6 +3,7 @@ using Framework.UI.Buttons;
 using Framework.UI.Views;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ColorBlockJam.Home
 {
@@ -22,13 +23,21 @@ namespace ColorBlockJam.Home
         {
             levelLabel.SetText("Level {0}", level);
 
+            // Presenters run before the first layout pass, so place the tiles before measuring them.
+            LayoutRebuilder.ForceRebuildLayoutImmediate(pathNodesRoot);
+
             var nodes = pathNodesRoot.GetComponentsInChildren<LevelPathNodeView>(true);
-            Array.Sort(nodes, (a, b) => a.transform.position.y.CompareTo(b.transform.position.y));
+            Array.Sort(nodes, (a, b) => HeightInRoot(a).CompareTo(HeightInRoot(b)));
 
             for (var i = 0; i < nodes.Length; i++)
             {
                 nodes[i].SetLevel(level + i);
             }
+        }
+
+        private float HeightInRoot(Component node)
+        {
+            return pathNodesRoot.InverseTransformPoint(node.transform.position).y;
         }
     }
 }

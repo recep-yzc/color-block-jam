@@ -18,6 +18,10 @@ namespace ColorBlockJam.Shared.Navigation
         private readonly List<NavigationTab> tabs = new();
         private NavigationConfig config;
         private NavigationTab selectedTab;
+        private int highlightFrom;
+        private int highlightTo;
+        private float highlightBlend;
+        private bool isLayoutDirty;
 
         public event Action<string> TabClicked;
 
@@ -53,7 +57,10 @@ namespace ColorBlockJam.Shared.Navigation
             }
 
             selectedTab = tab;
-            selectedTab?.SetSelected(true, config, instant);
+            if (selectedTab != null)
+            {
+                selectedTab.SetSelected(true, config, instant);
+            }
         }
 
         /// <summary>
@@ -61,13 +68,39 @@ namespace ColorBlockJam.Shared.Navigation
         /// </summary>
         public void MoveHighlight(int fromIndex, int toIndex, float blend)
         {
-            var from = tabs[fromIndex].RectTransform;
-            var to = tabs[toIndex].RectTransform;
+            highlightFrom = fromIndex;
+            highlightTo = toIndex;
+            highlightBlend = blend;
+            ApplyHighlight();
+        }
+
+        private void OnRectTransformDimensionsChange()
+        {
+            // The layout group moves the tabs later in this frame; place the highlight after it.
+            isLayoutDirty = tabs.Count > 0;
+        }
+
+        private void LateUpdate()
+        {
+            if (!isLayoutDirty)
+            {
+                return;
+            }
+
+            isLayoutDirty = false;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(tabContainer);
+            ApplyHighlight();
+        }
+
+        private void ApplyHighlight()
+        {
+            var from = tabs[highlightFrom].RectTransform;
+            var to = tabs[highlightTo].RectTransform;
 
             var position = selectionHighlight.localPosition;
-            position.x = Mathf.Lerp(from.localPosition.x, to.localPosition.x, blend);
+            position.x = Mathf.Lerp(from.localPosition.x, to.localPosition.x, highlightBlend);
             selectionHighlight.localPosition = position;
-            selectionHighlight.sizeDelta = new Vector2(Mathf.Lerp(from.rect.width, to.rect.width, blend), selectionHighlight.sizeDelta.y);
+            selectionHighlight.sizeDelta = new Vector2(Mathf.Lerp(from.rect.width, to.rect.width, highlightBlend), selectionHighlight.sizeDelta.y);
         }
 
         private void OnTabClicked(NavigationTab tab)

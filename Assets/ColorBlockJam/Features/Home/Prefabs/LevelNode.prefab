@@ -456,6 +456,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   numberLabel: {fileID: 861406084082939238}
+  lockIcon: {fileID: 1610879679463235876}
+  background: {fileID: 7726214328438628234}
+  lockedTint: {r: 0.6, g: 0.6, b: 0.75, a: 1}
 --- !u!1 &2320393701169468503
 GameObject:
   m_ObjectHideFlags: 0

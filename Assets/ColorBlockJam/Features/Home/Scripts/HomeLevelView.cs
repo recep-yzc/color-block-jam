@@ -25,7 +25,7 @@ namespace ColorBlockJam.Home
         private void Start()
         {
             isStarted = true;
-            NumberTiles();
+            ShowTiles();
         }
 
         public void SetLevel(int level)
@@ -36,20 +36,21 @@ namespace ColorBlockJam.Home
             // Layout groups only work after OnEnable, so tiles are measured from Start on.
             if (isStarted)
             {
-                NumberTiles();
+                ShowTiles();
             }
         }
 
-        private void NumberTiles()
+        private void ShowTiles()
         {
             LayoutRebuilder.ForceRebuildLayoutImmediate(pathNodesRoot);
 
             var nodes = pathNodesRoot.GetComponentsInChildren<LevelPathNodeView>(true);
             Array.Sort(nodes, (a, b) => HeightInRoot(a).CompareTo(HeightInRoot(b)));
 
+            // The lowest tile is the current level; the ones above it are not reached yet.
             for (var i = 0; i < nodes.Length; i++)
             {
-                nodes[i].SetLevel(currentLevel + i);
+                nodes[i].Show(currentLevel + i, isLocked: i > 0);
             }
         }
 

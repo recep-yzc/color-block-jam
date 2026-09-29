@@ -6,7 +6,8 @@
         "VContainer",
         "UniTask",
         "UnityEngine.UI",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "ColorBlockJam.Settings"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

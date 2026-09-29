@@ -1,5 +1,7 @@
+using ColorBlockJam.Core.Persistence;
 using ColorBlockJam.Core.SceneManagement;
 using ColorBlockJam.Core.Startup;
+using ColorBlockJam.Settings;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -19,6 +21,10 @@ namespace ColorBlockJam.Boot
             builder.RegisterInstance(appSettings);
 
             builder.Register<SceneLoader>(Lifetime.Singleton).As<ISceneLoader>();
+            builder.Register<PlayerPrefsStorage>(Lifetime.Singleton).As<IKeyValueStorage>();
+
+            builder.Register<SettingsService>(Lifetime.Singleton).As<ISettingsService>();
+            builder.Register<HapticService>(Lifetime.Singleton).As<IHapticService>();
 
             builder.Register<ApplyAppSettingsTask>(Lifetime.Singleton).As<IStartupTask>();
         }

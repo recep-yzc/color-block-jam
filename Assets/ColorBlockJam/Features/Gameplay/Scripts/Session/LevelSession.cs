@@ -97,6 +97,9 @@ namespace ColorBlockJam.Gameplay
         public LevelData Level { get; }
         public LevelTimer Timer { get; }
         public int LevelNumber => levels.LevelNumber;
+
+        /// <summary>True when the level editor started this level.</summary>
+        public bool IsEditorTest => levels.IsEditorTest;
         public LevelState State { get; private set; }
 
         public void Start()

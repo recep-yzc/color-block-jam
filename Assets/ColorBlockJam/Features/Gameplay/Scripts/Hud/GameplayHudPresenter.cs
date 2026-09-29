@@ -23,7 +23,15 @@ namespace ColorBlockJam.Gameplay
 
         protected override void OnInitialize()
         {
-            View.SetLevel(session.LevelNumber);
+            if (session.IsEditorTest)
+            {
+                View.SetTestLevel();
+            }
+            else
+            {
+                View.SetLevel(session.LevelNumber);
+            }
+
             View.SetDifficulty(session.Level.difficulty);
             View.PauseButton.Clicked += OnPauseClicked;
             View.AutoPlayButton.Clicked += OnAutoPlayClicked;

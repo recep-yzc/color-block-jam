@@ -35,6 +35,12 @@ namespace ColorBlockJam.Gameplay
             levelLabel.SetText("Level {0}", level);
         }
 
+        /// <summary>Shown instead of the level number for a level played from the level editor.</summary>
+        public void SetTestLevel()
+        {
+            levelLabel.text = "Test Level";
+        }
+
         public void SetDifficulty(LevelDifficulty difficulty)
         {
             difficultyLabel.text = difficulty switch

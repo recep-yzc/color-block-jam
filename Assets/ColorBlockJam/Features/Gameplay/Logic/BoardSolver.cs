@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>One straight slide of a block, or a slide out through its door.</summary>
+    /// <summary>
+    /// One straight slide of a block to <see cref="Target"/>, or, when <see cref="Exits"/> is set,
+    /// a slide from <see cref="Target"/> in <see cref="Direction"/> out through its door.
+    /// </summary>
     public readonly struct SolverMove
     {
         public readonly int BlockId;
@@ -21,11 +25,12 @@ namespace ColorBlockJam.Gameplay.Logic
 
     public sealed class SolveResult
     {
-        public SolveResult(bool isSolved, bool isExhausted, IReadOnlyList<SolverMove> moves, int exploredStates)
+        public SolveResult(bool isSolved, bool isExhausted, IReadOnlyList<SolverMove> moves, int repositions, int exploredStates)
         {
             IsSolved = isSolved;
             IsExhausted = isExhausted;
             Moves = moves;
+            Repositions = repositions;
             ExploredStates = exploredStates;
         }
 
@@ -34,7 +39,15 @@ namespace ColorBlockJam.Gameplay.Logic
         /// <summary>True when every reachable state was searched, so an unsolved result is certain.</summary>
         public bool IsExhausted { get; }
 
+        /// <summary>The solution as straight slides, ready to be played back.</summary>
         public IReadOnlyList<SolverMove> Moves { get; }
+
+        /// <summary>
+        /// How many times a block has to be moved out of the way, not toward its door, in the best solution.
+        /// Zero means every block can leave as it is, in some order. This is the level's difficulty.
+        /// </summary>
+        public int Repositions { get; }
+
         public int ExploredStates { get; }
 
         /// <summary>No sequence of moves clears the board from here.</summary>
@@ -42,11 +55,14 @@ namespace ColorBlockJam.Gameplay.Logic
     }
 
     /// <summary>
-    /// Breadth-first search over block positions. A move slides one block in a straight line; any drag path
-    /// is a chain of such slides. Leaving through a door is always taken as soon as it is possible, because
-    /// removing a block can only free space, which keeps the search small.
-    /// Used by the level editor to validate and generate levels, by stuck detection and by auto play.
-    /// The board is left in the state it had before the call.
+    /// Finds the fewest block repositions that clear the board.
+    /// Leaving is never a bad move, because a removed block only frees space; so before every step all blocks that can
+    /// reach their door leave. A step then moves one remaining block to any cell it can reach with the others still.
+    /// The search is breadth-first over those steps, so the found solution needs the fewest repositions.
+    /// Every move can be undone and leaving never hurts, so solvability never changes during play:
+    /// a stuck result means the board was never solvable.
+    /// The board is left in the state it had before the call. The solver keeps no state of its own, so one instance
+    /// can search several boards at once, for example a <see cref="Board.Clone"/> on a worker thread.
     /// </summary>
     public sealed class BoardSolver
     {
@@ -55,138 +71,281 @@ namespace ColorBlockJam.Gameplay.Logic
             public GridPoint[] Positions;
             public bool[] Cleared;
             public int Parent;
-            public SolverMove Move;
+            public int Depth;
+            public List<SolverMove> Moves;
         }
 
         public SolveResult Solve(Board board, int maxStates)
         {
+            // Buffers live per call, so parallel calls share nothing.
+            var expandReach = new ReachMap();
+            var leaveReach = new ReachMap();
             var blocks = board.Blocks;
-            var count = blocks.Count;
-            var start = new Node { Positions = new GridPoint[count], Cleared = new bool[count], Parent = -1 };
-            for (var i = 0; i < count; i++)
-            {
-                start.Positions[i] = blocks[i].Position;
-                start.Cleared[i] = blocks[i].IsCleared;
-            }
+            var original = Capture(board, parent: -1, depth: 0, moves: null);
+
+            var startMoves = new List<SolverMove>();
+            LeaveAll(board, leaveReach, startMoves);
+            var start = Capture(board, parent: -1, depth: 0, startMoves);
 
             var nodes = new List<Node> { start };
-            var visited = new HashSet<string> { Key(start) };
+            var visited = new HashSet<string> { Key(board) };
             var queue = new Queue<int>();
             queue.Enqueue(0);
-            var isSolved = false;
-            var solvedIndex = -1;
+            var solvedIndex = board.IsCleared ? 0 : -1;
             var isOverBudget = false;
-            var children = new List<Node>();
 
-            while (queue.Count > 0)
+            while (solvedIndex < 0 && queue.Count > 0 && !isOverBudget)
             {
                 var index = queue.Dequeue();
                 var node = nodes[index];
                 board.SetState(node.Positions, node.Cleared);
 
-                if (board.IsCleared)
+                for (var b = 0; b < blocks.Count && solvedIndex < 0; b++)
                 {
-                    isSolved = true;
-                    solvedIndex = index;
-                    break;
-                }
-
-                Expand(board, node, index, children);
-                foreach (var child in children)
-                {
-                    if (!visited.Add(Key(child)))
+                    var block = blocks[b];
+                    if (block.IsCleared)
                     {
                         continue;
                     }
 
-                    nodes.Add(child);
-                    queue.Enqueue(nodes.Count - 1);
+                    expandReach.Fill(board, block);
+                    for (var r = 1; r < expandReach.Count; r++)
+                    {
+                        var target = expandReach[r];
+                        board.Move(block, target);
+                        var moves = new List<SolverMove>();
+                        expandReach.AddPath(block.Id, target, moves);
+                        LeaveAll(board, leaveReach, moves);
+
+                        if (visited.Add(Key(board)))
+                        {
+                            nodes.Add(Capture(board, index, node.Depth + 1, moves));
+                            if (board.IsCleared)
+                            {
+                                solvedIndex = nodes.Count - 1;
+                                break;
+                            }
+
+                            queue.Enqueue(nodes.Count - 1);
+                        }
+
+                        board.SetState(node.Positions, node.Cleared);
+                    }
                 }
 
-                if (nodes.Count >= maxStates)
-                {
-                    isOverBudget = true;
-                    break;
-                }
+                isOverBudget = nodes.Count >= maxStates;
             }
 
-            board.SetState(start.Positions, start.Cleared);
+            board.SetState(original.Positions, original.Cleared);
 
-            var moves = new List<SolverMove>();
-            for (var i = solvedIndex; i > 0; i = nodes[i].Parent)
+            var chain = new List<Node>();
+            for (var i = solvedIndex; i >= 0; i = nodes[i].Parent)
             {
-                moves.Add(nodes[i].Move);
+                chain.Add(nodes[i]);
             }
 
-            moves.Reverse();
+            var solution = new List<SolverMove>();
+            for (var i = chain.Count - 1; i >= 0; i--)
+            {
+                solution.AddRange(chain[i].Moves);
+            }
+
+            var isSolved = solvedIndex >= 0;
             var isExhausted = !isSolved && !isOverBudget;
-            return new SolveResult(isSolved, isExhausted, moves, nodes.Count);
+            var repositions = isSolved ? nodes[solvedIndex].Depth : 0;
+            return new SolveResult(isSolved, isExhausted, solution, repositions, nodes.Count);
         }
 
-        private static void Expand(Board board, Node node, int index, List<Node> children)
+        /// <summary>Lets every block that can reach its door leave, until none can.</summary>
+        private static void LeaveAll(Board board, ReachMap reach, List<SolverMove> moves)
         {
-            children.Clear();
-
-            foreach (var block in board.Blocks)
+            bool hasLeft;
+            do
             {
-                if (block.IsCleared)
+                hasLeft = false;
+                foreach (var block in board.Blocks)
                 {
-                    continue;
-                }
-
-                foreach (var direction in Directions.All)
-                {
-                    var offset = direction.ToOffset();
-                    for (var step = 1; ; step++)
+                    if (!block.IsCleared && TryLeave(board, block, reach, moves))
                     {
-                        var target = block.Position + offset * step;
-                        if (board.CanPlace(block, target))
-                        {
-                            children.Add(Child(node, index, block.Id, target, direction, exits: false));
-                            continue;
-                        }
-
-                        if (board.CanPassThrough(block, target - offset, direction))
-                        {
-                            // Leaving is never a bad move, so it is the only one taken from this state.
-                            children.Clear();
-                            children.Add(Child(node, index, block.Id, target, direction, exits: true));
-                            return;
-                        }
-
-                        break;
+                        hasLeft = true;
                     }
                 }
             }
+            while (hasLeft && !board.IsCleared);
         }
 
-        private static Node Child(Node parent, int parentIndex, int blockId, GridPoint target, Direction direction, bool exits)
+        private static bool TryLeave(Board board, BoardBlock block, ReachMap reach, List<SolverMove> moves)
         {
-            var positions = (GridPoint[])parent.Positions.Clone();
-            var cleared = (bool[])parent.Cleared.Clone();
-            positions[blockId] = target;
-            cleared[blockId] = exits;
-
-            return new Node
+            reach.Fill(board, block);
+            for (var r = 0; r < reach.Count; r++)
             {
-                Positions = positions,
-                Cleared = cleared,
-                Parent = parentIndex,
-                Move = new SolverMove(blockId, target, direction, exits)
+                var from = reach[r];
+                foreach (var door in board.Doors)
+                {
+                    // Every way out passes the cell where the block touches the door's side, so only those are tried.
+                    if (door.Color != block.Color || !Touches(board, block, from, door.Side) ||
+                        !board.CanPassThrough(block, from, door.ExitDirection))
+                    {
+                        continue;
+                    }
+
+                    reach.AddPath(block.Id, from, moves);
+                    moves.Add(new SolverMove(block.Id, from, door.ExitDirection, exits: true));
+                    board.Move(block, from);
+                    board.Clear(block);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool Touches(Board board, BoardBlock block, GridPoint position, BoardSide side)
+        {
+            return side switch
+            {
+                BoardSide.Bottom => position.Y + block.MinY == 0,
+                BoardSide.Top => position.Y + block.MaxY == board.Height - 1,
+                BoardSide.Left => position.X + block.MinX == 0,
+                _ => position.X + block.MaxX == board.Width - 1
             };
         }
 
-        private static string Key(Node node)
+        private static Node Capture(Board board, int parent, int depth, List<SolverMove> moves)
         {
-            var chars = new char[node.Positions.Length * 3];
-            for (var i = 0; i < node.Positions.Length; i++)
+            var blocks = board.Blocks;
+            var node = new Node
             {
-                chars[i * 3] = (char)(node.Positions[i].X + 64);
-                chars[i * 3 + 1] = (char)(node.Positions[i].Y + 64);
-                chars[i * 3 + 2] = node.Cleared[i] ? '1' : '0';
+                Positions = new GridPoint[blocks.Count],
+                Cleared = new bool[blocks.Count],
+                Parent = parent,
+                Depth = depth,
+                Moves = moves
+            };
+
+            for (var i = 0; i < blocks.Count; i++)
+            {
+                node.Positions[i] = blocks[i].Position;
+                node.Cleared[i] = blocks[i].IsCleared;
+            }
+
+            return node;
+        }
+
+        private static string Key(Board board)
+        {
+            // Where a cleared block left does not matter, so all its states share one key.
+            var blocks = board.Blocks;
+            var chars = new char[blocks.Count * 2];
+            for (var i = 0; i < blocks.Count; i++)
+            {
+                var isCleared = blocks[i].IsCleared;
+                chars[i * 2] = isCleared ? '#' : (char)(blocks[i].Position.X + 64);
+                chars[i * 2 + 1] = isCleared ? '#' : (char)(blocks[i].Position.Y + 64);
             }
 
             return new string(chars);
+        }
+
+        /// <summary>
+        /// Every board cell one block can reach with the other blocks where they are, in breadth-first order
+        /// (its own cell first), with the step that reached each one. Reused between blocks to avoid allocations.
+        /// </summary>
+        private sealed class ReachMap
+        {
+            private const int Unvisited = -2;
+            private const int Start = -1;
+
+            private readonly List<GridPoint> order = new();
+            private readonly List<(GridPoint to, Direction direction)> path = new();
+            private int[] previous = new int[64];
+            private Direction[] step = new Direction[64];
+            private int originX;
+            private int originY;
+            private int columns;
+            private int rows;
+
+            public int Count => order.Count;
+            public GridPoint this[int index] => order[index];
+
+            public void Fill(Board board, BoardBlock block)
+            {
+                // Only positions with the whole block on the board are indexed.
+                originX = -block.MinX;
+                originY = -block.MinY;
+                columns = board.Width - block.Width + 1;
+                rows = board.Height - block.Height + 1;
+                var size = columns * rows;
+                if (previous.Length < size)
+                {
+                    previous = new int[size];
+                    step = new Direction[size];
+                }
+
+                for (var i = 0; i < size; i++)
+                {
+                    previous[i] = Unvisited;
+                }
+
+                order.Clear();
+                order.Add(block.Position);
+                previous[IndexOf(block.Position)] = Start;
+
+                // Each hop is a whole straight slide, so paths have as few turns as possible and play back naturally.
+                for (var head = 0; head < order.Count; head++)
+                {
+                    var position = order[head];
+                    var positionIndex = IndexOf(position);
+                    foreach (var direction in Directions.All)
+                    {
+                        var offset = direction.ToOffset();
+                        for (var next = position + offset; ; next += offset)
+                        {
+                            var index = IndexOf(next);
+                            if (index < 0 || !board.CanPlace(block, next))
+                            {
+                                break;
+                            }
+
+                            if (previous[index] != Unvisited)
+                            {
+                                continue;
+                            }
+
+                            previous[index] = positionIndex;
+                            step[index] = direction;
+                            order.Add(next);
+                        }
+                    }
+                }
+            }
+
+            /// <summary>Adds the path from the block's cell to <paramref name="target"/> as straight slides.</summary>
+            public void AddPath(int blockId, GridPoint target, List<SolverMove> moves)
+            {
+                path.Clear();
+                for (var index = IndexOf(target); previous[index] != Start; index = previous[index])
+                {
+                    path.Add((PositionOf(index), step[index]));
+                }
+
+                for (var i = path.Count - 1; i >= 0; i--)
+                {
+                    moves.Add(new SolverMove(blockId, path[i].to, path[i].direction, exits: false));
+                }
+            }
+
+            private int IndexOf(GridPoint position)
+            {
+                var column = position.X - originX;
+                var row = position.Y - originY;
+                return column < 0 || row < 0 || column >= columns || row >= rows ? -1 : row * columns + column;
+            }
+
+            private GridPoint PositionOf(int index)
+            {
+                return new GridPoint(index % columns + originX, index / columns + originY);
+            }
         }
     }
 }

@@ -14,6 +14,13 @@ using Object = UnityEngine.Object;
 
 namespace ColorBlockJam.Gameplay
 {
+    internal enum Solvability
+    {
+        Unknown,
+        Solvable,
+        Unsolvable
+    }
+
     public enum LevelState
     {
         Loading,
@@ -25,7 +32,9 @@ namespace ColorBlockJam.Gameplay
 
     /// <summary>
     /// One attempt at one level: builds the board, runs the timer and decides when the level is won or lost.
-    /// The level is lost when time runs out or when no sequence of moves can clear the board any more.
+    /// The level is lost when time runs out, or when the player is stuck: no sequence of moves can clear the board.
+    /// Moves can be undone and leaving only frees space, so whether the board can be cleared never changes during play;
+    /// the solver answers it once, on a worker thread, and asks again only while the answer is unknown.
     /// A restart reloads the scene, so a session never has to reset itself.
     /// </summary>
     public sealed class LevelSession : IStartable, ITickable, IDisposable
@@ -49,6 +58,9 @@ namespace ColorBlockJam.Gameplay
         private readonly List<BlockView> views = new();
         private readonly CancellationTokenSource lifetime = new();
 
+        private Solvability solvability;
+        private bool isSolvabilityChecking;
+        private bool hasPlayerMoved;
         private ColorMaterials blockMaterials;
         private ColorMaterials doorMaterials;
         private Board board;
@@ -109,7 +121,7 @@ namespace ColorBlockJam.Gameplay
             drag.BlockLeft += OnBlockLeft;
 
             SetState(LevelState.Playing);
-            CheckStuck();
+            CheckSolvability();
         }
 
         public void Tick()
@@ -164,23 +176,27 @@ namespace ColorBlockJam.Gameplay
             // The solver gave up within its budget; hand the board back to the player.
             Debug.LogWarning("Auto play found no solution from this board.");
             SetState(LevelState.Playing);
-            CheckStuck();
+            FailIfStuck();
         }
 
         private void OnBlockMoved(BoardBlock block)
         {
-            CheckStuck();
+            hasPlayerMoved = true;
+            FailIfStuck();
         }
 
         private void OnBlockLeft(BoardBlock block, BoardDoor door)
         {
+            hasPlayerMoved = true;
             if (board.IsCleared)
             {
                 Win();
                 return;
             }
 
-            CheckStuck();
+            // Fewer blocks make a smaller search, so an unknown answer may now be found.
+            CheckSolvability();
+            FailIfStuck();
         }
 
         private void OnBlockExited(BlockView view)
@@ -189,17 +205,39 @@ namespace ColorBlockJam.Gameplay
             haptics.Play();
         }
 
-        private void CheckStuck()
+        /// <summary>The player sees the fail popup after trying a move, not the moment the level opens.</summary>
+        private void FailIfStuck()
         {
-            if (State != LevelState.Playing)
+            if (solvability == Solvability.Unsolvable && hasPlayerMoved)
+            {
+                Fail(LevelFailReason.Stuck);
+            }
+        }
+
+        private void CheckSolvability()
+        {
+            if (solvability == Solvability.Unknown && !isSolvabilityChecking && State == LevelState.Playing)
+            {
+                CheckSolvabilityAsync().Forget();
+            }
+        }
+
+        /// <summary>Searches a copy of the board on a worker thread, so the game keeps running while it thinks.</summary>
+        private async UniTaskVoid CheckSolvabilityAsync()
+        {
+            isSolvabilityChecking = true;
+            var snapshot = board.Clone();
+            var (isCanceled, result) = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.StuckSearchBudget),
+                cancellationToken: lifetime.Token).SuppressCancellationThrow();
+            isSolvabilityChecking = false;
+
+            if (isCanceled)
             {
                 return;
             }
 
-            if (solver.Solve(board, config.StuckSearchBudget).IsStuck)
-            {
-                Fail(LevelFailReason.Stuck);
-            }
+            solvability = result.IsSolved ? Solvability.Solvable : result.IsStuck ? Solvability.Unsolvable : Solvability.Unknown;
+            FailIfStuck();
         }
 
         private void Win()

@@ -91,7 +91,9 @@ namespace ColorBlockJam.Tests
             var result = new BoardSolver().Solve(board, 1000);
 
             Assert.IsTrue(result.IsSolved);
-            Assert.AreEqual(2, result.Moves.Count);
+            // Red leaves at once; blue slides to the right edge, then leaves.
+            Assert.AreEqual(3, result.Moves.Count);
+            Assert.AreEqual(0, result.Repositions);
             Assert.AreEqual(2, board.RemainingBlocks, "The solver leaves the board as it was.");
         }
 

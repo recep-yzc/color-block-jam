@@ -46,6 +46,12 @@ namespace ColorBlockJam.Gameplay.Logic
         public int Width => MaxX - MinX + 1;
         public int Height => MaxY - MinY + 1;
 
+        /// <summary>A copy in the same state, for a board copy that can be searched on another thread.</summary>
+        internal BoardBlock Copy()
+        {
+            return new BoardBlock(Id, Color, Position, cells) { IsCleared = IsCleared };
+        }
+
         public bool Contains(GridPoint relativeCell)
         {
             foreach (var cell in cells)

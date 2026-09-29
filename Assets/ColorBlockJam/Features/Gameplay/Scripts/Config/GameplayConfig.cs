@@ -38,10 +38,10 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0f)] private float resultPopupDelay = 0.6f;
 
         [Header("Solver")]
-        [Tooltip("States searched after each move to find out whether the board is stuck.")]
-        [SerializeField, Min(100)] private int stuckSearchBudget = 20000;
+        [Tooltip("States searched to find out whether the board can still be cleared.")]
+        [SerializeField, Min(100)] private int stuckSearchBudget = 30000;
         [Tooltip("States searched to find the auto play solution.")]
-        [SerializeField, Min(100)] private int autoPlaySearchBudget = 400000;
+        [SerializeField, Min(100)] private int autoPlaySearchBudget = 60000;
         [Tooltip("Seconds per cell of an auto play slide.")]
         [SerializeField, Min(0.01f)] private float autoPlayCellDuration = 0.08f;
         [SerializeField, Min(0f)] private float autoPlayPause = 0.12f;

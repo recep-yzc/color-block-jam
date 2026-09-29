@@ -33,6 +33,21 @@ namespace ColorBlockJam.Gameplay.Logic
         public int RemainingBlocks { get; private set; }
         public bool IsCleared => RemainingBlocks == 0;
 
+        /// <summary>
+        /// A board in the same state that shares nothing that changes, so the solver can search it on another thread
+        /// while this one keeps being played.
+        /// </summary>
+        public Board Clone()
+        {
+            var copies = new BoardBlock[blocks.Length];
+            for (var i = 0; i < blocks.Length; i++)
+            {
+                copies[i] = blocks[i].Copy();
+            }
+
+            return new Board(Width, Height, copies, doors);
+        }
+
         public bool IsInside(int x, int y)
         {
             return x >= 0 && y >= 0 && x < Width && y < Height;

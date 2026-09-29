@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using ColorBlockJam.Gameplay.Logic;
 using Cysharp.Threading.Tasks;
-using NVector2 = System.Numerics.Vector2;
 
 namespace ColorBlockJam.Gameplay
 {
@@ -25,7 +24,10 @@ namespace ColorBlockJam.Gameplay
         public async UniTask<bool> PlayAsync(Board board, IReadOnlyList<BlockView> views, Action<BoardBlock, BoardDoor> onLeft,
             CancellationToken cancellationToken)
         {
-            var result = solver.Solve(board, config.AutoPlaySearchBudget);
+            // The search runs on a copy on a worker thread, so the game keeps rendering while it thinks.
+            var snapshot = board.Clone();
+            var result = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.AutoPlaySearchBudget),
+                cancellationToken: cancellationToken);
             if (!result.IsSolved)
             {
                 return false;
@@ -56,17 +58,15 @@ namespace ColorBlockJam.Gameplay
         private static async UniTask LeaveAsync(Board board, BoardBlock block, BlockView view, SolverMove move,
             Action<BoardBlock, BoardDoor> onLeft, CancellationToken cancellationToken)
         {
-            // The exit target is one step past the last cell on the board; slide there first.
-            var lastInside = move.Target - move.Direction.ToOffset();
-            if (lastInside != block.Position)
+            if (move.Target != block.Position)
             {
-                await view.SlideAsync(lastInside, cancellationToken);
-                board.Move(block, lastInside);
+                await view.SlideAsync(move.Target, cancellationToken);
+                board.Move(block, move.Target);
             }
 
-            BlockPlacement.DepthThroughDoor(board, block, new NVector2(move.Target.X, move.Target.Y), out var door);
+            var door = BlockPlacement.ExitDoor(board, block, move.Target, move.Direction);
+            var distance = BlockPlacement.StepsToLeave(board, block, move.Target, move.Direction) + 0.5f;
             board.Clear(block);
-            var distance = BlockPlacement.LengthThroughDoor(block, door.Side) + 0.5f;
             view.ExitAsync(move.Direction, distance, cancellationToken).Forget();
             onLeft(block, door);
         }

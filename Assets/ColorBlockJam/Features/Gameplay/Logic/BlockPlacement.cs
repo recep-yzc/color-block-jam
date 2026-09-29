@@ -79,6 +79,42 @@ namespace ColorBlockJam.Gameplay.Logic
             };
         }
 
+        /// <summary>Cells the block at <paramref name="from"/> travels in <paramref name="direction"/> until it is fully off the board.</summary>
+        public static int StepsToLeave(Board board, BoardBlock block, GridPoint from, Direction direction)
+        {
+            return direction switch
+            {
+                Direction.Down => from.Y + block.MaxY + 1,
+                Direction.Up => board.Height - from.Y - block.MinY,
+                Direction.Left => from.X + block.MaxX + 1,
+                _ => board.Width - from.X - block.MinX
+            };
+        }
+
+        /// <summary>The door the block at <paramref name="from"/> leaves through when it slides in <paramref name="direction"/>.</summary>
+        public static BoardDoor ExitDoor(Board board, BoardBlock block, GridPoint from, Direction direction)
+        {
+            foreach (var cell in block.Cells)
+            {
+                var x = from.X + cell.X;
+                var y = from.Y + cell.Y;
+                var door = direction switch
+                {
+                    Direction.Down => board.DoorBeyond(block, x, -1),
+                    Direction.Up => board.DoorBeyond(block, x, board.Height),
+                    Direction.Left => board.DoorBeyond(block, -1, y),
+                    _ => board.DoorBeyond(block, board.Width, y)
+                };
+
+                if (door != null)
+                {
+                    return door;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>How many cells the block must travel from the board edge to be fully through the door.</summary>
         public static int LengthThroughDoor(BoardBlock block, BoardSide side)
         {

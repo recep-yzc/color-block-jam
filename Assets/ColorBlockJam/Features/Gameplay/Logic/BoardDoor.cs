@@ -22,7 +22,10 @@ namespace ColorBlockJam.Gameplay.Logic
         public int Color { get; }
 
         /// <summary>The direction a block moves to leave the board through this door.</summary>
-        public Direction ExitDirection => Side switch
+        public Direction ExitDirection => ExitDirectionOf(Side);
+
+        /// <summary>The direction a block moves to leave the board through a door on <paramref name="side"/>.</summary>
+        public static Direction ExitDirectionOf(BoardSide side) => side switch
         {
             BoardSide.Bottom => Direction.Down,
             BoardSide.Top => Direction.Up,

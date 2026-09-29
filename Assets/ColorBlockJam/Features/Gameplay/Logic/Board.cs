@@ -104,25 +104,33 @@ namespace ColorBlockJam.Gameplay.Logic
         }
 
         /// <summary>
-        /// True when the block at <paramref name="position"/> is partly beyond a door and every cell is open,
-        /// so it can keep sliding out of the board.
+        /// True when the block, standing on the board at <paramref name="from"/>, can slide in
+        /// <paramref name="direction"/> until it is fully off the board: every cell it sweeps on the way is open for it.
+        /// A shape wider than its door, or one that would scrape a wall on the way out, cannot leave.
         /// </summary>
-        public bool IsLeavingAt(BoardBlock block, GridPoint position)
+        public bool CanPassThrough(BoardBlock block, GridPoint from, Direction direction)
         {
-            var isOutside = false;
-            foreach (var cell in block.Cells)
+            var offset = direction.ToOffset();
+            for (var position = from + offset; ; position += offset)
             {
-                var x = position.X + cell.X;
-                var y = position.Y + cell.Y;
-                if (!IsOpenFor(block, x, y))
+                var isOutside = true;
+                foreach (var cell in block.Cells)
                 {
-                    return false;
+                    var x = position.X + cell.X;
+                    var y = position.Y + cell.Y;
+                    if (!IsOpenFor(block, x, y))
+                    {
+                        return false;
+                    }
+
+                    isOutside &= !IsInside(x, y);
                 }
 
-                isOutside |= !IsInside(x, y);
+                if (isOutside)
+                {
+                    return true;
+                }
             }
-
-            return isOutside;
         }
 
         public void Move(BoardBlock block, GridPoint position)

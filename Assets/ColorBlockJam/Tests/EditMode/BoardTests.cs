@@ -28,13 +28,26 @@ namespace ColorBlockJam.Tests
             var narrow = new BoardDoor(BoardSide.Bottom, 1, 1, 3);
             var board = new Board(4, 4, new[] { block }, new[] { narrow });
 
-            Assert.IsFalse(board.IsLeavingAt(block, new GridPoint(1, -1)), "The door is narrower than the block.");
+            Assert.IsFalse(board.CanPassThrough(block, block.Position, Direction.Down), "The door is narrower than the block.");
 
             var wide = new Board(4, 4, new[] { block }, new[] { new BoardDoor(BoardSide.Bottom, 1, 2, 3) });
-            Assert.IsTrue(wide.IsLeavingAt(block, new GridPoint(1, -1)));
+            Assert.IsTrue(wide.CanPassThrough(block, block.Position, Direction.Down));
 
             var otherColor = new Board(4, 4, new[] { block }, new[] { new BoardDoor(BoardSide.Bottom, 1, 2, 4) });
-            Assert.IsFalse(otherColor.IsLeavingAt(block, new GridPoint(1, -1)));
+            Assert.IsFalse(otherColor.CanPassThrough(block, block.Position, Direction.Down));
+        }
+
+        [Test]
+        public void ShapeMustPassTheDoorWhole()
+        {
+            // An L whose foot fits the door but whose upright column has no door under it.
+            var shape = new[] { new GridPoint(1, 0), new GridPoint(0, 1), new GridPoint(1, 1) };
+            var block = new BoardBlock(0, 2, new GridPoint(0, 0), shape);
+            var footOnly = new Board(4, 4, new[] { block }, new[] { new BoardDoor(BoardSide.Bottom, 1, 1, 2) });
+            var both = new Board(4, 4, new[] { block }, new[] { new BoardDoor(BoardSide.Bottom, 0, 2, 2) });
+
+            Assert.IsFalse(footOnly.CanPassThrough(block, block.Position, Direction.Down));
+            Assert.IsTrue(both.CanPassThrough(block, block.Position, Direction.Down));
         }
 
         [Test]

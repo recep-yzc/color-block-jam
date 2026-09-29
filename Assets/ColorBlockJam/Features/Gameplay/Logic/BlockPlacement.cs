@@ -62,6 +62,23 @@ namespace ColorBlockJam.Gameplay.Logic
             return door == null ? 0f : depth;
         }
 
+        /// <summary>
+        /// The board cell the block stands on when it touches <paramref name="side"/> from inside,
+        /// in line with <paramref name="position"/>. A drag through a door leaves the board from here.
+        /// </summary>
+        public static GridPoint EdgePosition(Board board, BoardBlock block, Vector2 position, BoardSide side)
+        {
+            var x = (int)MathF.Round(position.X);
+            var y = (int)MathF.Round(position.Y);
+            return side switch
+            {
+                BoardSide.Bottom => new GridPoint(x, -block.MinY),
+                BoardSide.Top => new GridPoint(x, board.Height - 1 - block.MaxY),
+                BoardSide.Left => new GridPoint(-block.MinX, y),
+                _ => new GridPoint(board.Width - 1 - block.MaxX, y)
+            };
+        }
+
         /// <summary>How many cells the block must travel from the board edge to be fully through the door.</summary>
         public static int LengthThroughDoor(BoardBlock block, BoardSide side)
         {

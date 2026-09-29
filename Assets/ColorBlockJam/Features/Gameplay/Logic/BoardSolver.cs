@@ -146,7 +146,7 @@ namespace ColorBlockJam.Gameplay.Logic
                             continue;
                         }
 
-                        if (board.IsLeavingAt(block, target))
+                        if (board.CanPassThrough(block, target - offset, direction))
                         {
                             // Leaving is never a bad move, so it is the only one taken from this state.
                             children.Clear();

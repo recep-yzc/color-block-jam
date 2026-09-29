@@ -16,6 +16,7 @@ namespace ColorBlockJam.Home
         [SerializeField] private PageNavigator pageNavigator;
         [SerializeField] private TabBar tabBar;
         [SerializeField] private HomeHudView homeHud;
+        [SerializeField] private HomeLevelView homeLevel;
         [SerializeField] private PopupLayer popupLayer;
 
         protected override void Configure(IContainerBuilder builder)
@@ -27,6 +28,9 @@ namespace ColorBlockJam.Home
 
             builder.RegisterComponent(homeHud);
             builder.RegisterEntryPoint<HomeHudPresenter>();
+
+            builder.RegisterComponent(homeLevel);
+            builder.RegisterEntryPoint<HomeLevelPresenter>();
 
             builder.RegisterPopupLayer(popupLayer);
             builder.RegisterEntryPoint<SettingsPopupPresenter>();

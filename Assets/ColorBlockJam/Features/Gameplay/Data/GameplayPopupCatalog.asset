@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b75e51a378a0d4e92e5113d1a7c33e, type: 3}
+  m_Name: GameplayPopupCatalog
+  m_EditorClassIdentifier: 
+  popups:
+  - {fileID: 4102650388730986146, guid: b090b4c6755bb9947a45b6ccd1eb8dee, type: 3}
+  - {fileID: 6085398487317462043, guid: 22fc599ae22fcf4458c4ea80f8b6a35a, type: 3}
+  - {fileID: 2755670295799958089, guid: 13a6266f4e93baa4e8067170469bc968, type: 3}

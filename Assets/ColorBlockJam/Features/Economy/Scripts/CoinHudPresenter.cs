@@ -15,6 +15,12 @@ namespace ColorBlockJam.Economy
         protected override void OnInitialize()
         {
             View.SetCoins(wallet.Coins);
+            wallet.CoinsChanged += View.SetCoins;
+        }
+
+        protected override void OnDispose()
+        {
+            wallet.CoinsChanged -= View.SetCoins;
         }
     }
 }

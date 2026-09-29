@@ -1,3 +1,5 @@
+using System;
+
 namespace ColorBlockJam.Economy
 {
     /// <summary>
@@ -5,6 +7,10 @@ namespace ColorBlockJam.Economy
     /// </summary>
     public interface ICoinWallet
     {
+        event Action<int> CoinsChanged;
+
         int Coins { get; }
+
+        void Add(int amount);
     }
 }

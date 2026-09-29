@@ -7,5 +7,8 @@ namespace ColorBlockJam.Progression
     {
         /// <summary>1-based number of the level the player plays next.</summary>
         int CurrentLevel { get; }
+
+        /// <summary>Moves on to the next level.</summary>
+        void CompleteCurrentLevel();
     }
 }

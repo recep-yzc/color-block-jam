@@ -8,6 +8,10 @@ namespace ColorBlockJam.Economy
         [Tooltip("Coins of a new player.")]
         [SerializeField, Min(0)] private int startingCoins = 100;
 
+        [Tooltip("Coins given for completing a level.")]
+        [SerializeField, Min(1)] private int levelCompleteReward = 10;
+
         public int StartingCoins => startingCoins;
+        public int LevelCompleteReward => levelCompleteReward;
     }
 }

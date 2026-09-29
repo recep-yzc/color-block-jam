@@ -1,0 +1,219 @@
+using System;
+using System.Collections.Generic;
+using ColorBlockJam.Gameplay.Logic;
+using ColorBlockJam.Level;
+
+namespace ColorBlockJam.LevelEditor
+{
+    /// <summary>A block while it is being edited: its color and the board cells it covers.</summary>
+    internal sealed class EditableBlock
+    {
+        public int Color;
+        public readonly List<GridPoint> Cells = new();
+
+        public EditableBlock(int color)
+        {
+            Color = color;
+        }
+
+        public bool Covers(GridPoint cell) => Cells.Contains(cell);
+    }
+
+    /// <summary>
+    /// The level in a shape that is easy to edit: blocks as absolute cells and doors as one color per edge slot.
+    /// It converts to and from <see cref="LevelData"/>, the format the game reads.
+    /// </summary>
+    internal sealed class EditableLevel
+    {
+        public const int MinSize = 3;
+        public const int MaxSize = 10;
+        public const int NoDoor = -1;
+
+        private readonly Dictionary<BoardSide, int[]> doorSlots = new();
+
+        public EditableLevel(int width, int height)
+        {
+            Width = width;
+            Height = height;
+            foreach (BoardSide side in Enum.GetValues(typeof(BoardSide)))
+            {
+                doorSlots[side] = NewSlots(SlotCount(side));
+            }
+        }
+
+        public int Width { get; private set; }
+        public int Height { get; private set; }
+        public int TimeLimit = 90;
+        public LevelDifficulty Difficulty;
+        public readonly List<EditableBlock> Blocks = new();
+
+        public static EditableLevel From(LevelData data)
+        {
+            var level = new EditableLevel(Math.Clamp(data.width, MinSize, MaxSize), Math.Clamp(data.height, MinSize, MaxSize))
+            {
+                TimeLimit = data.timeLimit,
+                Difficulty = data.difficulty
+            };
+
+            foreach (var blockData in data.blocks)
+            {
+                var block = new EditableBlock(blockData.color);
+                foreach (var cell in blockData.cells)
+                {
+                    block.Cells.Add(new GridPoint(blockData.x + cell.x, blockData.y + cell.y));
+                }
+
+                level.Blocks.Add(block);
+            }
+
+            foreach (var door in data.doors)
+            {
+                var slots = level.doorSlots[door.side];
+                for (var i = door.start; i < door.start + door.length; i++)
+                {
+                    if (i >= 0 && i < slots.Length)
+                    {
+                        slots[i] = door.color;
+                    }
+                }
+            }
+
+            return level;
+        }
+
+        public LevelData ToData()
+        {
+            var blocks = new List<BlockData>();
+            foreach (var block in Blocks)
+            {
+                if (block.Cells.Count == 0)
+                {
+                    continue;
+                }
+
+                var minX = int.MaxValue;
+                var minY = int.MaxValue;
+                foreach (var cell in block.Cells)
+                {
+                    minX = Math.Min(minX, cell.X);
+                    minY = Math.Min(minY, cell.Y);
+                }
+
+                var cells = new CellData[block.Cells.Count];
+                for (var i = 0; i < cells.Length; i++)
+                {
+                    cells[i] = new CellData(block.Cells[i].X - minX, block.Cells[i].Y - minY);
+                }
+
+                blocks.Add(new BlockData { color = block.Color, x = minX, y = minY, cells = cells });
+            }
+
+            // Neighboring slots of one color become one door.
+            var doors = new List<DoorData>();
+            foreach (var pair in doorSlots)
+            {
+                var slots = pair.Value;
+                for (var i = 0; i < slots.Length;)
+                {
+                    if (slots[i] == NoDoor)
+                    {
+                        i++;
+                        continue;
+                    }
+
+                    var start = i;
+                    while (i < slots.Length && slots[i] == slots[start])
+                    {
+                        i++;
+                    }
+
+                    doors.Add(new DoorData { side = pair.Key, start = start, length = i - start, color = slots[start] });
+                }
+            }
+
+            return new LevelData
+            {
+                width = Width,
+                height = Height,
+                timeLimit = TimeLimit,
+                difficulty = Difficulty,
+                blocks = blocks.ToArray(),
+                doors = doors.ToArray()
+            };
+        }
+
+        public int SlotCount(BoardSide side) => side is BoardSide.Bottom or BoardSide.Top ? Width : Height;
+
+        public int GetDoor(BoardSide side, int slot) => doorSlots[side][slot];
+
+        public void SetDoor(BoardSide side, int slot, int color) => doorSlots[side][slot] = color;
+
+        public bool IsInside(GridPoint cell) => cell.X >= 0 && cell.Y >= 0 && cell.X < Width && cell.Y < Height;
+
+        /// <returns>The index of the block covering the cell, or -1.</returns>
+        public int BlockAt(GridPoint cell)
+        {
+            for (var i = 0; i < Blocks.Count; i++)
+            {
+                if (Blocks[i].Covers(cell))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>True when every cell is on the board and free, not counting the block <paramref name="ignored"/>.</summary>
+        public bool Fits(IEnumerable<GridPoint> cells, int ignored = -1)
+        {
+            foreach (var cell in cells)
+            {
+                if (!IsInside(cell))
+                {
+                    return false;
+                }
+
+                var owner = BlockAt(cell);
+                if (owner >= 0 && owner != ignored)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>Changes the board size. Blocks and doors that no longer fit are removed.</summary>
+        public void Resize(int width, int height)
+        {
+            Width = Math.Clamp(width, MinSize, MaxSize);
+            Height = Math.Clamp(height, MinSize, MaxSize);
+            Blocks.RemoveAll(block => !block.Cells.TrueForAll(IsInside));
+
+            foreach (BoardSide side in Enum.GetValues(typeof(BoardSide)))
+            {
+                var old = doorSlots[side];
+                var slots = NewSlots(SlotCount(side));
+                Array.Copy(old, slots, Math.Min(old.Length, slots.Length));
+                doorSlots[side] = slots;
+            }
+        }
+
+        public void Clear()
+        {
+            Blocks.Clear();
+            foreach (BoardSide side in Enum.GetValues(typeof(BoardSide)))
+            {
+                doorSlots[side] = NewSlots(SlotCount(side));
+            }
+        }
+
+        private static int[] NewSlots(int count)
+        {
+            var slots = new int[count];
+            Array.Fill(slots, NoDoor);
+            return slots;
+        }
+    }
+}

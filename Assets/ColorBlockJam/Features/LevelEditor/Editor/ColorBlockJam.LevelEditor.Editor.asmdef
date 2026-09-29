@@ -2,7 +2,10 @@
     "name": "ColorBlockJam.LevelEditor.Editor",
     "rootNamespace": "ColorBlockJam.LevelEditor",
     "references": [
-        "ColorBlockJam.Level"
+        "ColorBlockJam.Level",
+        "ColorBlockJam.Gameplay.Logic",
+        "ColorBlockJam.Gameplay",
+        "ColorBlockJam.Shared"
     ],
     "includePlatforms": [
         "Editor"

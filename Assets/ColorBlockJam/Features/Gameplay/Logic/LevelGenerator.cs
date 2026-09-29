@@ -223,7 +223,7 @@ namespace ColorBlockJam.Gameplay.Logic
 
                 var x = random.Next(0, settings.Width - width + 1);
                 var y = random.Next(0, settings.Height - height + 1);
-                if (!IsFree(taken, shape, x, y) || !CanEverLeave(settings, shape, color, doors))
+                if (!IsFree(taken, shape, x, y) || !LevelDiagnostics.CanEverLeave(settings.Width, settings.Height, shape, color, doors))
                 {
                     continue;
                 }
@@ -252,43 +252,6 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             return true;
-        }
-
-        /// <summary>True when the shape, alone on the board, fits through some door of its color.</summary>
-        private static bool CanEverLeave(GeneratorSettings settings, GridPoint[] shape, int color, List<DoorData> doors)
-        {
-            var probe = new BoardBlock(0, color, new GridPoint(0, 0), shape);
-            foreach (var door in doors)
-            {
-                if (door.color != color)
-                {
-                    continue;
-                }
-
-                var board = new Board(settings.Width, settings.Height, new[] { probe },
-                    new[] { new BoardDoor(door.side, door.start, door.length, door.color) });
-                var direction = BoardDoor.ExitDirectionOf(door.side);
-                var alongLength = door.side is BoardSide.Bottom or BoardSide.Top ? settings.Width - probe.Width : settings.Height - probe.Height;
-
-                for (var along = 0; along <= alongLength; along++)
-                {
-                    var position = door.side switch
-                    {
-                        BoardSide.Bottom => new GridPoint(along, 0),
-                        BoardSide.Top => new GridPoint(along, settings.Height - probe.Height),
-                        BoardSide.Left => new GridPoint(0, along),
-                        _ => new GridPoint(settings.Width - probe.Width, along)
-                    };
-
-                    board.Move(probe, position);
-                    if (board.CanPassThrough(probe, position, direction))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
         }
 
         private static int RoundUpToFive(int seconds)

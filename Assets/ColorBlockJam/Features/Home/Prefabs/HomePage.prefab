@@ -1292,10 +1292,7 @@ MonoBehaviour:
   hideTransition: {fileID: 0}
   playButton: {fileID: 3854756980089369098}
   levelLabel: {fileID: 8039243255856657254}
-  pathNodes:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  pathNodesRoot: {fileID: 1223456177758197587}
 --- !u!114 &8385901190001572542
 MonoBehaviour:
   m_ObjectHideFlags: 0

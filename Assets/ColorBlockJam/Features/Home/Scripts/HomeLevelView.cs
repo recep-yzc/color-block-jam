@@ -1,3 +1,4 @@
+using System;
 using Framework.UI.Buttons;
 using Framework.UI.Views;
 using TMPro;
@@ -12,8 +13,8 @@ namespace ColorBlockJam.Home
     {
         [SerializeField] private ActionButton playButton;
         [SerializeField] private TMP_Text levelLabel;
-        [Tooltip("Tiles on the path, from the current level upwards.")]
-        [SerializeField] private LevelPathNodeView[] pathNodes;
+        [Tooltip("Parent of the level tiles. The lowest tile shows the current level, the ones above it the next levels.")]
+        [SerializeField] private RectTransform pathNodesRoot;
 
         public ActionButton PlayButton => playButton;
 
@@ -21,9 +22,12 @@ namespace ColorBlockJam.Home
         {
             levelLabel.SetText("Level {0}", level);
 
-            for (var i = 0; i < pathNodes.Length; i++)
+            var nodes = pathNodesRoot.GetComponentsInChildren<LevelPathNodeView>(true);
+            Array.Sort(nodes, (a, b) => a.transform.position.y.CompareTo(b.transform.position.y));
+
+            for (var i = 0; i < nodes.Length; i++)
             {
-                pathNodes[i].SetLevel(level + i);
+                nodes[i].SetLevel(level + i);
             }
         }
     }

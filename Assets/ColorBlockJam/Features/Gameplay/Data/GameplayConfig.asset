@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d4f9114d324ce347905dc3a95004435, type: 3}
+  m_Name: GameplayConfig
+  m_EditorClassIdentifier: 
+  cellSize: 2
+  cornerAssist: 0.4
+  cornerAssistRate: 1.5
+  followSharpness: 22
+  liftHeight: 0.35
+  liftDuration: 0.1
+  snapDuration: 0.14
+  snapEase: 26
+  exitDepth: 0.3
+  exitSpeed: 12
+  burstPrefab: {fileID: 3003805300057978667, guid: a9f507dad8fedde49b1ba50b9c79b030, type: 3}
+  burstPrewarm: 4
+  resultPopupDelay: 0.6
+  stuckSearchBudget: 30000
+  autoPlaySearchBudget: 60000
+  autoPlayCellDuration: 0.08
+  autoPlayPause: 0.12
+  timerWarningSeconds: 10
+  cameraPitch: 62
+  boardScreenHeight: 0.62
+  boardScreenWidth: 0.92
+  blockViewPrefab: {fileID: 6672037950633968810, guid: b2752b3e0982bed489c45138c70f319e, type: 3}

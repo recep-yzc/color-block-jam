@@ -14,10 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   pageOrder:
   - shop
-  - collection
   - home
   - leaderboard
-  - team
   defaultPageId: home
   swipeDistanceThreshold: 0.2
   swipeSpeedThreshold: 1500

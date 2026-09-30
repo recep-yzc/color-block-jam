@@ -6,7 +6,8 @@ namespace ColorBlockJam.Gameplay
 {
     /// <summary>
     /// Runs the booster bar. A booster can be used while the level is played and the player has its price, and the
-    /// freeze not while one is running. The hammer is put back when the level stops being played.
+    /// freeze not while one is running. The hammer is put back when the level stops being played, and when the coins
+    /// left no longer pay for it.
     /// </summary>
     public sealed class BoosterBarPresenter : ViewPresenter<BoosterBarView>, ITickable
     {
@@ -68,6 +69,12 @@ namespace ColorBlockJam.Gameplay
 
         private void OnCoinsChanged(int coins)
         {
+            // Spending on a freeze while the hammer is up can leave too little for the hammer.
+            if (hammer.IsAiming && !hammer.CanAfford)
+            {
+                hammer.PutBack();
+            }
+
             Refresh();
         }
 

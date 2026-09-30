@@ -147,7 +147,7 @@ The generator places random doors and blocks for a difficulty, and drops any lay
 - There is one material per palette color, which keeps the SRP Batcher working.
 - There are no allocations in the update loops. For example, the timer text uses `SetText` with arguments and only changes once a second.
 - The block bursts come from a pool and take the block's color.
-- The held block's outline (`Rendering/Shaders/BlockOutline.shader`) is an inverted hull in one pass, with no lighting, textures or keywords. It is added as a second material only while the block is held, and it follows normals averaged at build time so hard edges do not split it.
+- The held block's outline is only its outer rim, drawn on top of everything. Two tiny unlit shaders (`Rendering/Shaders`) do it, with no lighting, textures or keywords: one marks the block's silhouette in the stencil buffer, the other draws the mesh pushed out along its normals only outside that mark, ignoring depth. They are added as extra materials only while the block is held, and the push follows normals averaged at build time, so hard edges do not split the rim.
 - The solver runs off the main thread.
 - UI graphics have raycast target, maskable, rich text, kerning and extra padding turned off wherever they are not needed, and they share one sprite atlas.
 

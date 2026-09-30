@@ -33,4 +33,5 @@ MonoBehaviour:
   cameraPitch: 62
   boardScreenHeight: 0.62
   boardScreenWidth: 0.92
+  backgroundColor: {r: 0.4863, g: 0.5451, b: 0.902, a: 1}
   blockViewPrefab: {fileID: 6672037950633968810, guid: b2752b3e0982bed489c45138c70f319e, type: 3}

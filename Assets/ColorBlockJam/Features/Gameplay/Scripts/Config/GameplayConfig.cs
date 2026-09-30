@@ -59,6 +59,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Range(0.3f, 1f)] private float boardScreenHeight = 0.62f;
         [Tooltip("Part of the screen width the board may use.")]
         [SerializeField, Range(0.3f, 1f)] private float boardScreenWidth = 0.92f;
+        [Tooltip("Color behind the board.")]
+        [SerializeField] private Color backgroundColor = new(0.4863f, 0.5451f, 0.902f);
 
         [Header("Views")]
         [SerializeField] private BlockView blockViewPrefab;
@@ -84,6 +86,7 @@ namespace ColorBlockJam.Gameplay
         public float CameraPitch => cameraPitch;
         public float BoardScreenHeight => boardScreenHeight;
         public float BoardScreenWidth => boardScreenWidth;
+        public Color BackgroundColor => backgroundColor;
         public BlockView BlockViewPrefab => blockViewPrefab;
     }
 }

@@ -6,8 +6,9 @@ using UnityEngine;
 namespace ColorBlockJam.Gameplay
 {
     /// <summary>
-    /// The ground, the walls around the board and the colored doors, each merged into one mesh per material.
-    /// Also converts between board cells and world positions: cell (0, 0) starts at this transform's position
+    /// The board as one mesh: ground tiles, walls and corners, with a submesh for the ground and one for the walls.
+    /// Each colored door is a mesh of its own. A wall between two doors or corners is a single wall piece stretched
+    /// to fit. Also converts between board cells and world positions: cell (0, 0) starts at this transform's position
     /// and cells grow along world X and Z.
     /// </summary>
     public sealed class BoardView : MonoBehaviour
@@ -32,8 +33,6 @@ namespace ColorBlockJam.Gameplay
                 }
             }
 
-            AddPart("Ground", ground, art.GroundMaterial);
-
             var walls = new List<CombineInstance>();
             var doorPieces = new Dictionary<BoardDoor, List<CombineInstance>>();
             BuildSide(board, BoardSide.Bottom, board.Width, art, walls, doorPieces);
@@ -41,11 +40,12 @@ namespace ColorBlockJam.Gameplay
             BuildSide(board, BoardSide.Left, board.Height, art, walls, doorPieces);
             BuildSide(board, BoardSide.Right, board.Height, art, walls, doorPieces);
             BuildCorners(board, art, walls);
-            AddPart("Walls", walls, art.WallMaterial);
+            AddBoard(ground, walls, art);
 
             foreach (var pair in doorPieces)
             {
-                AddPart($"Door {pair.Key.Side} {pair.Key.Start}", pair.Value, doorMaterials.Get(pair.Key.Color));
+                var partName = $"Door {pair.Key.Side} {pair.Key.Start}";
+                AddRenderer(partName, Combine(partName, pair.Value), doorMaterials.Get(pair.Key.Color));
             }
 
             var size = new Vector3((board.Width + 1) * cellSize, cellSize, (board.Height + 1) * cellSize);
@@ -86,26 +86,45 @@ namespace ColorBlockJam.Gameplay
             List<CombineInstance> walls, Dictionary<BoardDoor, List<CombineInstance>> doorPieces)
         {
             var turn = side is BoardSide.Left or BoardSide.Right ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.identity;
+            var runStart = 0;
 
-            for (var i = 0; i < length; i++)
+            for (var i = 0; i <= length; i++)
             {
-                var door = DoorAt(board, side, i);
-                if (door != null)
+                var door = i < length ? DoorAt(board, side, i) : null;
+                if (i < length && door == null)
                 {
-                    if (!doorPieces.TryGetValue(door, out var pieces))
-                    {
-                        pieces = new List<CombineInstance>();
-                        doorPieces.Add(door, pieces);
-                    }
-
-                    pieces.Add(WallPiece(art, art.Door, art.DoorModelRotation, EdgePoint(board, side, i + 0.5f), turn));
                     continue;
                 }
 
-                // A cell edge is two wall pieces long.
-                walls.Add(WallPiece(art, art.Wall, art.WallModelRotation, EdgePoint(board, side, i + 0.25f), turn));
-                walls.Add(WallPiece(art, art.Wall, art.WallModelRotation, EdgePoint(board, side, i + 0.75f), turn));
+                // A run of wall ends at a door or at the corner: one wall piece stretched over all of it.
+                if (i > runStart)
+                {
+                    walls.Add(StretchedWall(board, art, side, runStart, i, turn));
+                }
+
+                runStart = i + 1;
+                if (door == null)
+                {
+                    continue;
+                }
+
+                if (!doorPieces.TryGetValue(door, out var pieces))
+                {
+                    pieces = new List<CombineInstance>();
+                    doorPieces.Add(door, pieces);
+                }
+
+                pieces.Add(WallPiece(art, art.Door, art.DoorModelRotation, EdgePoint(board, side, i + 0.5f), turn, stretch: 1f));
             }
+        }
+
+        /// <summary>One wall piece stretched along a side from cell <paramref name="from"/> up to <paramref name="to"/>.</summary>
+        private CombineInstance StretchedWall(Board board, BoardArt art, BoardSide side, int from, int to, Quaternion turn)
+        {
+            var mesh = art.Wall;
+            var rotation = art.WallModelRotation;
+            var stretch = (to - from) * ArtSpace.CellSize / LengthAlongX(mesh, rotation);
+            return WallPiece(art, mesh, rotation, EdgePoint(board, side, (from + to) * 0.5f), turn, stretch);
         }
 
         private void BuildCorners(Board board, BoardArt art, List<CombineInstance> walls)
@@ -114,10 +133,10 @@ namespace ColorBlockJam.Gameplay
             var right = board.Width + 0.25f;
             var top = board.Height + 0.25f;
 
-            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, outside), Quaternion.identity));
-            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, top), Quaternion.Euler(0f, 90f, 0f)));
-            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, top), Quaternion.Euler(0f, 180f, 0f)));
-            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, outside), Quaternion.Euler(0f, 270f, 0f)));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, outside), Quaternion.identity, 1f));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, top), Quaternion.Euler(0f, 90f, 0f), 1f));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, top), Quaternion.Euler(0f, 180f, 0f), 1f));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, outside), Quaternion.Euler(0f, 270f, 0f), 1f));
         }
 
         /// <summary>The middle of the wall band outside a side, at a distance along that side, in cell units.</summary>
@@ -153,11 +172,16 @@ namespace ColorBlockJam.Gameplay
             return new CombineInstance { mesh = mesh, transform = Matrix4x4.TRS(position, turn, Vector3.one * artScale) };
         }
 
-        /// <summary>A wall, wall corner or door piece at wall height, with its model set right first.</summary>
-        private CombineInstance WallPiece(BoardArt art, Mesh mesh, Quaternion modelRotation, Vector2 cell, Quaternion turn)
+        /// <summary>
+        /// A wall, wall corner or door piece at wall height: its model set right first, then stretched along the side
+        /// by <paramref name="stretch"/> around its middle.
+        /// </summary>
+        private CombineInstance WallPiece(BoardArt art, Mesh mesh, Quaternion modelRotation, Vector2 cell, Quaternion turn, float stretch)
         {
+            var middle = mesh.bounds.center;
+            var alongSide = Matrix4x4.TRS(new Vector3(middle.x * (1f - stretch), 0f, 0f), Quaternion.identity, new Vector3(stretch, 1f, 1f));
             var piece = Piece(mesh, cell, art.WallHeightOffset, turn);
-            piece.transform *= AroundMiddle(mesh, modelRotation);
+            piece.transform *= alongSide * AroundMiddle(mesh, modelRotation);
             return piece;
         }
 
@@ -168,21 +192,41 @@ namespace ColorBlockJam.Gameplay
             return Matrix4x4.TRS(middle - rotation * middle, rotation, Vector3.one);
         }
 
-        private void AddPart(string partName, List<CombineInstance> pieces, Material material)
+        /// <summary>How long the model is along X once turned, in art units.</summary>
+        private static float LengthAlongX(Mesh mesh, Quaternion rotation)
         {
-            if (pieces.Count == 0)
-            {
-                return;
-            }
+            var extents = mesh.bounds.extents;
+            var turned = Matrix4x4.Rotate(rotation);
+            return 2f * (Mathf.Abs(turned.m00) * extents.x + Mathf.Abs(turned.m01) * extents.y + Mathf.Abs(turned.m02) * extents.z);
+        }
 
-            var mesh = new Mesh { name = partName, indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+        /// <summary>Ground and walls as one mesh with a submesh each, so the whole board is one renderer.</summary>
+        private void AddBoard(List<CombineInstance> ground, List<CombineInstance> walls, BoardArt art)
+        {
+            var groundMesh = Combine("Ground", ground);
+            var wallMesh = Combine("Walls", walls);
+            var mesh = new Mesh { name = "Board", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+            mesh.CombineMeshes(new[] { new CombineInstance { mesh = groundMesh }, new CombineInstance { mesh = wallMesh } },
+                mergeSubMeshes: false, useMatrices: false);
+            Destroy(groundMesh);
+            Destroy(wallMesh);
+            AddRenderer("Board", mesh, art.GroundMaterial, art.WallMaterial);
+        }
+
+        private static Mesh Combine(string meshName, List<CombineInstance> pieces)
+        {
+            var mesh = new Mesh { name = meshName, indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
             mesh.CombineMeshes(pieces.ToArray(), mergeSubMeshes: true, useMatrices: true);
-            builtMeshes.Add(mesh);
+            return mesh;
+        }
 
+        private void AddRenderer(string partName, Mesh mesh, params Material[] materials)
+        {
+            builtMeshes.Add(mesh);
             var part = new GameObject(partName);
             part.transform.SetParent(transform, false);
             part.AddComponent<MeshFilter>().sharedMesh = mesh;
-            part.AddComponent<MeshRenderer>().sharedMaterial = material;
+            part.AddComponent<MeshRenderer>().sharedMaterials = materials;
         }
     }
 }

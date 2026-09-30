@@ -26,6 +26,7 @@ namespace ColorBlockJam.Gameplay
         [Tooltip("Parent of the pooled block bursts.")]
         [SerializeField] private Transform effectsRoot;
         [SerializeField] private GameplayHudView hud;
+        [SerializeField] private BoosterBarView boosterBar;
         [SerializeField] private CoinHudView coinHud;
 
         public override void Install(IContainerBuilder builder)
@@ -57,6 +58,8 @@ namespace ColorBlockJam.Gameplay
 
             builder.RegisterComponent(hud);
             builder.RegisterEntryPoint<GameplayHudPresenter>();
+            builder.RegisterComponent(boosterBar);
+            builder.RegisterEntryPoint<BoosterBarPresenter>();
             builder.RegisterCoinHud(coinHud);
         }
     }

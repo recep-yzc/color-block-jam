@@ -169,7 +169,7 @@ Coins, the current level and the settings go through `IKeyValueStorage`, which u
 **Feedback on the supplied assets**
 
 - There was no "toggle off" sprite; `btn_toggle_off.png` was added.
-- `BlockParts.fbx` and `Arrows.fbx` are modeled on the XY plane facing −Z, while `WallAndDoor.fbx` and `GroundGrid.fbx` are Y-up. The wall, corner and door models in `WallAndDoor.fbx` are also upside down, so the board turns them upright (*Walls Upside Down* on `BoardArt`).
+- `BlockParts.fbx` and `Arrows.fbx` are modeled on the XY plane facing −Z, while `WallAndDoor.fbx` and `GroundGrid.fbx` are Y-up. The wall, corner and door models in `WallAndDoor.fbx` are also upside down, and the wall is turned a quarter; the board sets each right with its *Model turns* on `BoardArt`.
 - A board cell is 2 units, and block modules are quarter cells.
 - `WallAndDoor.fbx` references a missing embedded texture, and `corner_4` has an unused blend shape.
 - Booster icons are 1024×1024, much bigger than their size on screen.

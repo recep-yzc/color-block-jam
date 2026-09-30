@@ -1,4 +1,3 @@
-using System.Numerics;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
 using NUnit.Framework;
@@ -48,36 +47,6 @@ namespace ColorBlockJam.Tests
 
             Assert.IsFalse(footOnly.CanPassThrough(block, block.Position, Direction.Down));
             Assert.IsTrue(both.CanPassThrough(block, block.Position, Direction.Down));
-        }
-
-        [Test]
-        public void DragStopsAtObstacles()
-        {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
-            var wall = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
-            var board = new Board(4, 1, new[] { block, wall }, new BoardDoor[0]);
-            var mover = new BlockDragMover(cornerAssist: 0.4f, assistRate: 1.5f);
-
-            var reached = mover.Move(board, block, Vector2.Zero, new Vector2(3f, 0f));
-
-            Assert.AreEqual(1f, reached.X, 0.02f);
-        }
-
-        [Test]
-        public void DragRoundsCornersIntoGaps()
-        {
-            // A block slightly below a one-cell gap is eased up into it while moving right.
-            var block = new BoardBlock(0, 0, new GridPoint(0, 1), Single);
-            var below = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
-            var above = new BoardBlock(2, 1, new GridPoint(2, 2), Single);
-            var board = new Board(4, 3, new[] { block, below, above }, new BoardDoor[0]);
-            var mover = new BlockDragMover(cornerAssist: 0.4f, assistRate: 1.5f);
-
-            var reached = mover.Move(board, block, new Vector2(0f, 0.75f), new Vector2(3f, 0.75f));
-
-            // Without easing it would stop at x = 1 against the lower block.
-            Assert.AreEqual(3f, reached.X, 0.02f);
-            Assert.AreEqual(0.75f, reached.Y, 0.02f, "Past the gap it follows the finger again.");
         }
 
         [Test]

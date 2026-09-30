@@ -143,13 +143,17 @@ The generator places random doors and blocks for a difficulty, and drops any lay
 
 ### Performance
 
-- Each block, and each board part (ground, walls, each door), is merged into **one mesh**, so a level draws in a handful of calls.
+- Each block is merged into **one mesh**. The board (ground tiles, walls and corners) is **one mesh** too, with a submesh for the ground and one for the walls; only the colored doors are meshes of their own. A wall between two doors or corners is a single wall piece stretched to fit, so a level draws in a handful of calls.
 - There is one material per palette color, which keeps the SRP Batcher working.
 - There are no allocations in the update loops. For example, the timer text uses `SetText` with arguments and only changes once a second.
 - The block bursts come from a pool and take the block's color.
 - The held block's outline is only its outer rim, drawn on top of everything. Two tiny unlit shaders (`Rendering/Shaders`) do it, with no lighting, textures or keywords: one marks the block's silhouette in the stencil buffer, the other draws the mesh pushed out along its normals only outside that mark, ignoring depth. They are added as extra materials only while the block is held, and the push follows normals averaged at build time, so hard edges do not split the rim.
 - The solver runs off the main thread.
 - UI graphics have raycast target, maskable, rich text, kerning and extra padding turned off wherever they are not needed, and they share one sprite atlas.
+
+### Look
+
+Everything in the gameplay scene uses one toon shader (`Rendering/Shaders/Toon.shader`). Light falls in two soft bands, so shadow sides take a tinted color instead of going dark, and a small glint and a soft rim make surfaces read like candy. It uses only the main light and its shadows, no textures, and one material buffer for all its passes, which keeps it cheap on mobile and friendly to the SRP Batcher. The block colors are sweet tones with no white (Cherry, Tangerine, Lemon, Lime, Mint, Aqua, Sky, Grape, Bubblegum, Cocoa), on lavender walls, a periwinkle ground and background, and a plum outline for the held block.
 
 ### Persistence
 

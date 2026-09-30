@@ -5,10 +5,15 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.LevelEditor
 {
-    /// <summary>A block while it is being edited: its color and the board cells it covers.</summary>
+    /// <summary>
+    /// A block while it is being edited: its color, the board cells it covers, the axis an arrow block moves along and
+    /// the ice it starts frozen under.
+    /// </summary>
     internal sealed class EditableBlock
     {
         public int Color;
+        public BlockAxis Axis;
+        public int Ice;
         public readonly List<GridPoint> Cells = new();
 
         public EditableBlock(int color)
@@ -57,7 +62,7 @@ namespace ColorBlockJam.LevelEditor
 
             foreach (var blockData in data.blocks)
             {
-                var block = new EditableBlock(blockData.color);
+                var block = new EditableBlock(blockData.color) { Axis = blockData.axis, Ice = blockData.ice };
                 foreach (var cell in blockData.cells)
                 {
                     block.Cells.Add(new GridPoint(blockData.x + cell.x, blockData.y + cell.y));
@@ -105,7 +110,7 @@ namespace ColorBlockJam.LevelEditor
                     cells[i] = new CellData(block.Cells[i].X - minX, block.Cells[i].Y - minY);
                 }
 
-                blocks.Add(new BlockData { color = block.Color, x = minX, y = minY, cells = cells });
+                blocks.Add(new BlockData { color = block.Color, x = minX, y = minY, cells = cells, axis = block.Axis, ice = block.Ice });
             }
 
             // Neighboring slots of one color become one door.

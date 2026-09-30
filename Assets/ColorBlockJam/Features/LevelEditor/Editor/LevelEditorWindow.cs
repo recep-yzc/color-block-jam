@@ -71,6 +71,9 @@ namespace ColorBlockJam.LevelEditor
         private static readonly Color Background = new(0.13f, 0.16f, 0.27f);
         private static readonly Color CellColor = new(0.24f, 0.33f, 0.64f);
         private static readonly Color WallColor = new(0.78f, 0.81f, 0.89f);
+        private static readonly Color ArrowColor = new(1f, 0.96f, 0.9f, 0.95f);
+        private static readonly Color IceTint = new(0.8f, 0.93f, 1f, 0.55f);
+        private static readonly Color IceCountColor = new(0.1f, 0.24f, 0.45f);
 
         [SerializeField] private string levelJson;
         [SerializeField] private int catalogIndex = -1;
@@ -92,6 +95,7 @@ namespace ColorBlockJam.LevelEditor
 
         // Blocks named by a problem, drawn with a red outline so the designer sees which one is wrong.
         private readonly HashSet<int> problemBlocks = new();
+        private GUIStyle iceCountStyle;
         private int selectedBlock = -1;
 
         private EditableBlock drawing;
@@ -417,6 +421,21 @@ namespace ColorBlockJam.LevelEditor
                     Change(() => block.Color = newColor);
                 }
 
+                var axis = (BlockAxis)EditorGUILayout.EnumPopup(new GUIContent("Moves",
+                    "Free, or only along one axis: an arrow block. The arrow on it shows the way it moves."), block.Axis);
+                if (axis != block.Axis)
+                {
+                    Change(() => block.Axis = axis);
+                }
+
+                var ice = EditorGUILayout.IntSlider(new GUIContent("Ice",
+                        "The block starts frozen and cannot move until this many other blocks have left. 0 = no ice."),
+                    block.Ice, 0, Mathf.Max(0, level.Blocks.Count - 1));
+                if (ice != block.Ice)
+                {
+                    Change(() => block.Ice = ice);
+                }
+
                 if (GUILayout.Button("Delete Block"))
                 {
                     var index = selectedBlock;
@@ -666,7 +685,7 @@ namespace ColorBlockJam.LevelEditor
                             cells.Add(block.Position + cell);
                         }
 
-                        DrawBlock(cells, palette.GetColor(block.Color), 1f, outline: null);
+                        DrawBlock(cells, palette.GetColor(block.Color), 1f, outline: null, block.Axis, preview.IceLeft(block));
                     }
                 }
 
@@ -680,8 +699,9 @@ namespace ColorBlockJam.LevelEditor
                     continue;
                 }
 
+                var block = level.Blocks[i];
                 var outline = i == selectedBlock ? SelectedOutline : problemBlocks.Contains(i) ? ProblemOutline : (Color?)null;
-                DrawBlock(level.Blocks[i].Cells, palette.GetColor(level.Blocks[i].Color), 1f, outline);
+                DrawBlock(block.Cells, palette.GetColor(block.Color), 1f, outline, block.Axis, block.Ice);
             }
 
             DrawGhost();
@@ -700,7 +720,7 @@ namespace ColorBlockJam.LevelEditor
                 var block = level.Blocks[movingBlock];
                 var moved = Offset(block.Cells, moveOffset);
                 var fits = level.Fits(moved, movingBlock);
-                DrawBlock(moved, fits ? palette.GetColor(block.Color) : Color.red, fits ? 0.85f : 0.6f, SelectedOutline);
+                DrawBlock(moved, fits ? palette.GetColor(block.Color) : Color.red, fits ? 0.85f : 0.6f, SelectedOutline, block.Axis, block.Ice);
                 return;
             }
 
@@ -712,7 +732,8 @@ namespace ColorBlockJam.LevelEditor
             }
         }
 
-        private void DrawBlock(IReadOnlyList<GridPoint> cells, Color fill, float alpha, Color? outline)
+        private void DrawBlock(IReadOnlyList<GridPoint> cells, Color fill, float alpha, Color? outline,
+            BlockAxis axis = BlockAxis.Free, int ice = 0)
         {
             fill.a = alpha;
             var edge = new Color(fill.r * 0.55f, fill.g * 0.55f, fill.b * 0.55f, alpha);
@@ -732,6 +753,10 @@ namespace ColorBlockJam.LevelEditor
                 var face = new Rect(inner.x + (left ? border : 0f), inner.y + (up ? border : 0f),
                     inner.width - (left ? border : 0f) - (right ? border : 0f), inner.height - (up ? border : 0f) - (down ? border : 0f));
                 EditorGUI.DrawRect(face, fill);
+                if (ice > 0)
+                {
+                    EditorGUI.DrawRect(face, new Color(IceTint.r, IceTint.g, IceTint.b, IceTint.a * alpha));
+                }
 
                 if (outline is { } line)
                 {
@@ -741,6 +766,66 @@ namespace ColorBlockJam.LevelEditor
                     if (down) EditorGUI.DrawRect(new Rect(inner.x, inner.yMax - 2f, inner.width, 2f), line);
                 }
             }
+
+            var span = ToArray(cells);
+            if (axis != BlockAxis.Free)
+            {
+                DrawAxisArrow(BlockMarks.FindArrow(span, axis), axis, alpha);
+            }
+
+            if (ice > 0)
+            {
+                var cell = BlockMarks.FindIceCell(span);
+                iceCountStyle ??= new GUIStyle(EditorStyles.boldLabel) { alignment = TextAnchor.MiddleCenter };
+                iceCountStyle.fontSize = Mathf.RoundToInt(cellSize * 0.45f);
+                iceCountStyle.normal.textColor = IceCountColor;
+                GUI.Label(CellRect(cell.X, cell.Y), ice.ToString(), iceCountStyle);
+            }
+        }
+
+        /// <summary>A double-headed arrow along the run, like the one the game lays on an arrow block.</summary>
+        private void DrawAxisArrow(ArrowRun run, BlockAxis axis, float alpha)
+        {
+            var center = CellPoint(run.CenterX, run.CenterY);
+            var direction = axis == BlockAxis.Horizontal ? Vector2.right : Vector2.up;
+            var half = (run.Length * 0.5f - 0.15f) * cellSize;
+            var head = cellSize * 0.22f;
+            var thickness = cellSize * 0.1f;
+            var color = new Color(ArrowColor.r, ArrowColor.g, ArrowColor.b, ArrowColor.a * alpha);
+
+            var shaftLength = (half - head) * 2f;
+            var shaft = axis == BlockAxis.Horizontal
+                ? new Rect(center.x - shaftLength * 0.5f, center.y - thickness * 0.5f, shaftLength, thickness)
+                : new Rect(center.x - thickness * 0.5f, center.y - shaftLength * 0.5f, thickness, shaftLength);
+            EditorGUI.DrawRect(shaft, color);
+
+            Handles.color = color;
+            DrawArrowHead(center + direction * half, direction, head);
+            DrawArrowHead(center - direction * half, -direction, head);
+        }
+
+        private static void DrawArrowHead(Vector2 tip, Vector2 direction, float size)
+        {
+            var side = new Vector2(-direction.y, direction.x) * (size * 0.8f);
+            var back = tip - direction * size;
+            Handles.DrawAAConvexPolygon(tip, back + side, back - side);
+        }
+
+        /// <summary>A point in board cells, where cell (x, y) spans x to x + 1, on screen.</summary>
+        private Vector2 CellPoint(float x, float y)
+        {
+            return new Vector2(boardRect.x + (x + 1f) * cellSize, boardRect.y + (level.Height + 1f - y) * cellSize);
+        }
+
+        private static GridPoint[] ToArray(IReadOnlyList<GridPoint> cells)
+        {
+            var array = new GridPoint[cells.Count];
+            for (var i = 0; i < array.Length; i++)
+            {
+                array[i] = cells[i];
+            }
+
+            return array;
         }
 
         private static void DrawArrow(Rect bar, BoardSide side)
@@ -1435,7 +1520,9 @@ namespace ColorBlockJam.LevelEditor
                 LevelProblemKind.DoorOutsideBoard => $"A {colorName} door is off the edge.",
                 LevelProblemKind.DoorsOverlap => $"Two doors overlap ({colorName}).",
                 LevelProblemKind.ColorHasNoDoor => $"{colorName} blocks have no {colorName} door to leave through.",
-                LevelProblemKind.BlockFitsNoDoor => $"A {colorName} block is too big for every {colorName} door.",
+                LevelProblemKind.BlockFitsNoDoor => $"A {colorName} block fits no {colorName} door it can reach. An arrow " +
+                                                    "block reaches only the doors ahead of it along its arrow.",
+                LevelProblemKind.IceNeverMelts => $"A {colorName} block has more ice than there are other blocks to melt it.",
                 _ => problem.Kind.ToString()
             };
         }

@@ -7,12 +7,30 @@ namespace ColorBlockJam.Gameplay
 {
     /// <summary>
     /// The board as one mesh: ground tiles, walls and corners, with a submesh for the ground and one for the walls.
-    /// Each colored door is a mesh of its own. A wall between two doors or corners is a single wall piece stretched
-    /// to fit. Also converts between board cells and world positions: cell (0, 0) starts at this transform's position
+    /// Each colored door is a mesh of its own. Along a side, every run of wall, and every run of door cells of one
+    /// color, even when it is several doors side by side, is a single piece stretched to fit.
+    /// Also converts between board cells and world positions: cell (0, 0) starts at this transform's position
     /// and cells grow along world X and Z.
     /// </summary>
     public sealed class BoardView : MonoBehaviour
     {
+        private const int NoDoor = -1;
+
+        /// <summary>A stretched door piece covering a run of door cells of one color.</summary>
+        private readonly struct DoorRun
+        {
+            public readonly string Name;
+            public readonly int Color;
+            public readonly CombineInstance Piece;
+
+            public DoorRun(string name, int color, CombineInstance piece)
+            {
+                Name = name;
+                Color = color;
+                Piece = piece;
+            }
+        }
+
         private readonly List<Mesh> builtMeshes = new();
         private Transform parts;
         private float cellSize;
@@ -39,19 +57,18 @@ namespace ColorBlockJam.Gameplay
             }
 
             var walls = new List<CombineInstance>();
-            var doorPieces = new Dictionary<BoardDoor, List<CombineInstance>>();
-            BuildSide(board, BoardSide.Bottom, board.Width, art, walls, doorPieces);
-            BuildSide(board, BoardSide.Top, board.Width, art, walls, doorPieces);
-            BuildSide(board, BoardSide.Left, board.Height, art, walls, doorPieces);
-            BuildSide(board, BoardSide.Right, board.Height, art, walls, doorPieces);
+            var doors = new List<DoorRun>();
+            BuildSide(board, BoardSide.Bottom, board.Width, art, walls, doors);
+            BuildSide(board, BoardSide.Top, board.Width, art, walls, doors);
+            BuildSide(board, BoardSide.Left, board.Height, art, walls, doors);
+            BuildSide(board, BoardSide.Right, board.Height, art, walls, doors);
             BuildCorners(board, art, walls);
             AddBoard(ground, walls, art);
 
-            foreach (var pair in doorPieces)
+            foreach (var door in doors)
             {
-                var partName = $"Door {pair.Key.Side} {pair.Key.Start}";
-                var door = AddRenderer(partName, Combine(partName, pair.Value), art.DoorMaterial);
-                ToonTint.Apply(door, palette.GetColor(pair.Key.Color));
+                var doorRenderer = AddRenderer(door.Name, Combine(door.Name, new List<CombineInstance> { door.Piece }), art.DoorMaterial);
+                ToonTint.Apply(doorRenderer, palette.GetColor(door.Color));
             }
 
             // Nothing on the board moves again, so its parts are batched as static geometry.
@@ -91,49 +108,52 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        private void BuildSide(Board board, BoardSide side, int length, BoardArt art,
-            List<CombineInstance> walls, Dictionary<BoardDoor, List<CombineInstance>> doorPieces)
+        /// <summary>
+        /// Walks a side cell by cell and ends a run wherever the door color changes; wall cells count as a color of
+        /// their own. Each run becomes one piece stretched over it: a wall, or a door of that color.
+        /// </summary>
+        private void BuildSide(Board board, BoardSide side, int length, BoardArt art, List<CombineInstance> walls, List<DoorRun> doors)
         {
             var turn = side is BoardSide.Left or BoardSide.Right ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.identity;
             var runStart = 0;
+            var runColor = DoorColorAt(board, side, 0);
 
-            for (var i = 0; i <= length; i++)
+            for (var i = 1; i <= length; i++)
             {
-                var door = i < length ? DoorAt(board, side, i) : null;
-                if (i < length && door == null)
+                var color = i < length ? DoorColorAt(board, side, i) : runColor;
+                if (i < length && color == runColor)
                 {
                     continue;
                 }
 
-                // A run of wall ends at a door or at the corner: one wall piece stretched over all of it.
-                if (i > runStart)
+                if (runColor == NoDoor)
                 {
-                    walls.Add(StretchedWall(board, art, side, runStart, i, turn));
+                    walls.Add(Stretched(board, art, art.Wall, art.WallModelRotation, side, runStart, i, turn));
+                }
+                else
+                {
+                    var piece = Stretched(board, art, art.Door, art.DoorModelRotation, side, runStart, i, turn);
+                    doors.Add(new DoorRun($"Door {side} {runStart}", runColor, piece));
                 }
 
-                runStart = i + 1;
-                if (door == null)
-                {
-                    continue;
-                }
-
-                if (!doorPieces.TryGetValue(door, out var pieces))
-                {
-                    pieces = new List<CombineInstance>();
-                    doorPieces.Add(door, pieces);
-                }
-
-                pieces.Add(WallPiece(art, art.Door, art.DoorModelRotation, EdgePoint(board, side, i + 0.5f), turn, stretch: 1f));
+                runStart = i;
+                runColor = color;
             }
         }
 
-        /// <summary>One wall piece stretched along a side from cell <paramref name="from"/> up to <paramref name="to"/>.</summary>
-        private CombineInstance StretchedWall(Board board, BoardArt art, BoardSide side, int from, int to, Quaternion turn)
+        /// <summary>One piece stretched along a side from cell <paramref name="from"/> up to <paramref name="to"/>.</summary>
+        private CombineInstance Stretched(Board board, BoardArt art, Mesh mesh, Quaternion rotation, BoardSide side, int from, int to,
+            Quaternion turn)
         {
-            var mesh = art.Wall;
-            var rotation = art.WallModelRotation;
             var stretch = (to - from) * ArtSpace.CellSize / LengthAlongX(mesh, rotation);
             return WallPiece(art, mesh, rotation, EdgePoint(board, side, (from + to) * 0.5f), turn, stretch);
+        }
+
+        /// <summary>The color of the door at a cell along a side, or <see cref="NoDoor"/> for wall.</summary>
+        private static int DoorColorAt(Board board, BoardSide side, int alongEdge)
+        {
+            var door = DoorAt(board, side, alongEdge);
+            return door != null ? door.Color : NoDoor;
         }
 
         private void BuildCorners(Board board, BoardArt art, List<CombineInstance> walls)

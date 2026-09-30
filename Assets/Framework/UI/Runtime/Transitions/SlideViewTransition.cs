@@ -17,18 +17,23 @@ namespace Framework.UI.Transitions
             Right
         }
 
-        [Tooltip("The side the view comes in from and goes out to.")]
+        [Tooltip("Görünümün girip çıktığı kenar.")]
         [SerializeField] private Side side = Side.Bottom;
-        [Tooltip("How far the view moves, in canvas units.")]
+        [Tooltip("Görünümün kaydığı mesafe, canvas birimi.")]
         [SerializeField, Min(0f)] private float distance = 600f;
+        [Tooltip("Açıkken kaymayla birlikte saydamlık da değişir.")]
         [SerializeField] private bool fade = true;
 
         [Header("Show")]
+        [Tooltip("Görünme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float showDuration = 0.3f;
+        [Tooltip("Görünmenin eğrisi.")]
         [SerializeField] private Ease showEase = Ease.OutCubic;
 
         [Header("Hide")]
+        [Tooltip("Gizlenme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float hideDuration = 0.2f;
+        [Tooltip("Gizlenmenin eğrisi.")]
         [SerializeField] private Ease hideEase = Ease.InCubic;
 
         public override UniTask ShowAsync(ViewTransitionTarget target, CancellationToken cancellationToken)

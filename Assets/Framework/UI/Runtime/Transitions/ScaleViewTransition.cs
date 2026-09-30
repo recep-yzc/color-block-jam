@@ -9,16 +9,21 @@ namespace Framework.UI.Transitions
     [CreateAssetMenu(menuName = "Framework/UI/Transitions/Scale", fileName = "ScaleTransition")]
     public sealed class ScaleViewTransition : ViewTransition
     {
-        [Tooltip("Scale of the hidden view, relative to its rest scale.")]
+        [Tooltip("Gizliyken ölçek, normal ölçeğe oranla.")]
         [SerializeField, Min(0f)] private float hiddenScale = 0.7f;
+        [Tooltip("Açıkken ölçekle birlikte saydamlık da değişir.")]
         [SerializeField] private bool fade = true;
 
         [Header("Show")]
+        [Tooltip("Görünme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float showDuration = 0.25f;
+        [Tooltip("Görünmenin eğrisi.")]
         [SerializeField] private Ease showEase = Ease.OutBack;
 
         [Header("Hide")]
+        [Tooltip("Gizlenme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float hideDuration = 0.15f;
+        [Tooltip("Gizlenmenin eğrisi.")]
         [SerializeField] private Ease hideEase = Ease.InBack;
 
         public override UniTask ShowAsync(ViewTransitionTarget target, CancellationToken cancellationToken)

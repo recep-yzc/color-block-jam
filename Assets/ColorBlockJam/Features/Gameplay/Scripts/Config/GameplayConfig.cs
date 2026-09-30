@@ -11,91 +11,99 @@ namespace ColorBlockJam.Gameplay
     public sealed class GameplayConfig : ScriptableObject
     {
         [Header("Board")]
-        [Tooltip("World size of one board cell. The art is made for 2.")]
+        [Tooltip("Bir tahta hücresinin dünya boyutu. Sanat 2 birimlik hücre için yapıldı.")]
         [SerializeField, Min(0.1f)] private float cellSize = 2f;
 
         [Header("Drag")]
-        [Tooltip("How fast a dragged block catches up with the finger. Higher feels tighter, lower feels heavier.")]
+        [Tooltip("Sürüklenen bloğun parmağa ne kadar hızlı yetiştiği. Yüksek değer daha sıkı, düşük değer daha ağır " +
+                 "hissettirir.")]
         [SerializeField, Min(1f)] private float followSharpness = 26f;
-        [Tooltip("Fastest a dragged block moves, in cells per second, so a fling stays under control.")]
+        [Tooltip("Sürüklenen bloğun en yüksek hızı, saniyede hücre. Hızlı bir savuruş kontrolden çıkmasın diye.")]
         [SerializeField, Min(1f)] private float maxDragSpeed = 40f;
-        [Tooltip("Radius, in cells, of the invisible rounding on block corners. A block rolls around a corner on this " +
-                 "curve instead of catching on it. 0 = sharp corners.")]
+        [Tooltip("Blok köşelerindeki görünmez yuvarlamanın yarıçapı, hücre. Blok köşeye takılmak yerine bu eğri " +
+                 "üzerinden döner. 0 = keskin köşeler.")]
         [SerializeField, Range(0f, 0.45f)] private float cornerRounding = 0.3f;
-        [Tooltip("How high a dragged block lifts, in world units.")]
+        [Tooltip("Sürüklenen bloğun ne kadar yükseldiği, dünya biriminde.")]
         [SerializeField, Min(0f)] private float liftHeight = 0.35f;
+        [Tooltip("Bloğun kalkma ve inme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float liftDuration = 0.1f;
+        [Tooltip("Bırakılan bloğun en yakın boş hücreye oturma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float snapDuration = 0.14f;
-        [Tooltip("An ease that overshoots would push the block into its neighbor for a moment.")]
+        [Tooltip("Oturma hareketinin eğrisi. Hedefi aşan bir eğri bloğu bir anlığına komşusunun içine iterdi.")]
         [SerializeField] private Ease snapEase = Ease.OutCubic;
 
         [Header("Exit")]
-        [Tooltip("How far, in cells, a block must be pushed through its door to leave.")]
+        [Tooltip("Bloğun çıkması için kapısından kaç hücre içeri itilmesi gerektiği.")]
         [SerializeField, Range(0.05f, 1f)] private float exitDepth = 0.3f;
-        [Tooltip("Speed of a leaving block, in cells per second.")]
+        [Tooltip("Çıkan bloğun hızı, saniyede hücre.")]
         [SerializeField, Min(0.1f)] private float exitSpeed = 12f;
-        [Tooltip("How far past the board, in cells, a leaving block slides before it hides.")]
+        [Tooltip("Çıkan bloğun gizlenmeden önce tahtanın ne kadar dışına kaydığı, hücre.")]
         [SerializeField, Min(0f)] private float exitOvershoot = 0.5f;
-        [Tooltip("Height a door squashes to while a block goes through it, as a share of its own.")]
+        [Tooltip("Blok geçerken kapının basıldığı yükseklik, kendi yüksekliğine oranla.")]
         [SerializeField, Range(0.05f, 1f)] private float doorOpenSquash = 0.35f;
-        [Tooltip("Width a door swells to while it squashes, as a share of its own.")]
+        [Tooltip("Kapı basılırken genişlediği en, kendi enine oranla.")]
         [SerializeField, Range(1f, 1.5f)] private float doorOpenWiden = 1.08f;
+        [Tooltip("Kapının basılma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float doorOpenDuration = 0.08f;
-        [Tooltip("Seconds the door stays open for the block to pass.")]
+        [Tooltip("Blok geçsin diye kapının açık kaldığı süre, saniye.")]
         [SerializeField, Min(0f)] private float doorHoldDuration = 0.18f;
-        [Tooltip("Seconds the door takes to spring back up.")]
+        [Tooltip("Kapının yaylanarak geri kalkma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float doorCloseDuration = 0.35f;
+        [Tooltip("Blok tahtadan çıkınca oynayan patlama efekti. Bloğun rengini alır ve havuzdan gelir.")]
         [SerializeField] private ParticleSystem burstPrefab;
+        [Tooltip("Seviye açılırken havuzda hazır bekletilen patlama sayısı.")]
         [SerializeField, Min(0)] private int burstPrewarm = 4;
-        [Tooltip("Seconds between the level ending and its result popup, so the last moves can finish.")]
+        [Tooltip("Seviye bittikten sonra sonuç popup'ı açılana kadar geçen süre, saniye. Son hareketler bitsin diye.")]
         [SerializeField, Min(0f)] private float resultPopupDelay = 0.6f;
 
         [Header("Ice")]
-        [Tooltip("Seconds the ice takes to break away once enough blocks have left, and the bump of its count.")]
+        [Tooltip("Yeterince blok çıkınca buzun kırılıp kaybolma süresi, ayrıca sayının zıplama süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float iceBreakDuration = 0.3f;
-        [Tooltip("How much the ice count grows for a moment when it goes down.")]
+        [Tooltip("Buz sayısı azalınca bir anlığına ne kadar büyüdüğü.")]
         [SerializeField, Min(0f)] private float iceCountPunch = 0.35f;
-        [Tooltip("Color of the burst when the ice breaks.")]
+        [Tooltip("Buz kırılınca oynayan patlamanın rengi.")]
         [SerializeField] private Color iceBurstColor = new(0.72f, 0.9f, 1f);
-        [Tooltip("How far, in cells, a frozen block shakes when the player tries to move it.")]
+        [Tooltip("Donmuş bir blok çekilmeye çalışılınca ne kadar sallandığı, hücre.")]
         [SerializeField, Min(0f)] private float frozenShakeStrength = 0.08f;
+        [Tooltip("Donmuş bloğun sallanma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float frozenShakeDuration = 0.3f;
 
         [Header("Boosters")]
-        [Tooltip("Coins one freeze costs.")]
+        [Tooltip("Bir freeze'in coin fiyatı.")]
         [SerializeField, Min(1)] private int freezeCost = 30;
-        [Tooltip("Seconds of play the level timer stands still.")]
+        [Tooltip("Freeze'in seviye süresini durdurduğu oyun süresi, saniye.")]
         [SerializeField, Min(1f)] private float freezeSeconds = 10f;
-        [Tooltip("Coins one hammer costs. They are paid when it breaks a block, so taking it up and putting it back " +
-                 "is free.")]
+        [Tooltip("Bir hammer'ın coin fiyatı. Coin blok kırılınca ödenir, hammer'ı kaldırıp geri koymak bedavadır.")]
         [SerializeField, Min(1)] private int hammerCost = 50;
-        [Tooltip("Seconds a block takes to squash flat under the hammer before it pops.")]
+        [Tooltip("Hammer altındaki bloğun patlamadan önce ezilme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float smashDuration = 0.2f;
 
         [Header("Solver")]
-        [Tooltip("States searched to find out whether the board can still be cleared.")]
+        [Tooltip("Tahtanın hâlâ temizlenebilir olup olmadığını anlamak için aranan en fazla durum sayısı.")]
         [SerializeField, Min(100)] private int stuckSearchBudget = 30000;
-        [Tooltip("States searched to find the auto play solution.")]
+        [Tooltip("Otomatik oynatmanın çözümü bulmak için aradığı en fazla durum sayısı.")]
         [SerializeField, Min(100)] private int autoPlaySearchBudget = 60000;
-        [Tooltip("Seconds per cell of an auto play slide.")]
+        [Tooltip("Otomatik oynatmada bloğun bir hücre kayma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float autoPlayCellDuration = 0.08f;
+        [Tooltip("Otomatik oynatmada iki hamle arasındaki bekleme, saniye.")]
         [SerializeField, Min(0f)] private float autoPlayPause = 0.12f;
 
         [Header("Timer")]
-        [Tooltip("The timer turns to its warning look below this many seconds.")]
+        [Tooltip("Süre bu kadar saniyenin altına inince sayaç uyarı görünümüne geçer.")]
         [SerializeField, Min(0)] private int timerWarningSeconds = 10;
 
         [Header("Camera")]
-        [Tooltip("Camera pitch in degrees; 90 looks straight down.")]
+        [Tooltip("Kameranın eğim açısı, derece. 90 tam yukarıdan bakar.")]
         [SerializeField, Range(30f, 90f)] private float cameraPitch = 62f;
-        [Tooltip("Part of the screen height the board may use, leaving room for the HUD.")]
+        [Tooltip("Tahtanın kullanabileceği ekran yüksekliği oranı. Kalanı HUD'a kalır.")]
         [SerializeField, Range(0.3f, 1f)] private float boardScreenHeight = 0.62f;
-        [Tooltip("Part of the screen width the board may use.")]
+        [Tooltip("Tahtanın kullanabileceği ekran genişliği oranı.")]
         [SerializeField, Range(0.3f, 1f)] private float boardScreenWidth = 0.92f;
-        [Tooltip("Color behind the board.")]
+        [Tooltip("Tahtanın arkasındaki renk.")]
         [SerializeField] private Color backgroundColor = new(0.4863f, 0.5451f, 0.902f);
 
         [Header("Views")]
+        [Tooltip("Her blok için oluşturulan görünüm prefab'ı.")]
         [SerializeField] private BlockView blockViewPrefab;
 
         public float CellSize => cellSize;

@@ -9,44 +9,48 @@ namespace Framework.Navigation
     public sealed class NavigationConfig : ScriptableObject
     {
         [Header("Pages")]
-        [Tooltip("Page ids from left to right. Pages and tabs in the scene are sorted by this list.")]
+        [Tooltip("Soldan sağa sayfa kimlikleri. Sahnedeki sayfalar ve sekmeler bu sıraya göre dizilir.")]
         [SerializeField] private string[] pageOrder = { "home" };
 
-        [Tooltip("The page that opens when the scene starts.")]
+        [Tooltip("Sahne açılınca gösterilen sayfa.")]
         [SerializeField, NavigationId] private string defaultPageId = "home";
 
         [Header("Swipe")]
-        [Tooltip("Drag distance, as a part of the page width, that changes the page on release.")]
+        [Tooltip("Bırakınca sayfayı değiştiren sürükleme mesafesi, sayfa genişliğine oranla.")]
         [SerializeField, Range(0.05f, 0.5f)] private float swipeDistanceThreshold = 0.2f;
 
-        [Tooltip("Drag speed, in canvas units per second, that changes the page on release even for a short drag.")]
+        [Tooltip("Kısa bir sürüklemede bile bırakınca sayfayı değiştiren hız, saniyede canvas birimi.")]
         [SerializeField, Min(0f)] private float swipeSpeedThreshold = 1500f;
 
-        [Tooltip("How much the content follows the pointer past the first and the last page. 0 = locked, 1 = free.")]
+        [Tooltip("İlk ve son sayfanın ötesinde içeriğin parmağı ne kadar izlediği. 0 = kilitli, 1 = serbest.")]
         [SerializeField, Range(0f, 1f)] private float edgeResistance = 0.3f;
 
         [Header("Page Transition")]
+        [Tooltip("Sayfa geçişinin süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float pageTransitionDuration = 0.3f;
+        [Tooltip("Sayfa geçişinin eğrisi.")]
         [SerializeField] private Ease pageTransitionEase = Ease.OutCubic;
 
         [Header("Selected Tab Icon")]
-        [Tooltip("Scale of the icon of the selected tab.")]
+        [Tooltip("Seçili sekmenin ikon ölçeği.")]
         [SerializeField, Min(0.1f)] private float selectedTabIconScale = 1.3f;
-        [Tooltip("How far the icon of the selected tab moves up, in canvas units.")]
+        [Tooltip("Seçili sekmenin ikonunun yukarı kalktığı mesafe, canvas birimi.")]
         [SerializeField] private float selectedTabIconLift = 40f;
 
         [Header("Selected Tab Label")]
-        [Tooltip("Scale of the label of the selected tab.")]
+        [Tooltip("Seçili sekmenin yazısının ölçeği.")]
         [SerializeField, Min(0.1f)] private float selectedTabLabelScale = 1f;
-        [Tooltip("How far the label of the selected tab moves up, in canvas units.")]
+        [Tooltip("Seçili sekmenin yazısının yukarı kalktığı mesafe, canvas birimi.")]
         [SerializeField] private float selectedTabLabelLift;
 
         [Header("Selected Tab Width")]
-        [Tooltip("Extra width of the selected tab, in canvas units. The other tabs share the rest of the bar.")]
+        [Tooltip("Seçili sekmenin fazladan genişliği, canvas birimi. Diğer sekmeler çubuğun kalanını paylaşır.")]
         [SerializeField, Min(0f)] private float selectedTabExtraWidth;
 
         [Header("Tab Transition")]
+        [Tooltip("Sekme geçişinin süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float tabTransitionDuration = 0.2f;
+        [Tooltip("Sekme geçişinin eğrisi.")]
         [SerializeField] private Ease tabTransitionEase = Ease.OutBack;
 
         public IReadOnlyList<string> PageOrder => pageOrder;

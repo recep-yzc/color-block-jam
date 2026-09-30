@@ -9,8 +9,11 @@ namespace Framework.UI.Transitions
     [CreateAssetMenu(menuName = "Framework/UI/Transitions/Fade", fileName = "FadeTransition")]
     public sealed class FadeViewTransition : ViewTransition
     {
+        [Tooltip("Görünme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float showDuration = 0.2f;
+        [Tooltip("Gizlenme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float hideDuration = 0.15f;
+        [Tooltip("Geçişin eğrisi.")]
         [SerializeField] private Ease ease = Ease.Linear;
 
         public override UniTask ShowAsync(ViewTransitionTarget target, CancellationToken cancellationToken)

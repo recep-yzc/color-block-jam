@@ -10,6 +10,7 @@ namespace ColorBlockJam.Economy
     /// </summary>
     public sealed class CoinHudView : UIView
     {
+        [Tooltip("Oyuncunun coin miktarını gösteren yazı.")]
         [SerializeField] private TMP_Text amountLabel;
 
         public void SetCoins(int coins)

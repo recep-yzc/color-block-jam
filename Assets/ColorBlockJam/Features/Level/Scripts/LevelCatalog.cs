@@ -11,6 +11,7 @@ namespace ColorBlockJam.Level
     [CreateAssetMenu(menuName = "Color Block Jam/Level/Level Catalog", fileName = "LevelCatalog")]
     public sealed class LevelCatalog : ScriptableObject
     {
+        [Tooltip("Oynanış sırasıyla seviye JSON dosyaları. Son seviyeden sonra oyun baştan başlar.")]
         [SerializeField] private TextAsset[] levels = Array.Empty<TextAsset>();
 
         public int Count => levels.Length;

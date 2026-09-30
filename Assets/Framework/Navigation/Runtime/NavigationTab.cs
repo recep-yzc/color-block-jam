@@ -14,13 +14,16 @@ namespace Framework.Navigation
     /// </summary>
     public sealed class NavigationTab : ButtonBase, INavigationItem
     {
+        [Tooltip("Bu sekmenin açtığı sayfanın kimliği.")]
         [SerializeField, NavigationId] private string pageId;
+        [Tooltip("Sekme seçilince büyüyüp yukarı kalkan ikon.")]
         [SerializeField] private RectTransform icon;
-        [Tooltip("Optional. Shown only while the tab is selected.")]
+        [Tooltip("İsteğe bağlı. Sadece sekme seçiliyken görünür.")]
         [SerializeField] private GameObject selectedLabel;
-        [Tooltip("A locked tab does not open a page.")]
+        [Tooltip("Kilitli bir sekme sayfa açmaz.")]
         [SerializeField] private bool isLocked;
-        [Tooltip("Optional. Divider on the right edge. The tab bar hides it next to the selected tab and after the last tab.")]
+        [Tooltip("İsteğe bağlı. Sağ kenardaki ayraç. Sekme çubuğu onu seçili sekmenin yanında ve son sekmeden sonra " +
+                 "gizler.")]
         [SerializeField] private GameObject separator;
 
         private Vector2 iconRestPosition;

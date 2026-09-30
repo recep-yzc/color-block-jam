@@ -238,7 +238,7 @@ namespace ColorBlockJam.LevelEditor
             GUILayout.Label(isDirty ? title + "  *" : title, EditorStyles.boldLabel);
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button(new GUIContent("New", "Start an empty level."), EditorStyles.toolbarButton) && ConfirmDiscard())
+            if (GUILayout.Button(new GUIContent("New", "Boş bir seviye başlatır."), EditorStyles.toolbarButton) && ConfirmDiscard())
             {
                 catalogIndex = -1;
                 SetLevel(NewLevel(), dirty: false);
@@ -247,13 +247,13 @@ namespace ColorBlockJam.LevelEditor
 
             using (new EditorGUI.DisabledScope(catalogIndex < 0))
             {
-                if (GUILayout.Button(new GUIContent("Save", "Save over the level's file."), EditorStyles.toolbarButton))
+                if (GUILayout.Button(new GUIContent("Save", "Seviyenin dosyasının üzerine kaydeder."), EditorStyles.toolbarButton))
                 {
                     Save(asNew: false);
                 }
             }
 
-            if (GUILayout.Button(new GUIContent("Save As New Level", "Save as a new file at the end of the catalog."), EditorStyles.toolbarButton))
+            if (GUILayout.Button(new GUIContent("Save As New Level", "Kataloğun sonuna yeni bir dosya olarak kaydeder."), EditorStyles.toolbarButton))
             {
                 Save(asNew: true);
             }
@@ -261,7 +261,7 @@ namespace ColorBlockJam.LevelEditor
             GUILayout.Space(12f);
             using (new EditorGUI.DisabledScope(undoHistory.Count == 0))
             {
-                if (GUILayout.Button(new GUIContent("Undo", "Ctrl+Z"), EditorStyles.toolbarButton))
+                if (GUILayout.Button(new GUIContent("Undo", "Geri alır (Ctrl+Z)."), EditorStyles.toolbarButton))
                 {
                     Undo();
                 }
@@ -269,19 +269,19 @@ namespace ColorBlockJam.LevelEditor
 
             using (new EditorGUI.DisabledScope(redoHistory.Count == 0))
             {
-                if (GUILayout.Button(new GUIContent("Redo", "Ctrl+Y"), EditorStyles.toolbarButton))
+                if (GUILayout.Button(new GUIContent("Redo", "Yineler (Ctrl+Y)."), EditorStyles.toolbarButton))
                 {
                     Redo();
                 }
             }
 
             GUILayout.Space(12f);
-            if (GUILayout.Button(new GUIContent("Check", "Find out whether the level can be solved."), EditorStyles.toolbarButton))
+            if (GUILayout.Button(new GUIContent("Check", "Seviyenin çözülebilir olup olmadığını bulur."), EditorStyles.toolbarButton))
             {
                 StartValidation();
             }
 
-            if (GUILayout.Button(new GUIContent("▶ Play", "Play this level in the game scene."), EditorStyles.toolbarButton))
+            if (GUILayout.Button(new GUIContent("▶ Play", "Bu seviyeyi oyun sahnesinde oynatır."), EditorStyles.toolbarButton))
             {
                 LevelTestPlay.Play(level.ToData());
             }
@@ -313,17 +313,17 @@ namespace ColorBlockJam.LevelEditor
             using (new EditorGUI.DisabledScope(catalogIndex < 0))
             {
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button(new GUIContent("▲", "Play this level earlier.")))
+                if (GUILayout.Button(new GUIContent("▲", "Seviyeyi katalogda bir öne alır.")))
                 {
                     MoveInCatalog(-1);
                 }
 
-                if (GUILayout.Button(new GUIContent("▼", "Play this level later.")))
+                if (GUILayout.Button(new GUIContent("▼", "Seviyeyi katalogda bir sonraya alır.")))
                 {
                     MoveInCatalog(1);
                 }
 
-                if (GUILayout.Button(new GUIContent("Remove", "Take the level out of the catalog. Its file stays.")))
+                if (GUILayout.Button(new GUIContent("Remove", "Seviyeyi katalogdan çıkarır. Dosyası silinmez.")))
                 {
                     RemoveFromCatalog();
                 }
@@ -364,21 +364,21 @@ namespace ColorBlockJam.LevelEditor
             inspectorScroll = EditorGUILayout.BeginScrollView(inspectorScroll);
 
             GUILayout.Label("Board", EditorStyles.boldLabel);
-            var width = EditorGUILayout.IntSlider(new GUIContent("Width", "Cells across."), level.Width, EditableLevel.MinSize, EditableLevel.MaxSize);
-            var height = EditorGUILayout.IntSlider(new GUIContent("Height", "Cells from bottom to top."), level.Height, EditableLevel.MinSize, EditableLevel.MaxSize);
+            var width = EditorGUILayout.IntSlider(new GUIContent("Width", "Yatayda hücre sayısı."), level.Width, EditableLevel.MinSize, EditableLevel.MaxSize);
+            var height = EditorGUILayout.IntSlider(new GUIContent("Height", "Aşağıdan yukarıya hücre sayısı."), level.Height, EditableLevel.MinSize, EditableLevel.MaxSize);
             if (width != level.Width || height != level.Height)
             {
                 Change(() => level.Resize(width, height));
                 ExitIfLayoutStale();
             }
 
-            var time = EditorGUILayout.IntSlider(new GUIContent("Time (seconds)", "The level fails when the timer reaches zero."), level.TimeLimit, 10, 600);
+            var time = EditorGUILayout.IntSlider(new GUIContent("Time (seconds)", "Süre sıfıra inince seviye kaybedilir."), level.TimeLimit, 10, 600);
             if (time != level.TimeLimit)
             {
                 Change(() => level.TimeLimit = time);
             }
 
-            var difficulty = (LevelDifficulty)EditorGUILayout.EnumPopup(new GUIContent("Difficulty", "Shown to the player in the level."), level.Difficulty);
+            var difficulty = (LevelDifficulty)EditorGUILayout.EnumPopup(new GUIContent("Difficulty", "Seviyede oyuncuya gösterilir."), level.Difficulty);
             if (difficulty != level.Difficulty)
             {
                 Change(() => level.Difficulty = difficulty);
@@ -422,14 +422,14 @@ namespace ColorBlockJam.LevelEditor
                 }
 
                 var axis = (BlockAxis)EditorGUILayout.EnumPopup(new GUIContent("Moves",
-                    "Free, or only along one axis: an arrow block. The arrow on it shows the way it moves."), block.Axis);
+                    "Serbest ya da tek eksende: ok bloğu. Üstündeki ok hangi yönde gidebildiğini gösterir."), block.Axis);
                 if (axis != block.Axis)
                 {
                     Change(() => block.Axis = axis);
                 }
 
                 var ice = EditorGUILayout.IntSlider(new GUIContent("Ice",
-                        "The block starts frozen and cannot move until this many other blocks have left. 0 = no ice."),
+                        "Blok donmuş başlar ve bu kadar başka blok çıkana kadar hareket edemez. 0 = buz yok."),
                     block.Ice, 0, Mathf.Max(0, level.Blocks.Count - 1));
                 if (ice != block.Ice)
                 {
@@ -480,7 +480,7 @@ namespace ColorBlockJam.LevelEditor
                     }
 
                     EditorGUI.DrawRect(swatch, palette.GetColor(index));
-                    if (GUI.Button(swatch, new GUIContent(string.Empty, $"{palette.GetName(index)} (key {(index + 1) % 10})"), GUIStyle.none))
+                    if (GUI.Button(swatch, new GUIContent(string.Empty, $"{palette.GetName(index)} (tuş {(index + 1) % 10})"), GUIStyle.none))
                     {
                         color = index;
                     }
@@ -613,8 +613,8 @@ namespace ColorBlockJam.LevelEditor
             GUILayout.Label("Generate", EditorStyles.boldLabel);
             generateDifficulty = (LevelDifficulty)EditorGUILayout.EnumPopup("Difficulty", generateDifficulty);
             EditorGUILayout.BeginHorizontal();
-            generateSeed = EditorGUILayout.IntField(new GUIContent("Seed", "The same seed makes the same level."), generateSeed);
-            if (GUILayout.Button(new GUIContent("🎲", "Pick a random seed."), GUILayout.Width(30f)))
+            generateSeed = EditorGUILayout.IntField(new GUIContent("Seed", "Aynı seed her zaman aynı seviyeyi üretir."), generateSeed);
+            if (GUILayout.Button(new GUIContent("🎲", "Rastgele bir seed seçer."), GUILayout.Width(30f)))
             {
                 generateSeed = new Random().Next(1, 100000);
             }

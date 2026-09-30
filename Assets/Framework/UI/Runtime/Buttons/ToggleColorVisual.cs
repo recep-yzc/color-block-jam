@@ -10,9 +10,13 @@ namespace Framework.UI.Buttons
     /// </summary>
     public sealed class ToggleColorVisual : ToggleStateVisual
     {
+        [Tooltip("Açık ya da kapalı olmaya göre rengi değişen grafikler.")]
         [SerializeField] private Graphic[] graphics;
+        [Tooltip("Açıkken renk.")]
         [SerializeField] private Color onColor = Color.white;
+        [Tooltip("Kapalıyken renk.")]
         [SerializeField] private Color offColor = new(0.5f, 0.5f, 0.5f, 1f);
+        [Tooltip("Renk geçişinin süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float duration = 0.15f;
 
         private MotionHandle[] motions;

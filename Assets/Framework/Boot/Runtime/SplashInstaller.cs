@@ -10,7 +10,9 @@ namespace Framework.Boot
     /// </summary>
     public sealed class SplashInstaller : MonoInstaller
     {
+        [Tooltip("Açılış ekranı ayarları.")]
         [SerializeField] private SplashConfig config;
+        [Tooltip("Açılış ekranındaki yükleme çubuğu.")]
         [SerializeField] private LoadingBarView loadingBar;
 
         public override void Install(IContainerBuilder builder)

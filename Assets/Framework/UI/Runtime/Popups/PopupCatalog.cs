@@ -10,7 +10,7 @@ namespace Framework.UI.Popups
     [CreateAssetMenu(menuName = "Framework/UI/Popup Catalog", fileName = "PopupCatalog")]
     public sealed class PopupCatalog : ScriptableObject
     {
-        [Tooltip("One prefab per popup type.")]
+        [Tooltip("Her popup türü için bir prefab.")]
         [SerializeField] private Popup[] popups = { };
 
         [NonSerialized] private Dictionary<Type, Popup> prefabsByType;

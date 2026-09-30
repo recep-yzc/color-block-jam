@@ -15,17 +15,27 @@ namespace ColorBlockJam.Gameplay
     /// </summary>
     public sealed class GameplayHudView : UIView
     {
+        [Tooltip("Seviye numarasını gösteren yazı.")]
         [SerializeField] private TMP_Text levelLabel;
+        [Tooltip("Seviyenin zorluğunu gösteren yazı.")]
         [SerializeField] private TMP_Text difficultyLabel;
+        [Tooltip("Kalan süreyi dakika:saniye olarak gösteren yazı.")]
         [SerializeField] private TMP_Text timerLabel;
-        [Tooltip("Scaled with a punch each second while the timer is in its warning range.")]
+        [Tooltip("Süre uyarı aralığındayken her saniye zıplatılan obje.")]
         [SerializeField] private RectTransform timerPulseTarget;
+        [Tooltip("Uyarı zıplamasının büyüklüğü, ölçeğe oranla.")]
         [SerializeField] private float timerPulseStrength = 0.18f;
+        [Tooltip("Bir uyarı zıplamasının süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float timerPulseDuration = 0.3f;
+        [Tooltip("Sayacın normal rengi.")]
         [SerializeField] private Color timerColor = Color.white;
+        [Tooltip("Süre azalınca sayacın rengi.")]
         [SerializeField] private Color timerWarningColor = new(1f, 0.35f, 0.3f);
+        [Tooltip("Freeze süreyi tutarken sayacın rengi.")]
         [SerializeField] private Color timerFrozenColor = new(0.6f, 0.88f, 1f);
+        [Tooltip("Duraklatma popup'ını açan buton.")]
         [SerializeField] private ActionButton pauseButton;
+        [Tooltip("Seviyeyi bulunduğu yerden çözücüye oynatan buton.")]
         [SerializeField] private ActionButton autoPlayButton;
 
         private MotionHandle pulse;

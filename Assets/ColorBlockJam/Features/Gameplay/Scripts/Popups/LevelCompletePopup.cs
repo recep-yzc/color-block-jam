@@ -10,8 +10,11 @@ namespace ColorBlockJam.Gameplay
     /// </summary>
     public sealed class LevelCompletePopup : Popup
     {
+        [Tooltip("Kazanılan coin'i gösteren yazı.")]
         [SerializeField] private TMP_Text rewardLabel;
+        [Tooltip("Sonraki seviyeyi açan buton.")]
         [SerializeField] private ActionButton nextButton;
+        [Tooltip("Ana ekrana dönen buton.")]
         [SerializeField] private ActionButton homeButton;
 
         public ActionButton NextButton => nextButton;

@@ -13,9 +13,9 @@ namespace Framework.Navigation
     /// </summary>
     public sealed class TabBar : MonoBehaviour
     {
-        [Tooltip("Parent of the tabs. Its layout group places the tabs side by side.")]
+        [Tooltip("Sekmelerin altında durduğu obje. Layout group'u sekmeleri yan yana dizer.")]
         [SerializeField] private RectTransform tabContainer;
-        [Tooltip("Child of the tab container that ignores layout and slides behind the selected tab.")]
+        [Tooltip("Seçili sekmenin arkasına kayan vurgu. Sekme konteynerinin çocuğudur ve layout'u yok sayar.")]
         [SerializeField] private RectTransform selectionHighlight;
 
         private readonly List<NavigationTab> tabs = new();

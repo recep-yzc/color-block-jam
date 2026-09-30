@@ -14,15 +14,21 @@ namespace ColorBlockJam.Gameplay
     /// </summary>
     public sealed class BoosterBarView : UIView
     {
+        [Tooltip("Süreyi bir süreliğine durduran freeze butonu.")]
         [SerializeField] private ActionButton freezeButton;
+        [Tooltip("Freeze'in coin fiyatını gösteren yazı.")]
         [SerializeField] private TMP_Text freezePriceLabel;
+        [Tooltip("Seçilen bir bloğu kıran hammer butonu. İlk basış hammer'ı kaldırır, ikinci basış geri koyar.")]
         [SerializeField] private ActionButton hammerButton;
+        [Tooltip("Hammer'ın coin fiyatını gösteren yazı.")]
         [SerializeField] private TMP_Text hammerPriceLabel;
-        [Tooltip("Pulses while the hammer is taken up.")]
+        [Tooltip("Hammer kalkıkken büyüyüp küçülen ikon.")]
         [SerializeField] private RectTransform hammerIcon;
-        [Tooltip("Shown while the hammer is taken up, telling the player to tap a block.")]
+        [Tooltip("Hammer kalkıkken oyuncuya bir bloğa dokunmasını söyleyen yazı.")]
         [SerializeField] private GameObject hammerHint;
+        [Tooltip("Hammer kalkıkken ikonun büyüdüğü en büyük ölçek.")]
         [SerializeField, Min(1f)] private float aimPulseScale = 1.15f;
+        [Tooltip("İkonun bir kez büyümesinin ya da küçülmesinin süresi, saniye.")]
         [SerializeField, Min(0.05f)] private float aimPulseDuration = 0.35f;
 
         private MotionHandle aimPulse;

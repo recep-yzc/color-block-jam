@@ -9,6 +9,7 @@ namespace Framework.Navigation
     [RequireComponent(typeof(RectTransform))]
     public sealed class NavigationPage : MonoBehaviour, INavigationItem
     {
+        [Tooltip("Bu sayfanın kimliği. Navigation ayarlarındaki sayfa sırasında olmalı.")]
         [SerializeField, NavigationId] private string pageId;
 
         private IPageOpeningListener[] openingListeners;

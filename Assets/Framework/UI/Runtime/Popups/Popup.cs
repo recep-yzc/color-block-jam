@@ -12,11 +12,11 @@ namespace Framework.UI.Popups
     /// </summary>
     public class Popup : UIView
     {
-        [Tooltip("A tap on the dark background closes the popup.")]
+        [Tooltip("Arkadaki karartmaya dokunmak popup'ı kapatır.")]
         [SerializeField] private bool closeOnBackdropClick = true;
-        [Tooltip("The Android back button closes the popup.")]
+        [Tooltip("Android geri tuşu popup'ı kapatır.")]
         [SerializeField] private bool closeOnBackButton = true;
-        [Tooltip("Destroy the instance when the popup closes, to free memory for popups that open rarely.")]
+        [Tooltip("Popup kapanınca örneği yok edilir. Nadiren açılan popup'larda bellek boşaltmak için.")]
         [SerializeField] private bool destroyOnHide;
 
         public event Action<Popup> CloseRequested;

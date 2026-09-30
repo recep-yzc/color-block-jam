@@ -8,7 +8,9 @@ namespace Framework.UI
     [RequireComponent(typeof(RectTransform))]
     public sealed class SafeAreaPadding : MonoBehaviour
     {
+        [Tooltip("Açıkken obje ekranın üstündeki çentikten ve durum çubuğundan uzak tutulur.")]
         [SerializeField] private bool avoidTop = true;
+        [Tooltip("Açıkken obje ekranın altındaki güvenli olmayan alandan, örneğin hareket çubuğundan, uzak tutulur.")]
         [SerializeField] private bool avoidBottom;
 
         private RectTransform rectTransform;

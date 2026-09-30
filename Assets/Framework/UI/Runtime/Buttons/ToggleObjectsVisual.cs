@@ -7,7 +7,9 @@ namespace Framework.UI.Buttons
     /// </summary>
     public sealed class ToggleObjectsVisual : ToggleStateVisual
     {
+        [Tooltip("Sadece açıkken görünen objeler.")]
         [SerializeField] private GameObject[] onObjects;
+        [Tooltip("Sadece kapalıyken görünen objeler.")]
         [SerializeField] private GameObject[] offObjects;
 
         public override void Apply(bool isOn, bool instant)

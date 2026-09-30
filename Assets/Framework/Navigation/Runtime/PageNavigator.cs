@@ -15,7 +15,7 @@ namespace Framework.Navigation
     [RequireComponent(typeof(RectTransform))]
     public sealed class PageNavigator : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        [Tooltip("Parent of the pages. It moves left and right to show the current page.")]
+        [Tooltip("Sayfaların altında durduğu obje. O anki sayfayı göstermek için sağa sola kayar.")]
         [SerializeField] private RectTransform content;
 
         private readonly List<NavigationPage> pages = new();

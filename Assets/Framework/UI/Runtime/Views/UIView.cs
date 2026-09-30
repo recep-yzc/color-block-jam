@@ -14,11 +14,11 @@ namespace Framework.UI.Views
     [RequireComponent(typeof(CanvasGroup))]
     public abstract class UIView : MonoBehaviour
     {
-        [Tooltip("The part the transitions move. Leave empty to move the whole view.")]
+        [Tooltip("Geçişlerin hareket ettirdiği parça. Boş bırakılırsa bütün görünüm hareket eder.")]
         [SerializeField] private RectTransform content;
-        [Tooltip("Leave empty to show instantly.")]
+        [Tooltip("Görünürken oynayan geçiş. Boş bırakılırsa anında görünür.")]
         [SerializeField] private ViewTransition showTransition;
-        [Tooltip("Leave empty to hide instantly.")]
+        [Tooltip("Gizlenirken oynayan geçiş. Boş bırakılırsa anında gizlenir.")]
         [SerializeField] private ViewTransition hideTransition;
 
         private CanvasGroup canvasGroup;

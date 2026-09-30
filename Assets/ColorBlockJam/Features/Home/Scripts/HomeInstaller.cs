@@ -11,8 +11,11 @@ namespace ColorBlockJam.Home
     /// </summary>
     public sealed class HomeInstaller : MonoInstaller
     {
+        [Tooltip("Ana ekranın üst çubuğu.")]
         [SerializeField] private HomeHudView hud;
+        [Tooltip("Coin miktarını gösteren sayaç.")]
         [SerializeField] private CoinHudView coinHud;
+        [Tooltip("Seviye yolu ve oyna butonu.")]
         [SerializeField] private HomeLevelView level;
 
         public override void Install(IContainerBuilder builder)

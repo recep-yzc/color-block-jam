@@ -11,6 +11,7 @@ namespace Framework.Core.Installers
     /// </summary>
     public sealed class InstallerScope : LifetimeScope
     {
+        [Tooltip("Bu scope kurulurken servislerini kaydeden installer asset'leri.")]
         [SerializeField] private ScriptableInstaller[] assetInstallers = { };
 
         protected override void Configure(IContainerBuilder builder)

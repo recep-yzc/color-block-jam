@@ -8,6 +8,7 @@ namespace Framework.Boot
     [CreateAssetMenu(menuName = "Framework/Installers/App Settings", fileName = "AppSettingsInstaller")]
     public sealed class AppSettingsInstaller : ScriptableInstaller
     {
+        [Tooltip("Kare hızı ve ekranın uyumaması gibi uygulama ayarları.")]
         [SerializeField] private AppSettings settings;
 
         public override void Install(IContainerBuilder builder)

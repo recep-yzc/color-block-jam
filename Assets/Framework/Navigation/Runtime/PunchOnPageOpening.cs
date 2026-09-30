@@ -10,9 +10,13 @@ namespace Framework.Navigation
     /// </summary>
     public sealed class PunchOnPageOpening : MonoBehaviour, IPageOpeningListener
     {
+        [Tooltip("Sayfa açılınca zıplatılan obje.")]
         [SerializeField] private Transform target;
+        [Tooltip("Zıplamanın büyüklüğü, ölçeğe oranla.")]
         [SerializeField] private float strength = 0.12f;
+        [Tooltip("Zıplamanın süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float duration = 0.45f;
+        [Tooltip("Zıplama boyunca salınım sayısı.")]
         [SerializeField, Min(1)] private int frequency = 5;
 
         private MotionHandle punch;

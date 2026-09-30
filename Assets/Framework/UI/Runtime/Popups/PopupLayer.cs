@@ -8,6 +8,7 @@ namespace Framework.UI.Popups
     /// </summary>
     public sealed class PopupLayer : MonoBehaviour
     {
+        [Tooltip("Popup açıkken arkasındaki karartma.")]
         [SerializeField] private PopupBackdrop backdrop;
 
         public PopupBackdrop Backdrop => backdrop;

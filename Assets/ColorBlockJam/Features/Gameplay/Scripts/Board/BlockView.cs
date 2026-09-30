@@ -38,10 +38,11 @@ namespace ColorBlockJam.Gameplay
         private const float IceCountLift = 0.25f;
 
         [Header("Ice")]
-        [Tooltip("Shell drawn around a frozen block; it gets the block's mesh and the ice material. Kept inactive in " +
-                 "the prefab and shown only on frozen blocks.")]
+        [Tooltip("Donmuş bloğun etrafındaki buz kabuğu. Bloğun mesh'ini ve buz materyalini alır. Prefab'da kapalı " +
+                 "durur, sadece donmuş bloklarda açılır.")]
         [SerializeField] private MeshFilter iceShell;
-        [Tooltip("How many more blocks must leave before the ice breaks. Kept inactive in the prefab like the shell.")]
+        [Tooltip("Buzun kırılması için kaç blok daha çıkması gerektiğini gösteren sayı. Kabuk gibi prefab'da kapalı " +
+                 "durur.")]
         [SerializeField] private TMP_Text iceCount;
 
         private BoardView boardView;

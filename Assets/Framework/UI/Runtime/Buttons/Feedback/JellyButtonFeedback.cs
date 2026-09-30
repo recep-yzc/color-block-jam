@@ -9,12 +9,15 @@ namespace Framework.UI.Buttons
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Jelly", fileName = "JellyButtonFeedback")]
     public sealed class JellyButtonFeedback : ButtonFeedback
     {
-        [Tooltip("Scale while pressed, per axis, relative to the rest scale.")]
+        [Tooltip("Basılıyken eksen başına ölçek, normal ölçeğe oranla.")]
         [SerializeField] private Vector2 squash = new(1.12f, 0.86f);
+        [Tooltip("Basılma hareketinin süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float pressDuration = 0.1f;
-        [Tooltip("Wobble strength per axis. Opposite signs make it stretch while it shrinks.")]
+        [Tooltip("Eksen başına sallanma gücü. Zıt işaretler bir eksende uzarken diğerinde kısalmasını sağlar.")]
         [SerializeField] private Vector2 wobble = new(-0.1f, 0.14f);
+        [Tooltip("Bırakınca sallanmanın süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float wobbleDuration = 0.5f;
+        [Tooltip("Sallanma boyunca salınım sayısı.")]
         [SerializeField, Min(1)] private int wobbleFrequency = 5;
 
         public override void PlayPress(in ButtonFeedbackTarget target, ref ButtonFeedbackMotions motions)

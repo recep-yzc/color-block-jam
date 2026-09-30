@@ -9,12 +9,15 @@ namespace Framework.UI.Buttons
     /// </summary>
     public sealed class SlideToggleVisual : ToggleStateVisual
     {
+        [Tooltip("Açılıp kapanırken sağa sola kayan topuz.")]
         [SerializeField] private RectTransform knob;
-        [Tooltip("Knob x position while on, in its parent's space.")]
+        [Tooltip("Açıkken topuzun x konumu, ebeveyninin uzayında.")]
         [SerializeField] private float onPosition = 40f;
-        [Tooltip("Knob x position while off, in its parent's space.")]
+        [Tooltip("Kapalıyken topuzun x konumu, ebeveyninin uzayında.")]
         [SerializeField] private float offPosition = -40f;
+        [Tooltip("Topuzun kayma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float duration = 0.25f;
+        [Tooltip("Kaymanın eğrisi.")]
         [SerializeField] private Ease ease = Ease.OutBack;
 
         private MotionHandle slide;

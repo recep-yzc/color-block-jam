@@ -5,7 +5,9 @@ namespace Framework.Boot
 {
     public sealed class LoadingBarView : MonoBehaviour
     {
+        [Tooltip("Yükleme ilerledikçe dolan çubuk.")]
         [SerializeField] private RectTransform fill;
+        [Tooltip("Yükleme yüzdesini gösteren yazı.")]
         [SerializeField] private TMP_Text percentLabel;
 
         public void SetProgress(float normalizedProgress)

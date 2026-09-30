@@ -9,7 +9,9 @@ namespace ColorBlockJam.Gameplay
     /// </summary>
     public sealed class PausePopup : Popup
     {
+        [Tooltip("Seviyeyi baştan başlatan buton.")]
         [SerializeField] private ActionButton restartButton;
+        [Tooltip("Ana ekrana dönen buton.")]
         [SerializeField] private ActionButton homeButton;
 
         public ActionButton RestartButton => restartButton;

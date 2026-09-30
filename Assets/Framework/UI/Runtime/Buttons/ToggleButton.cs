@@ -9,6 +9,7 @@ namespace Framework.UI.Buttons
     /// </summary>
     public sealed class ToggleButton : ButtonBase
     {
+        [Tooltip("Toggle'ın açık mı kapalı mı olduğu.")]
         [SerializeField] private bool isOn = true;
 
         private ToggleStateVisual[] visuals;

@@ -9,6 +9,7 @@ namespace ColorBlockJam.Home
     /// </summary>
     public sealed class HomeHudView : UIView
     {
+        [Tooltip("Ayarlar popup'ını açan buton.")]
         [SerializeField] private ActionButton settingsButton;
 
         public ActionButton SettingsButton => settingsButton;

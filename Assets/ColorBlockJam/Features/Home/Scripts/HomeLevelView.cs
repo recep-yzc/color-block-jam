@@ -12,9 +12,12 @@ namespace ColorBlockJam.Home
     /// </summary>
     public sealed class HomeLevelView : UIView
     {
+        [Tooltip("Sıradaki seviyeyi başlatan buton.")]
         [SerializeField] private ActionButton playButton;
+        [Tooltip("Sıradaki seviyenin numarasını gösteren yazı.")]
         [SerializeField] private TMP_Text levelLabel;
-        [Tooltip("Parent of the level tiles. The lowest tile shows the current level, the ones above it the next levels.")]
+        [Tooltip("Seviye karolarının altında durduğu obje. En alttaki karo şu anki seviyeyi, üstündekiler sonraki " +
+                 "seviyeleri gösterir.")]
         [SerializeField] private RectTransform pathNodesRoot;
 
         private int currentLevel;

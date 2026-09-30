@@ -9,7 +9,9 @@ namespace Framework.Settings
     /// </summary>
     public sealed class SettingToggleView : MonoBehaviour
     {
+        [Tooltip("Bu satırın açıp kapattığı ayar.")]
         [SerializeField] private SettingKind setting;
+        [Tooltip("Ayarı açıp kapatan buton.")]
         [SerializeField] private ToggleButton toggle;
 
         public event Action<SettingKind, bool> Changed;

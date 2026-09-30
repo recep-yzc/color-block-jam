@@ -11,59 +11,64 @@ namespace ColorBlockJam.Gameplay
     public sealed class BoardArt : ScriptableObject
     {
         [Header("Block modules")]
-        [Tooltip("Quarter with neighbors on every side.")]
+        [Tooltip("Dört yanında da komşusu olan çeyrek blok parçası.")]
         [SerializeField] private Mesh blockCenter;
-        [Tooltip("Quarter with a side wall toward +Y.")]
+        [Tooltip("+Y yönünde yan duvarı olan çeyrek blok parçası.")]
         [SerializeField] private Mesh blockEdge;
-        [Tooltip("Quarter rounded toward +X +Y.")]
+        [Tooltip("+X +Y yönüne yuvarlanmış dış köşe çeyrek parçası.")]
         [SerializeField] private Mesh blockOuterCorner;
-        [Tooltip("Three quarters around a concave corner; the open quarter is +X +Y.")]
+        [Tooltip("İçbükey bir köşeyi saran üç çeyrek. Boş kalan çeyrek +X +Y tarafındadır.")]
         [SerializeField] private Mesh blockInnerCorner;
-        [Tooltip("Height of the modules' base below their origin, in model units.")]
+        [Tooltip("Modüllerin tabanının orijinlerinin ne kadar altında kaldığı, model biriminde.")]
         [SerializeField] private float blockBaseDepth = 0.66f;
 
         [Header("Arrow blocks")]
-        [Tooltip("Double-headed arrows laid along an arrow block, one, two and three cells long.")]
+        [Tooltip("Ok bloklarının üstüne yatırılan çift uçlu oklar: bir, iki ve üç hücre uzunluğunda.")]
         [SerializeField] private Mesh[] arrows = new Mesh[3];
-        [Tooltip("Height of the arrow's base above the block's bottom, in art units. A little under the block's top, " +
-                 "so the arrow looks pressed into it.")]
+        [Tooltip("Okun tabanının bloğun altından yüksekliği, sanat biriminde. Bloğun üst yüzünün biraz altında " +
+                 "kalır, böylece ok bloğa gömülü görünür.")]
         [SerializeField] private float arrowHeight = 1.45f;
-        [Tooltip("Color the arrow is blended toward from its block's color.")]
+        [Tooltip("Okun renginin, bloğun renginden karıştırılarak yaklaştırıldığı renk.")]
         [SerializeField] private Color arrowColor = new(1f, 0.95f, 0.88f);
-        [Tooltip("How far the arrow's color goes from the block's color toward the arrow color.")]
+        [Tooltip("Okun rengi bloğun renginden ok rengine ne kadar yaklaşır. 0 = bloğun rengi, 1 = ok rengi.")]
         [SerializeField, Range(0f, 1f)] private float arrowColorBlend = 0.75f;
 
         [Header("Board")]
+        [Tooltip("Tahtanın her hücresine döşenen zemin karosu.")]
         [SerializeField] private Mesh groundTile;
+        [Tooltip("Kenar boyunca tek parça olarak uzatılan duvar.")]
         [SerializeField] private Mesh wall;
+        [Tooltip("Tahtanın dört köşesindeki duvar parçası.")]
         [SerializeField] private Mesh wallCorner;
-        [Tooltip("Door piece one cell long.")]
+        [Tooltip("Bir hücre uzunluğundaki kapı parçası. Yan yana aynı renkli kapılar için uzatılır.")]
         [SerializeField] private Mesh door;
-        [Tooltip("Height of the wall origin, in art units (a cell is 2). Walls are taller than blocks.")]
+        [Tooltip("Duvar orijininin yüksekliği, sanat biriminde (bir hücre 2 birim). Duvarlar bloklardan uzundur.")]
         [SerializeField] private float wallHeightOffset = -0.8f;
 
         [Header("Model turns")]
-        [Tooltip("Turn, in degrees, that sets the wall model right, around its middle. The models in WallAndDoor.fbx " +
-                 "are exported upside down, and the wall also turned a quarter.")]
+        [Tooltip("Duvar modelini ortası etrafında düzelten dönüş, derece. WallAndDoor.fbx içindeki modeller ters " +
+                 "dışa aktarılmış, duvar ayrıca çeyrek tur dönük.")]
         [SerializeField] private Vector3 wallModelRotation = new(0f, 90f, 180f);
-        [Tooltip("Turn, in degrees, that sets the wall corner model right, around its middle.")]
+        [Tooltip("Köşe duvar modelini ortası etrafında düzelten dönüş, derece.")]
         [SerializeField] private Vector3 cornerModelRotation = new(0f, 0f, 180f);
-        [Tooltip("Turn, in degrees, that sets the door model right, around its middle. The door is one cell long " +
-                 "along X, so a quarter turn would stand it across the edge.")]
+        [Tooltip("Kapı modelini ortası etrafında düzelten dönüş, derece. Kapı X boyunca bir hücre uzunluğunda; " +
+                 "çeyrek tur onu kenara dik hale getirirdi.")]
         [SerializeField] private Vector3 doorModelRotation = new(0f, 0f, 180f);
 
         [Header("Materials")]
-        [Tooltip("Tinted with the palette color of each block.")]
+        [Tooltip("Bütün blokların paylaştığı materyal. Rengi mesh'in vertex'lerinden gelir.")]
         [SerializeField] private Material blockMaterial;
-        [Tooltip("Tinted with the palette color of each door.")]
+        [Tooltip("Bütün kapıların paylaştığı materyal. Rengi mesh'in vertex'lerinden gelir.")]
         [SerializeField] private Material doorMaterial;
+        [Tooltip("Duvarların materyali.")]
         [SerializeField] private Material wallMaterial;
+        [Tooltip("Zemin karolarının materyali.")]
         [SerializeField] private Material groundMaterial;
-        [Tooltip("Marks the held block's silhouette, so its outline draws only outside it.")]
+        [Tooltip("Tutulan bloğun silüetini işaretler, böylece çerçevesi sadece dışına çizilir.")]
         [SerializeField] private Material blockOutlineMaskMaterial;
-        [Tooltip("The outer rim drawn around the block the player holds, on top of everything.")]
+        [Tooltip("Oyuncunun tuttuğu bloğun etrafına, her şeyin üstünde çizilen dış çerçeve.")]
         [SerializeField] private Material blockOutlineMaterial;
-        [Tooltip("See-through shell around a frozen block.")]
+        [Tooltip("Donmuş bloğun etrafındaki yarı saydam buz kabuğunun materyali.")]
         [SerializeField] private Material iceMaterial;
 
         public Mesh BlockCenter => blockCenter;

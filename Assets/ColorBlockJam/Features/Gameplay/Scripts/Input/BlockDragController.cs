@@ -52,7 +52,7 @@ namespace ColorBlockJam.Gameplay
         public bool IsEnabled { get; set; }
 
         // Blocks are picked at half their height so taps hit what the player sees.
-        private float PickHeight => config.CellSize * 0.4f;
+        private float PickHeight => config.CellSize * ArtSpace.BlockHalfHeight;
 
         public void Attach(Board targetBoard, IReadOnlyList<BlockView> blockViews)
         {
@@ -149,9 +149,9 @@ namespace ColorBlockJam.Gameplay
             var door = canEnterDoor ? BlockPlacement.DoorToEnter(board, block, cell) : null;
             if (door != null)
             {
-                var distance = BlockPlacement.StepsToLeave(board, block, cell, door.ExitDirection) + 0.5f;
+                var steps = BlockPlacement.StepsToLeave(board, block, cell, door.ExitDirection);
                 board.Clear(block);
-                view.EnterDoorAsync(cell, door.ExitDirection, distance, view.destroyCancellationToken).Forget();
+                view.LeaveFromAsync(cell, door.ExitDirection, steps, view.destroyCancellationToken).Forget();
                 BlockLeft?.Invoke(block, door);
                 return;
             }
@@ -170,7 +170,7 @@ namespace ColorBlockJam.Gameplay
             dragged = null;
 
             board.Clear(block);
-            var distance = BlockPlacement.LengthThroughDoor(block, door.Side) - depth + 0.5f;
+            var distance = BlockPlacement.LengthThroughDoor(block, door.Side) - depth;
             view.ExitAsync(door.ExitDirection, distance, view.destroyCancellationToken).Forget();
             BlockLeft?.Invoke(block, door);
         }

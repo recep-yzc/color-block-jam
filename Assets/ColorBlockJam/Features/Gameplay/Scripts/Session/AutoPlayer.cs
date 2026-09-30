@@ -41,7 +41,7 @@ namespace ColorBlockJam.Gameplay
 
                 if (move.Exits)
                 {
-                    await LeaveAsync(board, block, view, move, onLeft, cancellationToken);
+                    Leave(board, block, view, move, onLeft, cancellationToken);
                 }
                 else
                 {
@@ -55,19 +55,13 @@ namespace ColorBlockJam.Gameplay
             return true;
         }
 
-        private static async UniTask LeaveAsync(Board board, BoardBlock block, BlockView view, SolverMove move,
+        private static void Leave(Board board, BoardBlock block, BlockView view, SolverMove move,
             Action<BoardBlock, BoardDoor> onLeft, CancellationToken cancellationToken)
         {
-            if (move.Target != block.Position)
-            {
-                await view.SlideAsync(move.Target, cancellationToken);
-                board.Move(block, move.Target);
-            }
-
             var door = BlockPlacement.ExitDoor(board, block, move.Target, move.Direction);
-            var distance = BlockPlacement.StepsToLeave(board, block, move.Target, move.Direction) + 0.5f;
+            var steps = BlockPlacement.StepsToLeave(board, block, move.Target, move.Direction);
             board.Clear(block);
-            view.ExitAsync(move.Direction, distance, cancellationToken).Forget();
+            view.LeaveFromAsync(move.Target, move.Direction, steps, cancellationToken).Forget();
             onLeft(block, door);
         }
     }

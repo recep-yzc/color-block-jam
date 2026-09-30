@@ -16,6 +16,9 @@ namespace ColorBlockJam.Gameplay
     {
         private const int NoDoor = -1;
 
+        // Walls are a quarter cell thick band just outside the board.
+        private const float WallBand = 0.25f;
+
         /// <summary>A stretched door piece covering the cells <see cref="From"/> up to <see cref="To"/> of a side, in one color.</summary>
         private readonly struct DoorRun
         {
@@ -191,9 +194,9 @@ namespace ColorBlockJam.Gameplay
 
         private void BuildCorners(Board board, BoardArt art, List<CombineInstance> walls)
         {
-            const float outside = -0.25f;
-            var right = board.Width + 0.25f;
-            var top = board.Height + 0.25f;
+            const float outside = -WallBand;
+            var right = board.Width + WallBand;
+            var top = board.Height + WallBand;
 
             walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, outside), Quaternion.identity, 1f));
             walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, top), Quaternion.Euler(0f, 90f, 0f), 1f));
@@ -204,14 +207,12 @@ namespace ColorBlockJam.Gameplay
         /// <summary>The middle of the wall band outside a side, at a distance along that side, in cell units.</summary>
         private static Vector2 EdgePoint(Board board, BoardSide side, float along)
         {
-            // Walls are a quarter cell thick band just outside the board.
-            const float band = 0.25f;
             return side switch
             {
-                BoardSide.Bottom => new Vector2(along, -band),
-                BoardSide.Top => new Vector2(along, board.Height + band),
-                BoardSide.Left => new Vector2(-band, along),
-                _ => new Vector2(board.Width + band, along)
+                BoardSide.Bottom => new Vector2(along, -WallBand),
+                BoardSide.Top => new Vector2(along, board.Height + WallBand),
+                BoardSide.Left => new Vector2(-WallBand, along),
+                _ => new Vector2(board.Width + WallBand, along)
             };
         }
 

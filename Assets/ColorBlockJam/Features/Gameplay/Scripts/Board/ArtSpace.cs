@@ -11,6 +11,9 @@ namespace ColorBlockJam.Gameplay
         public const float CellSize = 2f;
         public const float QuarterSize = CellSize / 2f;
 
+        /// <summary>Half a block's height, in cells: a block stands about 0.8 of a cell tall.</summary>
+        public const float BlockHalfHeight = 0.4f;
+
         /// <summary>Turns a module modeled on the XY plane so it lies on the ground with its top up.</summary>
         public static readonly Quaternion LayFlat = Quaternion.Euler(90f, 0f, 0f);
 

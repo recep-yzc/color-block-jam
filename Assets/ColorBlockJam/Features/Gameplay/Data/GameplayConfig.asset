@@ -22,6 +22,7 @@ MonoBehaviour:
   snapEase: 8
   exitDepth: 0.3
   exitSpeed: 12
+  exitOvershoot: 0.5
   doorOpenSquash: 0.35
   doorOpenWiden: 1.08
   doorOpenDuration: 0.08

@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using LitMotion;
 using LitMotion.Extensions;
 using UnityEngine;
+using NVector2 = System.Numerics.Vector2;
 
 namespace ColorBlockJam.Gameplay
 {
@@ -16,6 +17,15 @@ namespace ColorBlockJam.Gameplay
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class BlockView : MonoBehaviour
     {
+        // Shortest time any move of the block takes, so tiny moves still read as motion.
+        private const float MinMotionDuration = 0.05f;
+
+        // Lining up in front of a door takes this share of the snap duration.
+        private const float LineUpShare = 0.6f;
+
+        // Scale a leaving block shrinks to while it slides out.
+        private const float LeftScale = 0.2f;
+
         private BoardView boardView;
         private GameplayConfig config;
         private Mesh mesh;
@@ -36,7 +46,7 @@ namespace ColorBlockJam.Gameplay
         public BoardBlock Block { get; private set; }
 
         /// <summary>World position of the middle of the block, at half its height.</summary>
-        public Vector3 Center => transform.position + Vector3.up * (config.CellSize * 0.2f * transform.localScale.y / RestScale);
+        public Vector3 Center => transform.position + Vector3.up * (config.CellSize * ArtSpace.BlockHalfHeight * transform.localScale.y / RestScale);
 
         private float RestScale => config.CellSize / ArtSpace.CellSize;
 
@@ -68,7 +78,7 @@ namespace ColorBlockJam.Gameplay
         }
 
         /// <summary>Puts the dragged block where it is on the board, in cell units.</summary>
-        public void Follow(System.Numerics.Vector2 cell)
+        public void Follow(NVector2 cell)
         {
             MoveTo(new Vector2(cell.X, cell.Y));
         }
@@ -90,7 +100,7 @@ namespace ColorBlockJam.Gameplay
         {
             moveMotion.TryCancel();
             var target = new Vector2(cell.X, cell.Y);
-            var duration = Mathf.Max(0.05f, Vector2.Distance(cellPosition, target) * config.AutoPlayCellDuration);
+            var duration = Mathf.Max(MinMotionDuration, Vector2.Distance(cellPosition, target) * config.AutoPlayCellDuration);
             moveMotion = LMotion.Create(cellPosition, target, duration)
                 .WithEase(Ease.OutCubic)
                 .Bind(this, static (position, view) => view.MoveTo(position))
@@ -98,38 +108,44 @@ namespace ColorBlockJam.Gameplay
             return moveMotion.ToUniTask(cancellationToken);
         }
 
-        /// <summary>Lines up with <paramref name="cell"/> in front of a door, then slides out through it.</summary>
-        public async UniTask EnterDoorAsync(GridPoint cell, Direction direction, float distance, CancellationToken cancellationToken)
+        /// <summary>
+        /// Lines up with <paramref name="cell"/> in front of a door, then slides out through it, which takes
+        /// <paramref name="stepsToLeave"/> cells from there.
+        /// </summary>
+        public async UniTask LeaveFromAsync(GridPoint cell, Direction direction, float stepsToLeave, CancellationToken cancellationToken)
         {
             meshRenderer.sharedMaterials = restMaterials;
             moveMotion.TryCancel();
-            moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration * 0.6f)
+            moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration * LineUpShare)
                 .WithEase(Ease.OutQuad)
                 .Bind(this, static (position, view) => view.MoveTo(position))
                 .AddTo(this);
             await moveMotion.ToUniTask(cancellationToken);
 
-            // From the lined-up cell, the whole way out.
-            await ExitAsync(direction, distance, cancellationToken);
+            await ExitAsync(direction, stepsToLeave, cancellationToken);
         }
 
-        /// <summary>Slides out through a door, shrinking, then hides.</summary>
-        public async UniTask ExitAsync(Direction direction, float distance, CancellationToken cancellationToken)
+        /// <summary>
+        /// Slides out through a door, shrinking, then hides. <paramref name="stepsToLeave"/> is how many cells take it
+        /// fully off the board; it slides a little further so it clears the wall.
+        /// </summary>
+        public async UniTask ExitAsync(Direction direction, float stepsToLeave, CancellationToken cancellationToken)
         {
+            var distance = stepsToLeave + config.ExitOvershoot;
             moveMotion.TryCancel();
             meshRenderer.sharedMaterials = restMaterials;
             AnimateLift(0f);
 
             var offset = direction.ToOffset();
             var target = cellPosition + new Vector2(offset.X, offset.Y) * distance;
-            var duration = Mathf.Max(0.05f, distance / config.ExitSpeed);
+            var duration = Mathf.Max(MinMotionDuration, distance / config.ExitSpeed);
             var restScale = transform.localScale;
 
             moveMotion = LMotion.Create(cellPosition, target, duration)
                 .WithEase(Ease.InQuad)
                 .Bind(this, static (position, view) => view.MoveTo(position))
                 .AddTo(this);
-            var shrink = LMotion.Create(restScale, restScale * 0.2f, duration)
+            var shrink = LMotion.Create(restScale, restScale * LeftScale, duration)
                 .WithEase(Ease.InCubic)
                 .BindToLocalScale(transform)
                 .AddTo(this);

@@ -20,6 +20,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private TMP_Text timerLabel;
         [Tooltip("Scaled with a punch each second while the timer is in its warning range.")]
         [SerializeField] private RectTransform timerPulseTarget;
+        [SerializeField] private float timerPulseStrength = 0.18f;
+        [SerializeField, Min(0.01f)] private float timerPulseDuration = 0.3f;
         [SerializeField] private Color timerColor = Color.white;
         [SerializeField] private Color timerWarningColor = new(1f, 0.35f, 0.3f);
         [SerializeField] private ActionButton pauseButton;
@@ -59,7 +61,7 @@ namespace ColorBlockJam.Gameplay
             if (isWarning && timerPulseTarget != null)
             {
                 pulse.TryComplete();
-                pulse = LMotion.Punch.Create(Vector3.one, Vector3.one * 0.18f, 0.3f)
+                pulse = LMotion.Punch.Create(Vector3.one, Vector3.one * timerPulseStrength, timerPulseDuration)
                     .WithScheduler(UIMotion.Scheduler)
                     .BindToLocalScale(timerPulseTarget)
                     .AddTo(this);

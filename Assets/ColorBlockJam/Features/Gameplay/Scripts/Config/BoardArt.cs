@@ -27,7 +27,7 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Mesh wallCorner;
         [Tooltip("Door piece one cell long.")]
         [SerializeField] private Mesh door;
-        [Tooltip("Height of the wall origin, in world units. Walls are taller than blocks.")]
+        [Tooltip("Height of the wall origin, in art units (a cell is 2). Walls are taller than blocks.")]
         [SerializeField] private float wallHeightOffset = -0.8f;
 
         [Header("Model turns")]

@@ -2,7 +2,7 @@
     "name": "ColorBlockJam.Gameplay.Logic",
     "rootNamespace": "ColorBlockJam.Gameplay.Logic",
     "references": [
-        "ColorBlockJam.Level"
+        "ColorBlockJam.Level.Data"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

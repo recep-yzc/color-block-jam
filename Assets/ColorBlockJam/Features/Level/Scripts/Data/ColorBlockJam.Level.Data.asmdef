@@ -1,9 +1,7 @@
 {
-    "name": "ColorBlockJam.Level",
+    "name": "ColorBlockJam.Level.Data",
     "rootNamespace": "ColorBlockJam.Level",
-    "references": [
-        "ColorBlockJam.Level.Data"
-    ],
+    "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -12,5 +10,5 @@
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],
-    "noEngineReferences": false
+    "noEngineReferences": true
 }

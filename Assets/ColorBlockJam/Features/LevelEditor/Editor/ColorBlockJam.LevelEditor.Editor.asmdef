@@ -3,6 +3,7 @@
     "rootNamespace": "ColorBlockJam.LevelEditor",
     "references": [
         "ColorBlockJam.Level",
+        "ColorBlockJam.Level.Data",
         "ColorBlockJam.Gameplay.Logic",
         "ColorBlockJam.Gameplay",
         "ColorBlockJam.Shared"

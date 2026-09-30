@@ -8,6 +8,7 @@
         "Framework.Settings",
         "ColorBlockJam.Shared",
         "ColorBlockJam.Level",
+        "ColorBlockJam.Level.Data",
         "ColorBlockJam.Gameplay.Logic",
         "ColorBlockJam.Economy",
         "ColorBlockJam.Progression",

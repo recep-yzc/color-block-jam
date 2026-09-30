@@ -4,6 +4,7 @@
     "references": [
         "ColorBlockJam.Gameplay.Logic",
         "ColorBlockJam.Level",
+        "ColorBlockJam.Level.Data",
         "ColorBlockJam.Economy",
         "ColorBlockJam.Progression",
         "Framework.Core",

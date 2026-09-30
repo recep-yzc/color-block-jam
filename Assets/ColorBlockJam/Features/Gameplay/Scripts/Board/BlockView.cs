@@ -9,8 +9,9 @@ using UnityEngine;
 namespace ColorBlockJam.Gameplay
 {
     /// <summary>
-    /// The look of one block. While dragged it lifts and sits exactly where the drag mover puts it, so what the
-    /// player sees never overlaps another block; the smoothness comes from how the drag catches up with the finger.
+    /// The look of one block. While dragged it lifts, gets an outline and sits exactly where the drag mover puts it,
+    /// so what the player sees never overlaps another block; the smoothness comes from how the drag catches up with
+    /// the finger.
     /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class BlockView : MonoBehaviour
@@ -18,6 +19,11 @@ namespace ColorBlockJam.Gameplay
         private BoardView boardView;
         private GameplayConfig config;
         private Mesh mesh;
+        private MeshRenderer meshRenderer;
+
+        // The material sets for resting and for being held, made once so a grab allocates nothing.
+        private Material[] restMaterials;
+        private Material[] heldMaterials;
         private Vector2 cellPosition;
         private Vector2 middle;
         private float lift;
@@ -41,7 +47,10 @@ namespace ColorBlockJam.Gameplay
             config = gameplayConfig;
             mesh = BlockMeshBuilder.Build(block, art);
             GetComponent<MeshFilter>().sharedMesh = mesh;
-            GetComponent<MeshRenderer>().sharedMaterial = material;
+            meshRenderer = GetComponent<MeshRenderer>();
+            restMaterials = new[] { material };
+            heldMaterials = art.BlockOutlineMaterial != null ? new[] { material, art.BlockOutlineMaterial } : restMaterials;
+            meshRenderer.sharedMaterials = restMaterials;
             transform.localScale = Vector3.one * RestScale;
             middle = new Vector2(block.MinX + block.MaxX + 1, block.MinY + block.MaxY + 1) * 0.5f;
             cellPosition = new Vector2(block.Position.X, block.Position.Y);
@@ -51,6 +60,7 @@ namespace ColorBlockJam.Gameplay
         public void BeginDrag()
         {
             moveMotion.TryCancel();
+            meshRenderer.sharedMaterials = heldMaterials;
             AnimateLift(config.LiftHeight);
         }
 
@@ -63,6 +73,7 @@ namespace ColorBlockJam.Gameplay
         /// <summary>Ends a drag by settling on a board cell.</summary>
         public void Settle(GridPoint cell)
         {
+            meshRenderer.sharedMaterials = restMaterials;
             AnimateLift(0f);
             moveMotion.TryCancel();
             moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration)
@@ -88,6 +99,7 @@ namespace ColorBlockJam.Gameplay
         public async UniTask ExitAsync(Direction direction, float distance, CancellationToken cancellationToken)
         {
             moveMotion.TryCancel();
+            meshRenderer.sharedMaterials = restMaterials;
             AnimateLift(0f);
 
             var offset = direction.ToOffset();

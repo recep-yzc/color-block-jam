@@ -47,6 +47,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Material doorMaterial;
         [SerializeField] private Material wallMaterial;
         [SerializeField] private Material groundMaterial;
+        [Tooltip("Drawn as a second material on the block the player holds, as its outline.")]
+        [SerializeField] private Material blockOutlineMaterial;
 
         public Mesh BlockCenter => blockCenter;
         public Mesh BlockEdge => blockEdge;
@@ -65,5 +67,6 @@ namespace ColorBlockJam.Gameplay
         public Material DoorMaterial => doorMaterial;
         public Material WallMaterial => wallMaterial;
         public Material GroundMaterial => groundMaterial;
+        public Material BlockOutlineMaterial => blockOutlineMaterial;
     }
 }

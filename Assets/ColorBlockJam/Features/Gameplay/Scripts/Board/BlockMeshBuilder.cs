@@ -10,6 +10,7 @@ namespace ColorBlockJam.Gameplay
     /// a lone quarter is an outer corner, a quarter with one neighbor is an edge, a full corner is center pieces,
     /// and a corner with three cells gets one inner corner piece with a concave bevel.
     /// The mesh origin is the middle of the block's bounds, so it scales and turns around its center.
+    /// UV channel 3 holds the smoothed normals the outline shader pushes its hull along.
     /// </summary>
     internal static class BlockMeshBuilder
     {
@@ -38,8 +39,37 @@ namespace ColorBlockJam.Gameplay
             var mesh = new Mesh { name = $"Block {block.Id}" };
             mesh.CombineMeshes(pieces.ToArray(), mergeSubMeshes: true, useMatrices: true);
             mesh.RecalculateBounds();
+            AddOutlineNormals(mesh);
             return mesh;
         }
+
+        /// <summary>
+        /// Writes into UV channel 3 each vertex's normal averaged with every vertex at the same place. The outline
+        /// shader pushes its hull along these, so edges where the pieces' normals differ do not split the rim.
+        /// </summary>
+        private static void AddOutlineNormals(Mesh mesh)
+        {
+            var vertices = mesh.vertices;
+            var normals = mesh.normals;
+            var sums = new Dictionary<Vector3Int, Vector3>(vertices.Length);
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                var place = Weld(vertices[i]);
+                sums.TryGetValue(place, out var sum);
+                sums[place] = sum + normals[i];
+            }
+
+            var smoothed = new Vector3[vertices.Length];
+            for (var i = 0; i < vertices.Length; i++)
+            {
+                smoothed[i] = sums[Weld(vertices[i])].normalized;
+            }
+
+            mesh.SetUVs(3, smoothed);
+        }
+
+        // Vertices closer than a thousandth of a unit are the same place.
+        private static Vector3Int Weld(Vector3 position) => Vector3Int.RoundToInt(position * 1000f);
 
         private static void AddCornerPieces(GridPoint corner, HashSet<GridPoint> cells, BoardArt art, Vector3 pivot,
             List<CombineInstance> pieces)

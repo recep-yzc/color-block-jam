@@ -95,6 +95,20 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void AFreezeHoldsTheTimer()
+        {
+            var timer = new LevelTimer(10f);
+            timer.Freeze(2f);
+
+            timer.Tick(1.5f);
+            Assert.AreEqual(10f, timer.Remaining, "Frozen time does not count.");
+
+            timer.Tick(1f);
+            Assert.AreEqual(9.5f, timer.Remaining, 0.0001f, "The rest of the step after the freeze counts.");
+            Assert.IsFalse(timer.IsFrozen);
+        }
+
+        [Test]
         public void TimerStopsAtZero()
         {
             var timer = new LevelTimer(1f);

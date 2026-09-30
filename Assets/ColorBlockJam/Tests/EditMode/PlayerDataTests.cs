@@ -33,6 +33,21 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void SpendingNeedsEnoughCoinsAndIsSaved()
+        {
+            var config = ScriptableObject.CreateInstance<EconomyConfig>();
+            var storage = new InMemoryStorage();
+            storage.SetInt("economy.coins", 50);
+            var wallet = new CoinWallet(storage, config);
+
+            Assert.IsFalse(wallet.TrySpend(60));
+            Assert.AreEqual(50, wallet.Coins, "A failed spend takes nothing.");
+            Assert.IsTrue(wallet.TrySpend(40));
+            Assert.AreEqual(10, new CoinWallet(storage, config).Coins, "What is left is saved.");
+            Object.DestroyImmediate(config);
+        }
+
+        [Test]
         public void NewPlayerStartsAtLevelOne()
         {
             Assert.AreEqual(1, new ProgressionService(new InMemoryStorage()).CurrentLevel);

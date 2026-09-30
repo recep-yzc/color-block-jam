@@ -12,5 +12,9 @@ namespace ColorBlockJam.Economy
         int Coins { get; }
 
         void Add(int amount);
+
+        /// <summary>Takes <paramref name="amount"/> coins if the player has that many.</summary>
+        /// <returns>False, and nothing is taken, when there are not enough coins.</returns>
+        bool TrySpend(int amount);
     }
 }

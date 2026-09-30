@@ -27,6 +27,28 @@ namespace ColorBlockJam.Economy
             }
 
             Coins += amount;
+            Save();
+        }
+
+        public bool TrySpend(int amount)
+        {
+            if (amount <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(amount), amount, "Only positive amounts can be spent.");
+            }
+
+            if (Coins < amount)
+            {
+                return false;
+            }
+
+            Coins -= amount;
+            Save();
+            return true;
+        }
+
+        private void Save()
+        {
             storage.SetInt(CoinsKey, Coins);
             CoinsChanged?.Invoke(Coins);
         }

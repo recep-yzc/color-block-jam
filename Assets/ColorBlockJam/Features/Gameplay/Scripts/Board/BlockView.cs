@@ -40,7 +40,7 @@ namespace ColorBlockJam.Gameplay
 
         private float RestScale => config.CellSize / ArtSpace.CellSize;
 
-        public void Initialize(BoardBlock block, BoardView board, GameplayConfig gameplayConfig, BoardArt art, Material material)
+        public void Initialize(BoardBlock block, BoardView board, GameplayConfig gameplayConfig, BoardArt art, Color color)
         {
             Block = block;
             boardView = board;
@@ -48,11 +48,12 @@ namespace ColorBlockJam.Gameplay
             mesh = BlockMeshBuilder.Build(block, art);
             GetComponent<MeshFilter>().sharedMesh = mesh;
             meshRenderer = GetComponent<MeshRenderer>();
-            restMaterials = new[] { material };
+            restMaterials = new[] { art.BlockMaterial };
             heldMaterials = art.BlockOutlineMaskMaterial != null && art.BlockOutlineMaterial != null
-                ? new[] { material, art.BlockOutlineMaskMaterial, art.BlockOutlineMaterial }
+                ? new[] { art.BlockMaterial, art.BlockOutlineMaskMaterial, art.BlockOutlineMaterial }
                 : restMaterials;
             meshRenderer.sharedMaterials = restMaterials;
+            ToonTint.Apply(meshRenderer, color);
             transform.localScale = Vector3.one * RestScale;
             middle = new Vector2(block.MinX + block.MaxX + 1, block.MinY + block.MaxY + 1) * 0.5f;
             cellPosition = new Vector2(block.Position.X, block.Position.Y);

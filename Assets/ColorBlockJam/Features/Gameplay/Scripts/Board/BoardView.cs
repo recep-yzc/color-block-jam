@@ -14,15 +14,20 @@ namespace ColorBlockJam.Gameplay
     public sealed class BoardView : MonoBehaviour
     {
         private readonly List<Mesh> builtMeshes = new();
+        private Transform parts;
         private float cellSize;
         private float artScale;
 
         public Bounds WorldBounds { get; private set; }
 
-        public void Build(Board board, BoardArt art, ColorMaterials doorMaterials, float worldCellSize)
+        public void Build(Board board, BoardArt art, BlockPalette palette, float worldCellSize)
         {
             cellSize = worldCellSize;
             artScale = worldCellSize / ArtSpace.CellSize;
+
+            // The board's own parts sit apart from the blocks, which are children of this view too and move.
+            parts = new GameObject("Board Parts").transform;
+            parts.SetParent(transform, false);
 
             var ground = new List<CombineInstance>();
             for (var x = 0; x < board.Width; x++)
@@ -45,8 +50,12 @@ namespace ColorBlockJam.Gameplay
             foreach (var pair in doorPieces)
             {
                 var partName = $"Door {pair.Key.Side} {pair.Key.Start}";
-                AddRenderer(partName, Combine(partName, pair.Value), doorMaterials.Get(pair.Key.Color));
+                var door = AddRenderer(partName, Combine(partName, pair.Value), art.DoorMaterial);
+                ToonTint.Apply(door, palette.GetColor(pair.Key.Color));
             }
+
+            // Nothing on the board moves again, so its parts are batched as static geometry.
+            StaticBatchingUtility.Combine(parts.gameObject);
 
             var size = new Vector3((board.Width + 1) * cellSize, cellSize, (board.Height + 1) * cellSize);
             WorldBounds = new Bounds(CellToWorld(new Vector2(board.Width * 0.5f, board.Height * 0.5f)), size);
@@ -220,13 +229,15 @@ namespace ColorBlockJam.Gameplay
             return mesh;
         }
 
-        private void AddRenderer(string partName, Mesh mesh, params Material[] materials)
+        private MeshRenderer AddRenderer(string partName, Mesh mesh, params Material[] materials)
         {
             builtMeshes.Add(mesh);
             var part = new GameObject(partName);
-            part.transform.SetParent(transform, false);
+            part.transform.SetParent(parts, false);
             part.AddComponent<MeshFilter>().sharedMesh = mesh;
-            part.AddComponent<MeshRenderer>().sharedMaterials = materials;
+            var meshRenderer = part.AddComponent<MeshRenderer>();
+            meshRenderer.sharedMaterials = materials;
+            return meshRenderer;
         }
     }
 }

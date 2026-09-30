@@ -61,8 +61,6 @@ namespace ColorBlockJam.Gameplay
         private Solvability solvability;
         private bool isSolvabilityChecking;
         private bool hasPlayerMoved;
-        private ColorMaterials blockMaterials;
-        private ColorMaterials doorMaterials;
         private Board board;
 
         public LevelSession(ILevelProvider levels, BoardView boardView, BoardArt art, BlockPalette palette, GameplayConfig config,
@@ -105,15 +103,13 @@ namespace ColorBlockJam.Gameplay
         public void Start()
         {
             board = BoardFactory.Create(Level);
-            blockMaterials = new ColorMaterials(art.BlockMaterial, palette);
-            doorMaterials = new ColorMaterials(art.DoorMaterial, palette);
-            boardView.Build(board, art, doorMaterials, config.CellSize);
+            boardView.Build(board, art, palette, config.CellSize);
 
             foreach (var block in board.Blocks)
             {
                 var view = Object.Instantiate(config.BlockViewPrefab, boardView.transform);
                 view.name = $"Block {block.Id}";
-                view.Initialize(block, boardView, config, art, blockMaterials.Get(block.Color));
+                view.Initialize(block, boardView, config, art, palette.GetColor(block.Color));
                 view.Exited += OnBlockExited;
                 views.Add(view);
             }
@@ -151,8 +147,6 @@ namespace ColorBlockJam.Gameplay
             lifetime.Dispose();
             drag.BlockMoved -= OnBlockMoved;
             drag.BlockLeft -= OnBlockLeft;
-            blockMaterials?.Dispose();
-            doorMaterials?.Dispose();
         }
 
         /// <summary>Lets the solver finish the level from where the player left it.</summary>

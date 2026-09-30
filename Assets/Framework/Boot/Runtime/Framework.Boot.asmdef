@@ -5,7 +5,6 @@
         "Framework.Core",
         "VContainer",
         "UniTask",
-        "UnityEngine.UI",
         "Unity.TextMeshPro"
     ],
     "includePlatforms": [],

@@ -4,7 +4,6 @@
     "references": [
         "Framework.Core",
         "Framework.UI",
-        "Framework.Navigation",
         "Framework.Settings",
         "ColorBlockJam.Shared",
         "ColorBlockJam.Economy",

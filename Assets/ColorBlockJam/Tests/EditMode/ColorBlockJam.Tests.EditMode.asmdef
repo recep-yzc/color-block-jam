@@ -6,7 +6,6 @@
         "ColorBlockJam.Level",
         "ColorBlockJam.Economy",
         "ColorBlockJam.Progression",
-        "ColorBlockJam.Gameplay",
         "Framework.Core",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"

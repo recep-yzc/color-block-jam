@@ -53,7 +53,8 @@ namespace ColorBlockJam.Gameplay.Logic
     }
 
     /// <summary>
-    /// Finds the fewest block repositions that clear the board.
+    /// Finds the fewest block repositions that clear the board. Frozen blocks stay where they are until enough blocks
+    /// have left, and arrow blocks only move along their axis.
     /// Leaving is never a bad move, because a removed block only frees space; so before every step all blocks that can
     /// reach their door leave. A step then moves one remaining block to any cell it can reach with the others still.
     /// The search is breadth-first over those steps, so the found solution needs the fewest repositions.
@@ -104,7 +105,7 @@ namespace ColorBlockJam.Gameplay.Logic
                 for (var b = 0; b < blocks.Count && solvedIndex < 0; b++)
                 {
                     var block = blocks[b];
-                    if (block.IsCleared)
+                    if (block.IsCleared || board.IsFrozen(block))
                     {
                         continue;
                     }
@@ -168,7 +169,8 @@ namespace ColorBlockJam.Gameplay.Logic
                 hasLeft = false;
                 for (var i = 0; i < blocks.Count; i++)
                 {
-                    if (!blocks[i].IsCleared && TryLeave(board, blocks[i], reach, moves))
+                    // A block that leaves can thaw another, so the loop goes round until nothing more leaves.
+                    if (!blocks[i].IsCleared && !board.IsFrozen(blocks[i]) && TryLeave(board, blocks[i], reach, moves))
                     {
                         hasLeft = true;
                     }
@@ -292,6 +294,11 @@ namespace ColorBlockJam.Gameplay.Logic
                     var positionIndex = IndexOf(position);
                     foreach (var direction in Directions.All)
                     {
+                        if (!block.MovesAlong(direction))
+                        {
+                            continue;
+                        }
+
                         var offset = direction.ToOffset();
                         for (var next = position + offset; ; next += offset)
                         {

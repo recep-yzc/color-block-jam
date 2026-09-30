@@ -20,6 +20,13 @@ namespace ColorBlockJam.Gameplay.Logic
 
         public int BaseSeconds;
         public int SecondsPerBlock;
+
+        /// <summary>Share of blocks that become arrow blocks, moving along one axis only.</summary>
+        public double ArrowShare;
+
+        /// <summary>How many blocks start under ice, each needing up to <see cref="MaxIce"/> other blocks to leave first.</summary>
+        public int IceBlocks;
+        public int MaxIce;
         public IReadOnlyList<GridPoint[]>[] ShapePools;
 
         public static GeneratorSettings For(LevelDifficulty difficulty)
@@ -35,13 +42,14 @@ namespace ColorBlockJam.Gameplay.Logic
                 LevelDifficulty.Medium => new GeneratorSettings
                 {
                     Width = 6, Height = 7, Colors = 5, MinBlocks = 8, MaxBlocks = 9, MaxDoorLength = 3,
-                    MinRepositions = 1, MaxRepositions = 2, BaseSeconds = 20, SecondsPerBlock = 9,
+                    MinRepositions = 1, MaxRepositions = 2, BaseSeconds = 20, SecondsPerBlock = 9, ArrowShare = 0.15,
                     ShapePools = new[] { BlockShapes.Small, BlockShapes.Long }
                 },
                 _ => new GeneratorSettings
                 {
                     Width = 7, Height = 8, Colors = 7, MinBlocks = 11, MaxBlocks = 13, MaxDoorLength = 3,
-                    MinRepositions = 2, MaxRepositions = 6, BaseSeconds = 20, SecondsPerBlock = 8,
+                    MinRepositions = 2, MaxRepositions = 6, BaseSeconds = 20, SecondsPerBlock = 8, ArrowShare = 0.2,
+                    IceBlocks = 1, MaxIce = 3,
                     ShapePools = new[] { BlockShapes.Small, BlockShapes.Long, BlockShapes.Complex }
                 }
             };
@@ -129,6 +137,8 @@ namespace ColorBlockJam.Gameplay.Logic
             {
                 return null;
             }
+
+            AddIce(settings, blocks, random);
 
             return new LevelData
             {
@@ -225,7 +235,11 @@ namespace ColorBlockJam.Gameplay.Logic
 
                 var x = random.Next(0, settings.Width - width + 1);
                 var y = random.Next(0, settings.Height - height + 1);
-                if (!IsFree(taken, shape, x, y) || !LevelDiagnostics.CanEverLeave(settings.Width, settings.Height, shape, color, doors))
+                var axis = random.NextDouble() < settings.ArrowShare
+                    ? random.Next(2) == 0 ? BlockAxis.Horizontal : BlockAxis.Vertical
+                    : BlockAxis.Free;
+                if (!IsFree(taken, shape, x, y) ||
+                    !LevelDiagnostics.CanEverLeave(settings.Width, settings.Height, shape, color, doors, axis, new GridPoint(x, y)))
                 {
                     continue;
                 }
@@ -237,10 +251,20 @@ namespace ColorBlockJam.Gameplay.Logic
                     taken[x + shape[i].X, y + shape[i].Y] = true;
                 }
 
-                blocks.Add(new BlockData { color = color, x = x, y = y, cells = cells });
+                blocks.Add(new BlockData { color = color, x = x, y = y, cells = cells, axis = axis });
             }
 
             return blocks;
+        }
+
+        /// <summary>Freezes a few random blocks; each asks for fewer blocks to leave first than there are others.</summary>
+        private static void AddIce(GeneratorSettings settings, List<BlockData> blocks, Random random)
+        {
+            for (var i = 0; i < settings.IceBlocks; i++)
+            {
+                var block = blocks[random.Next(blocks.Count)];
+                block.ice = Math.Min(blocks.Count - 1, random.Next(1, settings.MaxIce + 1));
+            }
         }
 
         private static bool IsFree(bool[,] taken, GridPoint[] shape, int x, int y)

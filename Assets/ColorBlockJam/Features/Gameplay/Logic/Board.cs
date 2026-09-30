@@ -33,6 +33,15 @@ namespace ColorBlockJam.Gameplay.Logic
         public int RemainingBlocks { get; private set; }
         public bool IsCleared => RemainingBlocks == 0;
 
+        /// <summary>How many blocks have left the board so far.</summary>
+        public int ClearedCount => blocks.Length - RemainingBlocks;
+
+        /// <summary>True while the block is under ice: fewer blocks have left than its ice asks for. It cannot move.</summary>
+        public bool IsFrozen(BoardBlock block) => block.Ice > ClearedCount;
+
+        /// <summary>How many more blocks must leave before the block thaws; zero once it is free.</summary>
+        public int IceLeft(BoardBlock block) => Math.Max(0, block.Ice - ClearedCount);
+
         /// <summary>
         /// A board in the same state that shares nothing that changes, so the solver can search it on another thread
         /// while this one keeps being played.
@@ -125,6 +134,11 @@ namespace ColorBlockJam.Gameplay.Logic
         /// </summary>
         public bool CanPassThrough(BoardBlock block, GridPoint from, Direction direction)
         {
+            if (!block.MovesAlong(direction))
+            {
+                return false;
+            }
+
             var offset = direction.ToOffset();
             for (var position = from + offset; ; position += offset)
             {

@@ -17,7 +17,7 @@ namespace ColorBlockJam.Gameplay.Logic
                     cells[c] = new GridPoint(data.cells[c].x, data.cells[c].y);
                 }
 
-                blocks[i] = new BoardBlock(i, data.color, new GridPoint(data.x, data.y), cells);
+                blocks[i] = new BoardBlock(i, data.color, new GridPoint(data.x, data.y), cells, data.axis, data.ice);
             }
 
             var doors = new BoardDoor[level.doors.Length];

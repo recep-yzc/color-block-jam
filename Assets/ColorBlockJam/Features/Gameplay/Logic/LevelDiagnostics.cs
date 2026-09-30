@@ -11,7 +11,8 @@ namespace ColorBlockJam.Gameplay.Logic
         DoorOutsideBoard,
         DoorsOverlap,
         ColorHasNoDoor,
-        BlockFitsNoDoor
+        BlockFitsNoDoor,
+        IceNeverMelts
     }
 
     /// <summary>A mistake in a level found without solving it. <see cref="Block"/> and <see cref="Color"/> are -1 when unused.</summary>
@@ -31,7 +32,8 @@ namespace ColorBlockJam.Gameplay.Logic
 
     /// <summary>
     /// Quick checks that catch most broken levels at once, before the slower solver runs:
-    /// every block on the board and apart, every door on an edge, and a door each block fits through.
+    /// every block on the board and apart, every door on an edge, a door each block fits through (along its axis for
+    /// an arrow block), and ice that enough other blocks can melt.
     /// </summary>
     public static class LevelDiagnostics
     {
@@ -111,19 +113,30 @@ namespace ColorBlockJam.Gameplay.Logic
                     continue;
                 }
 
-                if (!CanEverLeave(level.width, level.height, ToShape(block), block.color, level.doors))
+                if (!CanEverLeave(level.width, level.height, ToShape(block), block.color, level.doors, block.axis,
+                        new GridPoint(block.x, block.y)))
                 {
                     problems.Add(new LevelProblem(LevelProblemKind.BlockFitsNoDoor, b, block.color));
+                }
+
+                // Ice melts one step for every other block that leaves, so it cannot ask for more than there are.
+                if (block.ice > level.blocks.Length - 1)
+                {
+                    problems.Add(new LevelProblem(LevelProblemKind.IceNeverMelts, b, block.color));
                 }
             }
 
             return problems;
         }
 
-        /// <summary>True when the shape, alone on an empty board, fits through some door of its color.</summary>
-        public static bool CanEverLeave(int width, int height, GridPoint[] shape, int color, IReadOnlyList<DoorData> doors)
+        /// <summary>
+        /// True when the shape, alone on an empty board, fits through some door of its color. An arrow block also has to
+        /// reach the door along its axis, so it stays on the row or column of <paramref name="origin"/>.
+        /// </summary>
+        public static bool CanEverLeave(int width, int height, GridPoint[] shape, int color, IReadOnlyList<DoorData> doors,
+            BlockAxis axis = BlockAxis.Free, GridPoint origin = default)
         {
-            var probe = new BoardBlock(0, color, new GridPoint(0, 0), shape);
+            var probe = new BoardBlock(0, color, origin, shape, axis);
             if (probe.Width > width || probe.Height > height)
             {
                 return false;
@@ -136,8 +149,13 @@ namespace ColorBlockJam.Gameplay.Logic
                     continue;
                 }
 
-                var board = new Board(width, height, new[] { probe }, new[] { new BoardDoor(door.side, door.start, door.length, door.color) });
                 var direction = BoardDoor.ExitDirectionOf(door.side);
+                if (!probe.MovesAlong(direction))
+                {
+                    continue;
+                }
+
+                var board = new Board(width, height, new[] { probe }, new[] { new BoardDoor(door.side, door.start, door.length, door.color) });
                 var isAlongX = door.side is BoardSide.Bottom or BoardSide.Top;
                 var steps = isAlongX ? width - probe.Width : height - probe.Height;
 
@@ -151,6 +169,11 @@ namespace ColorBlockJam.Gameplay.Logic
                         _ => new GridPoint(width - 1 - probe.MaxX, along - probe.MinY)
                     };
 
+                    if (!IsOnLane(axis, position, origin))
+                    {
+                        continue;
+                    }
+
                     board.Move(probe, position);
                     if (board.CanPassThrough(probe, position, direction))
                     {
@@ -160,6 +183,16 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             return false;
+        }
+
+        private static bool IsOnLane(BlockAxis axis, GridPoint position, GridPoint origin)
+        {
+            return axis switch
+            {
+                BlockAxis.Horizontal => position.Y == origin.Y,
+                BlockAxis.Vertical => position.X == origin.X,
+                _ => true
+            };
         }
 
         private static bool HasDoor(LevelData level, int color)

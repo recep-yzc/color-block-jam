@@ -23,7 +23,7 @@ namespace ColorBlockJam.Gameplay.Logic
             foreach (var offset in SnapCandidates)
             {
                 var candidate = rounded + offset;
-                if (!board.CanPlace(block, candidate))
+                if (!board.CanPlace(block, candidate) || !StaysOnAxis(block, candidate))
                 {
                     continue;
                 }
@@ -37,6 +37,17 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             return best;
+        }
+
+        /// <summary>An arrow block settles only on its own row or column.</summary>
+        private static bool StaysOnAxis(BoardBlock block, GridPoint cell)
+        {
+            return block.Axis switch
+            {
+                BlockAxis.Horizontal => cell.Y == block.Position.Y,
+                BlockAxis.Vertical => cell.X == block.Position.X,
+                _ => true
+            };
         }
 
         /// <summary>
@@ -137,7 +148,7 @@ namespace ColorBlockJam.Gameplay.Logic
             for (var i = 0; i < doors.Count; i++)
             {
                 var door = doors[i];
-                if (door.Color == block.Color && TouchesSide(board, block, cell, door.Side) &&
+                if (door.Color == block.Color && !board.IsFrozen(block) && TouchesSide(board, block, cell, door.Side) &&
                     board.CanPassThrough(block, cell, door.ExitDirection))
                 {
                     return ExitDoor(board, block, cell, door.ExitDirection);

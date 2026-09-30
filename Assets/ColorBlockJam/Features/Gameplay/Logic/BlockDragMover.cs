@@ -1,5 +1,6 @@
 using System;
 using System.Numerics;
+using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
@@ -67,7 +68,7 @@ namespace ColorBlockJam.Gameplay.Logic
             for (var pass = 0; pass < SlidePasses; pass++)
             {
                 // Each pass aims straight at the target again, so a corner that was rounded is left behind at once.
-                var remaining = to - position;
+                var remaining = AlongAxis(block, to - position);
                 if (remaining.LengthSquared() < MinProgress * MinProgress)
                 {
                     break;
@@ -106,7 +107,7 @@ namespace ColorBlockJam.Gameplay.Logic
                     break;
                 }
 
-                motion -= normal * Vector2.Dot(motion, normal);
+                motion = AlongAxis(block, motion - normal * Vector2.Dot(motion, normal));
                 if (motion.LengthSquared() < MinProgress * MinProgress)
                 {
                     break;
@@ -152,6 +153,17 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             return time;
+        }
+
+        /// <summary>The part of a motion an arrow block may make: only along its axis. Other blocks keep all of it.</summary>
+        private static Vector2 AlongAxis(BoardBlock block, Vector2 motion)
+        {
+            return block.Axis switch
+            {
+                BlockAxis.Horizontal => new Vector2(motion.X, 0f),
+                BlockAxis.Vertical => new Vector2(0f, motion.Y),
+                _ => motion
+            };
         }
 
         /// <summary>True when the block placed at the whole cell (x, y) would cover a wall or another block.</summary>

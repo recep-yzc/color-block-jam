@@ -78,6 +78,33 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void TheArrowLiesAlongTheLongestRunOnTheAxis()
+        {
+            var t = new[] { new GridPoint(0, 1), new GridPoint(1, 1), new GridPoint(2, 1), new GridPoint(1, 0) };
+            var onTheBar = BlockMarks.FindArrow(t, BlockAxis.Horizontal);
+            Assert.AreEqual(3, onTheBar.Length);
+            Assert.AreEqual(1.5f, onTheBar.CenterX);
+            Assert.AreEqual(1.5f, onTheBar.CenterY, "A T gets its arrow on its bar.");
+
+            var square = new[] { new GridPoint(0, 0), new GridPoint(1, 0), new GridPoint(0, 1), new GridPoint(1, 1) };
+            var inTheMiddle = BlockMarks.FindArrow(square, BlockAxis.Vertical);
+            Assert.AreEqual(2, inTheMiddle.Length);
+            Assert.AreEqual(1f, inTheMiddle.CenterX, "A square gets its arrow between its columns.");
+            Assert.AreEqual(1f, inTheMiddle.CenterY);
+
+            Assert.AreEqual(0, BlockMarks.FindArrow(square, BlockAxis.Free).Length, "A free block has no arrow.");
+        }
+
+        [Test]
+        public void TheIceCountSitsOnTheBlock()
+        {
+            // The middle of this L's bounds is an empty cell, so the count goes on the nearest cell of the block.
+            var l = new[] { new GridPoint(0, 0), new GridPoint(0, 1), new GridPoint(0, 2), new GridPoint(1, 0), new GridPoint(2, 0) };
+
+            Assert.AreEqual(new GridPoint(0, 0), BlockMarks.FindIceCell(l));
+        }
+
+        [Test]
         public void DiagnosticsFindIceThatCanNeverMelt()
         {
             var level = new LevelData

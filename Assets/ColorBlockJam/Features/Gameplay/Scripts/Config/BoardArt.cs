@@ -1,9 +1,10 @@
+using System;
 using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
     /// <summary>
-    /// The meshes and materials the board is built from. Block modules are quarter cells modeled on the XY plane
+    /// The meshes and materials the board is built from. Block modules and arrows are modeled on the XY plane
     /// facing -Z; walls, doors and ground tiles are modeled Y-up. All are made for a 2-unit cell.
     /// </summary>
     [CreateAssetMenu(menuName = "Color Block Jam/Gameplay/Board Art", fileName = "BoardArt")]
@@ -20,6 +21,17 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Mesh blockInnerCorner;
         [Tooltip("Height of the modules' base below their origin, in model units.")]
         [SerializeField] private float blockBaseDepth = 0.66f;
+
+        [Header("Arrow blocks")]
+        [Tooltip("Double-headed arrows laid along an arrow block, one, two and three cells long.")]
+        [SerializeField] private Mesh[] arrows = new Mesh[3];
+        [Tooltip("Height of the arrow's base above the block's bottom, in art units. A little under the block's top, " +
+                 "so the arrow looks pressed into it.")]
+        [SerializeField] private float arrowHeight = 1.45f;
+        [Tooltip("Color the arrow is blended toward from its block's color.")]
+        [SerializeField] private Color arrowColor = new(1f, 0.95f, 0.88f);
+        [Tooltip("How far the arrow's color goes from the block's color toward the arrow color.")]
+        [SerializeField, Range(0f, 1f)] private float arrowColorBlend = 0.75f;
 
         [Header("Board")]
         [SerializeField] private Mesh groundTile;
@@ -57,6 +69,7 @@ namespace ColorBlockJam.Gameplay
         public Mesh BlockOuterCorner => blockOuterCorner;
         public Mesh BlockInnerCorner => blockInnerCorner;
         public float BlockBaseDepth => blockBaseDepth;
+        public float ArrowHeight => arrowHeight;
         public Mesh GroundTile => groundTile;
         public Mesh Wall => wall;
         public Mesh WallCorner => wallCorner;
@@ -71,5 +84,17 @@ namespace ColorBlockJam.Gameplay
         public Material GroundMaterial => groundMaterial;
         public Material BlockOutlineMaskMaterial => blockOutlineMaskMaterial;
         public Material BlockOutlineMaterial => blockOutlineMaterial;
+
+        /// <summary>The arrow for a straight run of <paramref name="cells"/> cells; longer runs get the longest arrow.</summary>
+        public Mesh ArrowFor(int cells)
+        {
+            return arrows[Math.Clamp(cells, 1, arrows.Length) - 1];
+        }
+
+        /// <summary>The arrow's color on a block of <paramref name="blockColor"/>: a light shade of it.</summary>
+        public Color ArrowColorOn(Color blockColor)
+        {
+            return Color.Lerp(blockColor, arrowColor, arrowColorBlend);
+        }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ColorBlockJam.Gameplay.Logic;
+using ColorBlockJam.Level;
 using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
@@ -9,15 +10,16 @@ namespace ColorBlockJam.Gameplay
     /// Every grid corner of the block is looked at with the four cells around it:
     /// a lone quarter is an outer corner, a quarter with one neighbor is an edge, a full corner is center pieces,
     /// and a corner with three cells gets one inner corner piece with a concave bevel.
+    /// An arrow block also gets its arrow, laid along a straight run of its cells on its axis.
     /// The mesh origin is the middle of the block's bounds, so it scales and turns around its center.
-    /// UV channel 3 holds the smoothed normals the outline shader pushes its hull along.
+    /// The colors are in the vertices, and UV channel 3 holds the smoothed normals the outline and the ice push along.
     /// </summary>
     internal static class BlockMeshBuilder
     {
         // The four cells around a grid corner, as offsets from the corner.
         private static readonly GridPoint[] CellsAroundCorner = { new(-1, -1), new(0, -1), new(-1, 0), new(0, 0) };
 
-        public static Mesh Build(BoardBlock block, BoardArt art)
+        public static Mesh Build(BoardBlock block, BoardArt art, Color color)
         {
             var pivot = new Vector3(block.MinX + block.MaxX + 1, 0f, block.MinY + block.MaxY + 1) * (ArtSpace.CellSize * 0.5f);
             var cells = new HashSet<GridPoint>();
@@ -37,11 +39,39 @@ namespace ColorBlockJam.Gameplay
                 AddCornerPieces(corner, cells, art, pivot, pieces);
             }
 
+            // The combined mesh keeps the pieces' order, so the block's vertices come first and the arrow's after.
+            var blockVertices = 0;
+            foreach (var piece in pieces)
+            {
+                blockVertices += piece.mesh.vertexCount;
+            }
+
+            if (block.Axis != BlockAxis.Free)
+            {
+                pieces.Add(Arrow(block, art, pivot));
+            }
+
             var mesh = new Mesh { name = $"Block {block.Id}" };
             mesh.CombineMeshes(pieces.ToArray(), mergeSubMeshes: true, useMatrices: true);
             mesh.RecalculateBounds();
+            MeshTint.Paint(mesh, color, blockVertices, art.ArrowColorOn(color));
             AddOutlineNormals(mesh);
             return mesh;
+        }
+
+        /// <summary>The arrow of an arrow block, where <see cref="BlockMarks"/> puts it, pointing along the block's axis.</summary>
+        private static CombineInstance Arrow(BoardBlock block, BoardArt art, Vector3 pivot)
+        {
+            var run = BlockMarks.FindArrow(block.Cells, block.Axis);
+            var position = new Vector3(run.CenterX, 0f, run.CenterY) * ArtSpace.CellSize - pivot + Vector3.up * art.ArrowHeight;
+
+            // The arrow model points along its Y, which lying flat is the board's Y; a horizontal one turns a quarter.
+            var turn = block.Axis == BlockAxis.Horizontal ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.identity;
+            return new CombineInstance
+            {
+                mesh = art.ArrowFor(run.Length),
+                transform = Matrix4x4.TRS(position, turn * ArtSpace.LayFlat, Vector3.one)
+            };
         }
 
         /// <summary>

@@ -6,8 +6,11 @@
         "ColorBlockJam.Level",
         "ColorBlockJam.Level.Data",
         "ColorBlockJam.Economy",
+        "ColorBlockJam.Gameplay",
+        "ColorBlockJam.Boosters",
         "ColorBlockJam.Progression",
         "Framework.Core",
+        "Framework.UI",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

@@ -10,7 +10,8 @@ namespace ColorBlockJam.Gameplay
 {
     /// <summary>
     /// Turns pointer input into block moves: grab the block under the finger, settle it on the nearest free cell on
-    /// release, or let it leave when it is pushed through its door.
+    /// release, or let it leave when it is pushed through its door. A block dropped right in front of a door it fits
+    /// through goes in on its own.
     /// The finger only sets a target. Every frame the block catches up with it like a weight on a spring, fast when far
     /// and gently when close, and the drag mover sweeps that step so the block slides along and rolls around whatever
     /// is in the way. It keeps catching up while the finger rests, so a quick flick is never left halfway.
@@ -82,7 +83,8 @@ namespace ColorBlockJam.Gameplay
             }
             else
             {
-                Release();
+                // A drag ended by a pause or the end of the level only settles the block.
+                Release(canEnterDoor: IsEnabled);
             }
         }
 
@@ -134,16 +136,27 @@ namespace ColorBlockJam.Gameplay
             dragged.Follow(position);
         }
 
-        private void Release()
+        private void Release(bool canEnterDoor)
         {
             var block = dragged.Block;
+            var view = dragged;
             var start = block.Position;
             var cell = BlockPlacement.Snap(board, block, position);
 
             board.Move(block, cell);
-            dragged.Settle(cell);
             dragged = null;
 
+            var door = canEnterDoor ? BlockPlacement.DoorToEnter(board, block, cell) : null;
+            if (door != null)
+            {
+                var distance = BlockPlacement.StepsToLeave(board, block, cell, door.ExitDirection) + 0.5f;
+                board.Clear(block);
+                view.EnterDoorAsync(cell, door.ExitDirection, distance, view.destroyCancellationToken).Forget();
+                BlockLeft?.Invoke(block, door);
+                return;
+            }
+
+            view.Settle(cell);
             if (cell != start)
             {
                 BlockMoved?.Invoke(block);

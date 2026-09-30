@@ -98,6 +98,21 @@ namespace ColorBlockJam.Gameplay
             return moveMotion.ToUniTask(cancellationToken);
         }
 
+        /// <summary>Lines up with <paramref name="cell"/> in front of a door, then slides out through it.</summary>
+        public async UniTask EnterDoorAsync(GridPoint cell, Direction direction, float distance, CancellationToken cancellationToken)
+        {
+            meshRenderer.sharedMaterials = restMaterials;
+            moveMotion.TryCancel();
+            moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration * 0.6f)
+                .WithEase(Ease.OutQuad)
+                .Bind(this, static (position, view) => view.MoveTo(position))
+                .AddTo(this);
+            await moveMotion.ToUniTask(cancellationToken);
+
+            // From the lined-up cell, the whole way out.
+            await ExitAsync(direction, distance, cancellationToken);
+        }
+
         /// <summary>Slides out through a door, shrinking, then hides.</summary>
         public async UniTask ExitAsync(Direction direction, float distance, CancellationToken cancellationToken)
         {

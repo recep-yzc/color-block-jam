@@ -183,7 +183,7 @@ namespace ColorBlockJam.Gameplay.Logic
                 foreach (var door in board.Doors)
                 {
                     // Every way out passes the cell where the block touches the door's side, so only those are tried.
-                    if (door.Color != block.Color || !Touches(board, block, from, door.Side) ||
+                    if (door.Color != block.Color || !BlockPlacement.TouchesSide(board, block, from, door.Side) ||
                         !board.CanPassThrough(block, from, door.ExitDirection))
                     {
                         continue;
@@ -198,17 +198,6 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             return false;
-        }
-
-        private static bool Touches(Board board, BoardBlock block, GridPoint position, BoardSide side)
-        {
-            return side switch
-            {
-                BoardSide.Bottom => position.Y + block.MinY == 0,
-                BoardSide.Top => position.Y + block.MaxY == board.Height - 1,
-                BoardSide.Left => position.X + block.MinX == 0,
-                _ => position.X + block.MaxX == board.Width - 1
-            };
         }
 
         private static Node Capture(Board board, int parent, int depth, List<SolverMove> moves)

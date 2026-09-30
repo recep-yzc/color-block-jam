@@ -50,6 +50,22 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void ABlockDroppedInFrontOfADoorItFitsGoesIn()
+        {
+            var door = new BoardDoor(BoardSide.Bottom, 1, 2, 3);
+            var block = new BoardBlock(0, 3, new GridPoint(1, 0), Horizontal2);
+            var board = new Board(4, 4, new[] { block }, new[] { door });
+
+            Assert.AreSame(door, BlockPlacement.DoorToEnter(board, block, new GridPoint(1, 0)));
+            Assert.IsNull(BlockPlacement.DoorToEnter(board, block, new GridPoint(1, 1)), "Not next to the door.");
+            Assert.IsNull(BlockPlacement.DoorToEnter(board, block, new GridPoint(2, 0)), "Out of line with the door.");
+
+            var otherColor = new BoardBlock(0, 1, new GridPoint(1, 0), Horizontal2);
+            var mismatch = new Board(4, 4, new[] { otherColor }, new[] { door });
+            Assert.IsNull(BlockPlacement.DoorToEnter(mismatch, otherColor, new GridPoint(1, 0)));
+        }
+
+        [Test]
         public void SolverClearsASolvableBoard()
         {
             var red = new BoardBlock(0, 0, new GridPoint(0, 0), Single);

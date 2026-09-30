@@ -115,6 +115,36 @@ namespace ColorBlockJam.Gameplay.Logic
             return null;
         }
 
+        /// <summary>True when the block at <paramref name="position"/> reaches the board's <paramref name="side"/>.</summary>
+        public static bool TouchesSide(Board board, BoardBlock block, GridPoint position, BoardSide side)
+        {
+            return side switch
+            {
+                BoardSide.Bottom => position.Y + block.MinY == 0,
+                BoardSide.Top => position.Y + block.MaxY == board.Height - 1,
+                BoardSide.Left => position.X + block.MinX == 0,
+                _ => position.X + block.MaxX == board.Width - 1
+            };
+        }
+
+        /// <summary>
+        /// The door the block at <paramref name="cell"/> stands right in front of and fits through whole, or null.
+        /// A block dropped there goes in as if it had been pushed.
+        /// </summary>
+        public static BoardDoor DoorToEnter(Board board, BoardBlock block, GridPoint cell)
+        {
+            foreach (var door in board.Doors)
+            {
+                if (door.Color == block.Color && TouchesSide(board, block, cell, door.Side) &&
+                    board.CanPassThrough(block, cell, door.ExitDirection))
+                {
+                    return ExitDoor(board, block, cell, door.ExitDirection);
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>How many cells the block must travel from the board edge to be fully through the door.</summary>
         public static int LengthThroughDoor(BoardBlock block, BoardSide side)
         {

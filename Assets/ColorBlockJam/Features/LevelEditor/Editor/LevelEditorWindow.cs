@@ -66,6 +66,8 @@ namespace ColorBlockJam.LevelEditor
             "Click a block or a door to remove it. Right-click erases with every tool."
         };
 
+        private static readonly Color SelectedOutline = new(1f, 1f, 1f, 0.9f);
+        private static readonly Color ProblemOutline = new(1f, 0.25f, 0.25f, 1f);
         private static readonly Color Background = new(0.13f, 0.16f, 0.27f);
         private static readonly Color CellColor = new(0.24f, 0.33f, 0.64f);
         private static readonly Color WallColor = new(0.78f, 0.81f, 0.89f);
@@ -87,6 +89,9 @@ namespace ColorBlockJam.LevelEditor
         private EditableLevel level;
         private List<GridPoint[]> shapes;
         private List<LevelProblem> problems = new();
+
+        // Blocks named by a problem, drawn with a red outline so the designer sees which one is wrong.
+        private readonly HashSet<int> problemBlocks = new();
         private int selectedBlock = -1;
 
         private EditableBlock drawing;
@@ -149,7 +154,7 @@ namespace ColorBlockJam.LevelEditor
 
             // The window survives script reloads; the level comes back from its saved JSON.
             var restored = string.IsNullOrEmpty(levelJson) ? null : LevelSerializer.FromJson(levelJson);
-            level = restored != null ? EditableLevel.From(restored) : new EditableLevel(6, 7);
+            level = restored != null ? EditableLevel.From(restored) : NewLevel();
             if (restored == null && catalog != null && catalog.Count > 0)
             {
                 catalogIndex = 0;
@@ -232,7 +237,7 @@ namespace ColorBlockJam.LevelEditor
             if (GUILayout.Button(new GUIContent("New", "Start an empty level."), EditorStyles.toolbarButton) && ConfirmDiscard())
             {
                 catalogIndex = -1;
-                SetLevel(new EditableLevel(6, 7), dirty: false);
+                SetLevel(NewLevel(), dirty: false);
                 ResetHistory();
             }
 
@@ -517,7 +522,8 @@ namespace ColorBlockJam.LevelEditor
             GUILayout.Label("Check", EditorStyles.boldLabel);
             foreach (var problem in problems)
             {
-                EditorGUILayout.HelpBox(Describe(problem), MessageType.Error);
+                EditorGUILayout.HelpBox(problem.Block >= 0 ? Describe(problem) + " It is outlined in red." : Describe(problem),
+                    MessageType.Error);
             }
 
             if (validation != null)
@@ -624,18 +630,15 @@ namespace ColorBlockJam.LevelEditor
 
         private void DrawBoard()
         {
-            // Walls around the board, with door slots.
-            for (var x = -1; x <= level.Width; x++)
+            for (var x = 0; x < level.Width; x++)
             {
-                for (var y = -1; y <= level.Height; y++)
+                for (var y = 0; y < level.Height; y++)
                 {
-                    var isRing = x < 0 || y < 0 || x >= level.Width || y >= level.Height;
-                    if (!isRing)
-                    {
-                        EditorGUI.DrawRect(Shrink(CellRect(x, y), 1f), CellColor);
-                    }
+                    EditorGUI.DrawRect(Shrink(CellRect(x, y), 1f), CellColor);
                 }
             }
+
+            // The wall ring around the board, with its door slots.
 
             foreach (BoardSide side in System.Enum.GetValues(typeof(BoardSide)))
             {
@@ -663,7 +666,7 @@ namespace ColorBlockJam.LevelEditor
                             cells.Add(block.Position + cell);
                         }
 
-                        DrawBlock(cells, palette.GetColor(block.Color), 1f, outline: false);
+                        DrawBlock(cells, palette.GetColor(block.Color), 1f, outline: null);
                     }
                 }
 
@@ -677,7 +680,8 @@ namespace ColorBlockJam.LevelEditor
                     continue;
                 }
 
-                DrawBlock(level.Blocks[i].Cells, palette.GetColor(level.Blocks[i].Color), 1f, outline: i == selectedBlock);
+                var outline = i == selectedBlock ? SelectedOutline : problemBlocks.Contains(i) ? ProblemOutline : (Color?)null;
+                DrawBlock(level.Blocks[i].Cells, palette.GetColor(level.Blocks[i].Color), 1f, outline);
             }
 
             DrawGhost();
@@ -696,7 +700,7 @@ namespace ColorBlockJam.LevelEditor
                 var block = level.Blocks[movingBlock];
                 var moved = Offset(block.Cells, moveOffset);
                 var fits = level.Fits(moved, movingBlock);
-                DrawBlock(moved, fits ? palette.GetColor(block.Color) : Color.red, fits ? 0.85f : 0.6f, outline: true);
+                DrawBlock(moved, fits ? palette.GetColor(block.Color) : Color.red, fits ? 0.85f : 0.6f, SelectedOutline);
                 return;
             }
 
@@ -704,11 +708,11 @@ namespace ColorBlockJam.LevelEditor
             {
                 var cells = Offset(shapes[shapeIndex], hover.Cell);
                 var fits = level.Fits(cells);
-                DrawBlock(cells, fits ? palette.GetColor(color) : Color.red, 0.5f, outline: false);
+                DrawBlock(cells, fits ? palette.GetColor(color) : Color.red, 0.5f, outline: null);
             }
         }
 
-        private void DrawBlock(IReadOnlyList<GridPoint> cells, Color fill, float alpha, bool outline)
+        private void DrawBlock(IReadOnlyList<GridPoint> cells, Color fill, float alpha, Color? outline)
         {
             fill.a = alpha;
             var edge = new Color(fill.r * 0.55f, fill.g * 0.55f, fill.b * 0.55f, alpha);
@@ -729,13 +733,12 @@ namespace ColorBlockJam.LevelEditor
                     inner.width - (left ? border : 0f) - (right ? border : 0f), inner.height - (up ? border : 0f) - (down ? border : 0f));
                 EditorGUI.DrawRect(face, fill);
 
-                if (outline)
+                if (outline is { } line)
                 {
-                    var white = new Color(1f, 1f, 1f, 0.9f);
-                    if (left) EditorGUI.DrawRect(new Rect(inner.x, inner.y, 2f, inner.height), white);
-                    if (right) EditorGUI.DrawRect(new Rect(inner.xMax - 2f, inner.y, 2f, inner.height), white);
-                    if (up) EditorGUI.DrawRect(new Rect(inner.x, inner.y, inner.width, 2f), white);
-                    if (down) EditorGUI.DrawRect(new Rect(inner.x, inner.yMax - 2f, inner.width, 2f), white);
+                    if (left) EditorGUI.DrawRect(new Rect(inner.x, inner.y, 2f, inner.height), line);
+                    if (right) EditorGUI.DrawRect(new Rect(inner.xMax - 2f, inner.y, 2f, inner.height), line);
+                    if (up) EditorGUI.DrawRect(new Rect(inner.x, inner.y, inner.width, 2f), line);
+                    if (down) EditorGUI.DrawRect(new Rect(inner.x, inner.yMax - 2f, inner.width, 2f), line);
                 }
             }
         }
@@ -1120,6 +1123,14 @@ namespace ColorBlockJam.LevelEditor
             var data = level.ToData();
             levelJson = LevelSerializer.ToJson(data);
             problems = LevelDiagnostics.Find(data);
+            problemBlocks.Clear();
+            foreach (var problem in problems)
+            {
+                if (problem.Block >= 0)
+                {
+                    problemBlocks.Add(problem.Block);
+                }
+            }
             if (selectedBlock >= level.Blocks.Count)
             {
                 selectedBlock = -1;
@@ -1313,11 +1324,11 @@ namespace ColorBlockJam.LevelEditor
             if (asNew || catalogIndex < 0)
             {
                 var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
-                var so = new SerializedObject(catalog);
-                var levels = so.FindProperty("levels");
+                var serializedCatalog = new SerializedObject(catalog);
+                var levels = serializedCatalog.FindProperty("levels");
                 levels.arraySize++;
                 levels.GetArrayElementAtIndex(levels.arraySize - 1).objectReferenceValue = asset;
-                so.ApplyModifiedProperties();
+                serializedCatalog.ApplyModifiedProperties();
                 catalogIndex = catalog.Count - 1;
             }
 
@@ -1350,9 +1361,9 @@ namespace ColorBlockJam.LevelEditor
                 return;
             }
 
-            var so = new SerializedObject(catalog);
-            so.FindProperty("levels").MoveArrayElement(catalogIndex, target);
-            so.ApplyModifiedProperties();
+            var serializedCatalog = new SerializedObject(catalog);
+            serializedCatalog.FindProperty("levels").MoveArrayElement(catalogIndex, target);
+            serializedCatalog.ApplyModifiedProperties();
             AssetDatabase.SaveAssets();
             catalogIndex = target;
             RefreshSummaries();
@@ -1366,11 +1377,11 @@ namespace ColorBlockJam.LevelEditor
                 return;
             }
 
-            var so = new SerializedObject(catalog);
-            var levels = so.FindProperty("levels");
+            var serializedCatalog = new SerializedObject(catalog);
+            var levels = serializedCatalog.FindProperty("levels");
             levels.GetArrayElementAtIndex(catalogIndex).objectReferenceValue = null;
             levels.DeleteArrayElementAtIndex(catalogIndex);
-            so.ApplyModifiedProperties();
+            serializedCatalog.ApplyModifiedProperties();
             AssetDatabase.SaveAssets();
             catalogIndex = -1;
             isDirty = true;
@@ -1428,6 +1439,8 @@ namespace ColorBlockJam.LevelEditor
                 _ => problem.Kind.ToString()
             };
         }
+
+        private static EditableLevel NewLevel() => new(LevelData.DefaultWidth, LevelData.DefaultHeight);
 
         private static T FindAsset<T>() where T : Object
         {

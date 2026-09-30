@@ -26,13 +26,12 @@ namespace ColorBlockJam.Gameplay.Logic
 
     public sealed class SolveResult
     {
-        public SolveResult(bool isSolved, bool isExhausted, IReadOnlyList<SolverMove> moves, int repositions, int exploredStates)
+        public SolveResult(bool isSolved, bool isExhausted, IReadOnlyList<SolverMove> moves, int repositions)
         {
             IsSolved = isSolved;
             IsExhausted = isExhausted;
             Moves = moves;
             Repositions = repositions;
-            ExploredStates = exploredStates;
         }
 
         public bool IsSolved { get; }
@@ -48,8 +47,6 @@ namespace ColorBlockJam.Gameplay.Logic
         /// Zero means every block can leave as it is, in some order. This is the level's difficulty.
         /// </summary>
         public int Repositions { get; }
-
-        public int ExploredStates { get; }
 
         /// <summary>No sequence of moves clears the board from here.</summary>
         public bool IsStuck => !IsSolved && IsExhausted;
@@ -158,7 +155,7 @@ namespace ColorBlockJam.Gameplay.Logic
             var isSolved = solvedIndex >= 0;
             var isExhausted = !isSolved && !isOverBudget && !cancellationToken.IsCancellationRequested;
             var repositions = isSolved ? nodes[solvedIndex].Depth : 0;
-            return new SolveResult(isSolved, isExhausted, solution, repositions, nodes.Count);
+            return new SolveResult(isSolved, isExhausted, solution, repositions);
         }
 
         /// <summary>Lets every block that can reach its door leave, until none can.</summary>

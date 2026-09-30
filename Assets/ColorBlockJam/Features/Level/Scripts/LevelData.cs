@@ -24,10 +24,14 @@ namespace ColorBlockJam.Level
     [Serializable]
     public sealed class LevelData
     {
-        public int width = 6;
-        public int height = 6;
+        public const int DefaultWidth = 6;
+        public const int DefaultHeight = 7;
+        public const int DefaultTimeLimit = 90;
+
+        public int width = DefaultWidth;
+        public int height = DefaultHeight;
         /// <summary>Seconds the player has to clear the board.</summary>
-        public int timeLimit = 60;
+        public int timeLimit = DefaultTimeLimit;
         public LevelDifficulty difficulty;
         public BlockData[] blocks = Array.Empty<BlockData>();
         public DoorData[] doors = Array.Empty<DoorData>();

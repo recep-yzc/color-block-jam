@@ -50,16 +50,14 @@ namespace ColorBlockJam.Gameplay.Logic
 
     public sealed class GeneratedLevel
     {
-        public GeneratedLevel(LevelData level, SolveResult solution, int attempts)
+        public GeneratedLevel(LevelData level, SolveResult solution)
         {
             Level = level;
             Solution = solution;
-            Attempts = attempts;
         }
 
         public LevelData Level { get; }
         public SolveResult Solution { get; }
-        public int Attempts { get; }
     }
 
     /// <summary>
@@ -68,13 +66,17 @@ namespace ColorBlockJam.Gameplay.Logic
     /// </summary>
     public sealed class LevelGenerator
     {
+        // Random places tried for a door, and for all the blocks of a layout, before the layout is dropped.
+        private const int DoorPlacementTries = 30;
+        private const int BlockPlacementTries = 400;
+
         private static readonly BoardSide[] Sides = { BoardSide.Bottom, BoardSide.Top, BoardSide.Left, BoardSide.Right };
 
         private readonly BoardSolver solver = new();
 
         /// <summary>States searched per candidate. Candidates that need more are dropped as too hard to prove.</summary>
-        public int SolveBudget { get; set; } = 5000;
-        public int MaxAttempts { get; set; } = 300;
+        public int SolveBudget { get; } = 5000;
+        public int MaxAttempts { get; } = 300;
 
         /// <param name="paletteSize">How many colors the palette has; the level picks its colors from them.</param>
         /// <param name="onAttempt">Called before each attempt with its number; return false to stop, for example from a cancel button.</param>
@@ -105,7 +107,7 @@ namespace ColorBlockJam.Gameplay.Logic
 
                 if (result.Repositions >= settings.MinRepositions && result.Repositions <= settings.MaxRepositions)
                 {
-                    return new GeneratedLevel(level, result, attempt);
+                    return new GeneratedLevel(level, result);
                 }
             }
 
@@ -160,7 +162,7 @@ namespace ColorBlockJam.Gameplay.Logic
             foreach (var color in colors)
             {
                 var isPlaced = false;
-                for (var tries = 0; tries < 30 && !isPlaced; tries++)
+                for (var tries = 0; tries < DoorPlacementTries && !isPlaced; tries++)
                 {
                     var side = Sides[random.Next(Sides.Length)];
                     var edge = side is BoardSide.Bottom or BoardSide.Top ? settings.Width : settings.Height;
@@ -202,7 +204,7 @@ namespace ColorBlockJam.Gameplay.Logic
             var taken = new bool[settings.Width, settings.Height];
             var blocks = new List<BlockData>();
 
-            for (var tries = 0; tries < 400 && blocks.Count < count; tries++)
+            for (var tries = 0; tries < BlockPlacementTries && blocks.Count < count; tries++)
             {
                 // The first blocks cover every color once, so every door is used.
                 var color = blocks.Count < colors.Length ? colors[blocks.Count] : colors[random.Next(colors.Length)];

@@ -20,7 +20,6 @@ namespace ColorBlockJam.Gameplay
         public Vector2 ScreenPosition => position.ReadValue<Vector2>();
         public bool WasPressedThisFrame => press.WasPressedThisFrame();
         public bool IsPressed => press.IsPressed();
-        public bool WasReleasedThisFrame => press.WasReleasedThisFrame();
 
         /// <summary>
         /// True when the pointer is over UI, which then gets the touch instead of the board. It raycasts the UI itself:

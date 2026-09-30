@@ -9,7 +9,7 @@ namespace Framework.UI.Popups
     /// <summary>
     /// Base of the installer put on a popup prefab, next to its InstallerScope, that gives the popup its presenter.
     /// A popup needs only an empty subclass:
-    /// <c>public sealed class PausePopupInstaller : PopupPresenterInstaller&lt;PausePopup, PausePopupPresenter&gt; { }</c>
+    /// <c>public sealed class ConfirmPopupInstaller : PopupPresenterInstaller&lt;ConfirmPopup, ConfirmPopupPresenter&gt; { }</c>
     /// </summary>
     public abstract class PopupPresenterInstaller<TPopup, TPresenter> : MonoInstaller
         where TPopup : Popup
@@ -26,12 +26,6 @@ namespace Framework.UI.Popups
 
             builder.RegisterComponent(popup);
             builder.RegisterEntryPoint<TPresenter>();
-            InstallMore(builder);
-        }
-
-        /// <summary>Registers anything else only this popup uses.</summary>
-        protected virtual void InstallMore(IContainerBuilder builder)
-        {
         }
     }
 }

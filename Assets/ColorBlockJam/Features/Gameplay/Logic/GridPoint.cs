@@ -18,7 +18,6 @@ namespace ColorBlockJam.Gameplay.Logic
 
         public static GridPoint operator +(GridPoint a, GridPoint b) => new(a.X + b.X, a.Y + b.Y);
         public static GridPoint operator -(GridPoint a, GridPoint b) => new(a.X - b.X, a.Y - b.Y);
-        public static GridPoint operator *(GridPoint a, int k) => new(a.X * k, a.Y * k);
         public static bool operator ==(GridPoint a, GridPoint b) => a.Equals(b);
         public static bool operator !=(GridPoint a, GridPoint b) => !a.Equals(b);
 

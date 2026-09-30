@@ -43,7 +43,7 @@ namespace ColorBlockJam.LevelEditor
 
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public int TimeLimit = 90;
+        public int TimeLimit = LevelData.DefaultTimeLimit;
         public LevelDifficulty Difficulty;
         public readonly List<EditableBlock> Blocks = new();
 
@@ -197,15 +197,6 @@ namespace ColorBlockJam.LevelEditor
                 var slots = NewSlots(SlotCount(side));
                 Array.Copy(old, slots, Math.Min(old.Length, slots.Length));
                 doorSlots[side] = slots;
-            }
-        }
-
-        public void Clear()
-        {
-            Blocks.Clear();
-            foreach (BoardSide side in Enum.GetValues(typeof(BoardSide)))
-            {
-                doorSlots[side] = NewSlots(SlotCount(side));
             }
         }
 

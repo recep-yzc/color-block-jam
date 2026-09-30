@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: GameplayConfig
   m_EditorClassIdentifier: 
   cellSize: 2
-  cornerAssist: 0.4
-  cornerAssistRate: 1.5
-  followSharpness: 22
+  followSharpness: 26
+  maxDragSpeed: 40
+  cornerRounding: 0.3
   liftHeight: 0.35
   liftDuration: 0.1
   snapDuration: 0.14
-  snapEase: 26
+  snapEase: 8
   exitDepth: 0.3
   exitSpeed: 12
   burstPrefab: {fileID: 3003805300057978667, guid: a9f507dad8fedde49b1ba50b9c79b030, type: 3}

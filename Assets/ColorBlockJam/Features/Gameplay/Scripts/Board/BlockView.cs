@@ -9,8 +9,8 @@ using UnityEngine;
 namespace ColorBlockJam.Gameplay
 {
     /// <summary>
-    /// The look of one block. While dragged it lifts and follows its logical place with a soft spring,
-    /// so the curved path the drag mover finds around corners reads as smooth motion.
+    /// The look of one block. While dragged it lifts and sits exactly where the drag mover puts it, so what the
+    /// player sees never overlaps another block; the smoothness comes from how the drag catches up with the finger.
     /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class BlockView : MonoBehaviour
@@ -20,9 +20,7 @@ namespace ColorBlockJam.Gameplay
         private Mesh mesh;
         private Vector2 cellPosition;
         private Vector2 middle;
-        private Vector2 followTarget;
         private float lift;
-        private bool isFollowing;
         private MotionHandle liftMotion;
         private MotionHandle moveMotion;
 
@@ -53,21 +51,18 @@ namespace ColorBlockJam.Gameplay
         public void BeginDrag()
         {
             moveMotion.TryCancel();
-            followTarget = cellPosition;
-            isFollowing = true;
             AnimateLift(config.LiftHeight);
         }
 
-        /// <summary>Sets where the dragged block is on the board, in cell units.</summary>
+        /// <summary>Puts the dragged block where it is on the board, in cell units.</summary>
         public void Follow(System.Numerics.Vector2 cell)
         {
-            followTarget = new Vector2(cell.X, cell.Y);
+            MoveTo(new Vector2(cell.X, cell.Y));
         }
 
         /// <summary>Ends a drag by settling on a board cell.</summary>
         public void Settle(GridPoint cell)
         {
-            isFollowing = false;
             AnimateLift(0f);
             moveMotion.TryCancel();
             moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration)
@@ -79,7 +74,6 @@ namespace ColorBlockJam.Gameplay
         /// <summary>Slides straight to a cell, as auto play moves.</summary>
         public UniTask SlideAsync(GridPoint cell, CancellationToken cancellationToken)
         {
-            isFollowing = false;
             moveMotion.TryCancel();
             var target = new Vector2(cell.X, cell.Y);
             var duration = Mathf.Max(0.05f, Vector2.Distance(cellPosition, target) * config.AutoPlayCellDuration);
@@ -93,7 +87,6 @@ namespace ColorBlockJam.Gameplay
         /// <summary>Slides out through a door, shrinking, then hides.</summary>
         public async UniTask ExitAsync(Direction direction, float distance, CancellationToken cancellationToken)
         {
-            isFollowing = false;
             moveMotion.TryCancel();
             AnimateLift(0f);
 
@@ -114,17 +107,6 @@ namespace ColorBlockJam.Gameplay
             await UniTask.WhenAll(moveMotion.ToUniTask(cancellationToken), shrink.ToUniTask(cancellationToken));
             Exited?.Invoke(this);
             gameObject.SetActive(false);
-        }
-
-        private void LateUpdate()
-        {
-            if (!isFollowing)
-            {
-                return;
-            }
-
-            var blend = 1f - Mathf.Exp(-config.FollowSharpness * Time.deltaTime);
-            MoveTo(Vector2.Lerp(cellPosition, followTarget, blend));
         }
 
         private void OnDestroy()

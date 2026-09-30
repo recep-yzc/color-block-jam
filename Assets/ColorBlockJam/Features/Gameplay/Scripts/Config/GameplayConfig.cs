@@ -15,17 +15,19 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0.1f)] private float cellSize = 2f;
 
         [Header("Drag")]
-        [Tooltip("How far out of line, in cells, a dragged block may be to still be eased around a corner.")]
-        [SerializeField, Range(0f, 0.5f)] private float cornerAssist = 0.4f;
-        [Tooltip("Cells of easing per cell of movement. Higher rounds corners more tightly.")]
-        [SerializeField, Min(0f)] private float cornerAssistRate = 1.5f;
-        [Tooltip("How fast the block's look catches up with its logical place. Higher feels stiffer.")]
-        [SerializeField, Min(1f)] private float followSharpness = 22f;
+        [Tooltip("How fast a dragged block catches up with the finger. Higher feels tighter, lower feels heavier.")]
+        [SerializeField, Min(1f)] private float followSharpness = 26f;
+        [Tooltip("Fastest a dragged block moves, in cells per second, so a fling stays under control.")]
+        [SerializeField, Min(1f)] private float maxDragSpeed = 40f;
+        [Tooltip("Radius, in cells, of the invisible rounding on block corners. A block rolls around a corner on this " +
+                 "curve instead of catching on it. 0 = sharp corners.")]
+        [SerializeField, Range(0f, 0.45f)] private float cornerRounding = 0.3f;
         [Tooltip("How high a dragged block lifts, in world units.")]
         [SerializeField, Min(0f)] private float liftHeight = 0.35f;
         [SerializeField, Min(0.01f)] private float liftDuration = 0.1f;
         [SerializeField, Min(0.01f)] private float snapDuration = 0.14f;
-        [SerializeField] private Ease snapEase = Ease.OutBack;
+        [Tooltip("An ease that overshoots would push the block into its neighbor for a moment.")]
+        [SerializeField] private Ease snapEase = Ease.OutCubic;
 
         [Header("Exit")]
         [Tooltip("How far, in cells, a block must be pushed through its door to leave.")]
@@ -62,9 +64,9 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private BlockView blockViewPrefab;
 
         public float CellSize => cellSize;
-        public float CornerAssist => cornerAssist;
-        public float CornerAssistRate => cornerAssistRate;
         public float FollowSharpness => followSharpness;
+        public float MaxDragSpeed => maxDragSpeed;
+        public float CornerRounding => cornerRounding;
         public float LiftHeight => liftHeight;
         public float LiftDuration => liftDuration;
         public float SnapDuration => snapDuration;

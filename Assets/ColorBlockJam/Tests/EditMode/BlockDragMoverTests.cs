@@ -3,6 +3,7 @@ using System.Numerics;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
 using NUnit.Framework;
+using UnityEngine.TestTools.Constraints;
 
 namespace ColorBlockJam.Tests
 {
@@ -25,6 +26,29 @@ namespace ColorBlockJam.Tests
             var reached = new BlockDragMover(Rounding).Move(board, block, Vector2.Zero, new Vector2(3f, 0f));
 
             Assert.AreEqual(1f, reached.X, 0.01f);
+        }
+
+        [Test]
+        public void ADragFrameAllocatesNothing()
+        {
+            var shape = new[] { new GridPoint(0, 0), new GridPoint(1, 0), new GridPoint(0, 1) };
+            var block = new BoardBlock(0, 0, new GridPoint(0, 0), shape);
+            var obstacle = new BoardBlock(1, 1, new GridPoint(3, 1), Single);
+            var board = new Board(6, 6, new[] { block, obstacle }, new[] { new BoardDoor(BoardSide.Right, 0, 2, 0) });
+            var mover = new BlockDragMover(Rounding);
+            TestDelegate frame = () => mover.Move(board, block, Vector2.Zero, new Vector2(2.6f, 1.4f));
+
+            // The first calls compile the code. The first test of a run can also pick up one-off work of the test
+            // runner in its measurement, so a clean frame gets a few tries; code that allocates every frame fails them all.
+            frame();
+            frame();
+            var isClean = false;
+            for (var attempt = 0; attempt < 3 && !isClean; attempt++)
+            {
+                isClean = !UnityEngine.TestTools.Constraints.Is.AllocatingGCMemory().ApplyTo(frame).IsSuccess;
+            }
+
+            Assert.IsTrue(isClean, "A drag frame must not allocate.");
         }
 
         [Test]

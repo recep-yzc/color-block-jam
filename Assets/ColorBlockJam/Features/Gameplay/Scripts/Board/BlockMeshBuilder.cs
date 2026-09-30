@@ -20,10 +20,11 @@ namespace ColorBlockJam.Gameplay
         public static Mesh Build(BoardBlock block, BoardArt art)
         {
             var pivot = new Vector3(block.MinX + block.MaxX + 1, 0f, block.MinY + block.MaxY + 1) * (ArtSpace.CellSize * 0.5f);
-            var cells = new HashSet<GridPoint>(block.Cells);
+            var cells = new HashSet<GridPoint>();
             var corners = new HashSet<GridPoint>();
             foreach (var cell in block.Cells)
             {
+                cells.Add(cell);
                 corners.Add(cell);
                 corners.Add(cell + new GridPoint(1, 0));
                 corners.Add(cell + new GridPoint(0, 1));

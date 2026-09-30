@@ -133,8 +133,10 @@ namespace ColorBlockJam.Gameplay.Logic
         /// </summary>
         public static BoardDoor DoorToEnter(Board board, BoardBlock block, GridPoint cell)
         {
-            foreach (var door in board.Doors)
+            var doors = board.Doors;
+            for (var i = 0; i < doors.Count; i++)
             {
+                var door = doors[i];
                 if (door.Color == block.Color && TouchesSide(board, block, cell, door.Side) &&
                     board.CanPassThrough(block, cell, door.ExitDirection))
                 {

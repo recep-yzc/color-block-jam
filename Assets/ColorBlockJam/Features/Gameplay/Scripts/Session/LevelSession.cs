@@ -229,8 +229,9 @@ namespace ColorBlockJam.Gameplay
         {
             isSolvabilityChecking = true;
             var snapshot = board.Clone();
-            var (isCanceled, result) = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.StuckSearchBudget),
-                cancellationToken: lifetime.Token).SuppressCancellationThrow();
+            var token = lifetime.Token;
+            var (isCanceled, result) = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.StuckSearchBudget, token),
+                cancellationToken: token).SuppressCancellationThrow();
             isSolvabilityChecking = false;
 
             if (isCanceled)

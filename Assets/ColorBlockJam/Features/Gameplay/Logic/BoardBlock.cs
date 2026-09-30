@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
@@ -37,7 +36,8 @@ namespace ColorBlockJam.Gameplay.Logic
         public int Color { get; }
         public GridPoint Position { get; internal set; }
         public bool IsCleared { get; internal set; }
-        public IReadOnlyList<GridPoint> Cells => cells;
+        /// <summary>The cells relative to <see cref="Position"/>. A span, so looping over them allocates nothing.</summary>
+        public ReadOnlySpan<GridPoint> Cells => cells;
 
         public int MinX { get; }
         public int MaxX { get; }
@@ -50,19 +50,6 @@ namespace ColorBlockJam.Gameplay.Logic
         internal BoardBlock Copy()
         {
             return new BoardBlock(Id, Color, Position, cells) { IsCleared = IsCleared };
-        }
-
-        public bool Contains(GridPoint relativeCell)
-        {
-            foreach (var cell in cells)
-            {
-                if (cell == relativeCell)
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
     }
 }

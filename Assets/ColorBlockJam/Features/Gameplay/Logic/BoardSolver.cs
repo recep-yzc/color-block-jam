@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading;
 using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
@@ -75,11 +76,14 @@ namespace ColorBlockJam.Gameplay.Logic
             public List<SolverMove> Moves;
         }
 
-        public SolveResult Solve(Board board, int maxStates)
+        /// <param name="cancellationToken">Stops the search early, for example when the level it was for is gone;
+        /// the result is then neither solved nor exhausted.</param>
+        public SolveResult Solve(Board board, int maxStates, CancellationToken cancellationToken = default)
         {
             // Buffers live per call, so parallel calls share nothing.
             var expandReach = new ReachMap();
             var leaveReach = new ReachMap();
+            var scratchMoves = new List<SolverMove>();
             var blocks = board.Blocks;
             var original = Capture(board, parent: -1, depth: 0, moves: null);
 
@@ -94,7 +98,7 @@ namespace ColorBlockJam.Gameplay.Logic
             var solvedIndex = board.IsCleared ? 0 : -1;
             var isOverBudget = false;
 
-            while (solvedIndex < 0 && queue.Count > 0 && !isOverBudget)
+            while (solvedIndex < 0 && queue.Count > 0 && !isOverBudget && !cancellationToken.IsCancellationRequested)
             {
                 var index = queue.Dequeue();
                 var node = nodes[index];
@@ -113,13 +117,14 @@ namespace ColorBlockJam.Gameplay.Logic
                     {
                         var target = expandReach[r];
                         board.Move(block, target);
-                        var moves = new List<SolverMove>();
-                        expandReach.AddPath(block.Id, target, moves);
-                        LeaveAll(board, leaveReach, moves);
+                        scratchMoves.Clear();
+                        expandReach.AddPath(block.Id, target, scratchMoves);
+                        LeaveAll(board, leaveReach, scratchMoves);
 
+                        // Only states not seen before keep a copy of their moves.
                         if (visited.Add(Key(board)))
                         {
-                            nodes.Add(Capture(board, index, node.Depth + 1, moves));
+                            nodes.Add(Capture(board, index, node.Depth + 1, new List<SolverMove>(scratchMoves)));
                             if (board.IsCleared)
                             {
                                 solvedIndex = nodes.Count - 1;
@@ -151,7 +156,7 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             var isSolved = solvedIndex >= 0;
-            var isExhausted = !isSolved && !isOverBudget;
+            var isExhausted = !isSolved && !isOverBudget && !cancellationToken.IsCancellationRequested;
             var repositions = isSolved ? nodes[solvedIndex].Depth : 0;
             return new SolveResult(isSolved, isExhausted, solution, repositions, nodes.Count);
         }
@@ -160,12 +165,13 @@ namespace ColorBlockJam.Gameplay.Logic
         private static void LeaveAll(Board board, ReachMap reach, List<SolverMove> moves)
         {
             bool hasLeft;
+            var blocks = board.Blocks;
             do
             {
                 hasLeft = false;
-                foreach (var block in board.Blocks)
+                for (var i = 0; i < blocks.Count; i++)
                 {
-                    if (!block.IsCleared && TryLeave(board, block, reach, moves))
+                    if (!blocks[i].IsCleared && TryLeave(board, blocks[i], reach, moves))
                     {
                         hasLeft = true;
                     }
@@ -177,11 +183,13 @@ namespace ColorBlockJam.Gameplay.Logic
         private static bool TryLeave(Board board, BoardBlock block, ReachMap reach, List<SolverMove> moves)
         {
             reach.Fill(board, block);
+            var doors = board.Doors;
             for (var r = 0; r < reach.Count; r++)
             {
                 var from = reach[r];
-                foreach (var door in board.Doors)
+                for (var d = 0; d < doors.Count; d++)
                 {
+                    var door = doors[d];
                     // Every way out passes the cell where the block touches the door's side, so only those are tried.
                     if (door.Color != block.Color || !BlockPlacement.TouchesSide(board, block, from, door.Side) ||
                         !board.CanPassThrough(block, from, door.ExitDirection))

@@ -26,7 +26,7 @@ namespace ColorBlockJam.Gameplay
         {
             // The search runs on a copy on a worker thread, so the game keeps rendering while it thinks.
             var snapshot = board.Clone();
-            var result = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.AutoPlaySearchBudget),
+            var result = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.AutoPlaySearchBudget, cancellationToken),
                 cancellationToken: cancellationToken);
             if (!result.IsSolved)
             {

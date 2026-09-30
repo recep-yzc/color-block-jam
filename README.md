@@ -143,7 +143,7 @@ The generator places random doors and blocks for a difficulty, and drops any lay
 
 ### Performance
 
-- Each block is merged into **one mesh**. The board (ground tiles, walls and corners) is **one mesh** too, with a submesh for the ground and one for the walls; only the colored doors are meshes of their own. A wall between two doors or corners is a single wall piece stretched to fit, so a level draws in a handful of calls.
+- Each block is merged into **one mesh**. The board (ground tiles, walls and corners) is **one mesh** too, with a submesh for the ground and one for the walls; only the colored doors are meshes of their own. Along each side, every run of wall and every run of door cells of one color, even several doors side by side, is a single piece stretched to fit, so a level draws in a handful of calls.
 - All blocks share one material and all doors share another; each renderer gets its color from a material property block. GPU instancing is on for both, and the toon shader reads the color per instance, so no material is copied at runtime.
 - The board's parts never move, so once built they are combined as static geometry (`StaticBatchingUtility`).
 - There are no allocations in the update loops. For example, the timer text uses `SetText` with arguments and only changes once a second.

@@ -98,10 +98,11 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheIceCountSitsOnTheBlock()
         {
-            // The middle of this L's bounds is an empty cell, so the count goes on the nearest cell of the block.
+            // The middle of this L's bounds is an empty cell, so the count goes on a cell of the block next to it.
             var l = new[] { new GridPoint(0, 0), new GridPoint(0, 1), new GridPoint(0, 2), new GridPoint(1, 0), new GridPoint(2, 0) };
 
-            Assert.AreEqual(new GridPoint(0, 0), BlockMarks.FindIceCell(l));
+            var cell = BlockMarks.FindIceCell(l);
+            Assert.That(new[] { new GridPoint(0, 1), new GridPoint(1, 0) }, Does.Contain(cell));
         }
 
         [Test]

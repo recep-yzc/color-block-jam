@@ -144,7 +144,7 @@ The generator places random doors and blocks for a difficulty, and drops any lay
 ### Performance
 
 - Each block is merged into **one mesh**. The board (ground tiles, walls and corners) is **one mesh** too, with a submesh for the ground and one for the walls; only the colored doors are meshes of their own. Along each side, every run of wall and every run of door cells of one color, even several doors side by side, is a single piece stretched to fit, so a level draws in a handful of calls.
-- All blocks share one material and all doors share another; each renderer gets its color from a material property block. GPU instancing is on for both, and the toon shader reads the color per instance, so no material is copied at runtime.
+- Blocks and doors carry their color in their vertices, written once when their mesh is built. So all blocks share one material and all doors another, no material is copied per color, no property block is needed, and the SRP Batcher (turned on in the URP asset) draws them cheaply.
 - The board mesh never moves, so once built it is marked static and combined as static geometry (`StaticBatchingUtility`). Doors and blocks move, so they stay dynamic.
 - There are no allocations in the update loops. For example, the timer text uses `SetText` with arguments and only changes once a second.
 - The block bursts come from a pool and take the block's color.

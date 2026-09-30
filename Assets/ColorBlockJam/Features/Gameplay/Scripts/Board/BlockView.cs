@@ -63,7 +63,7 @@ namespace ColorBlockJam.Gameplay
                 ? new[] { art.BlockMaterial, art.BlockOutlineMaskMaterial, art.BlockOutlineMaterial }
                 : restMaterials;
             meshRenderer.sharedMaterials = restMaterials;
-            ToonTint.Apply(meshRenderer, color);
+            MeshTint.Paint(mesh, color);
             transform.localScale = Vector3.one * RestScale;
             middle = new Vector2(block.MinX + block.MaxX + 1, block.MinY + block.MaxY + 1) * 0.5f;
             cellPosition = new Vector2(block.Position.X, block.Position.Y);

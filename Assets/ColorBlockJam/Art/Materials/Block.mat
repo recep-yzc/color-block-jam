@@ -14,7 +14,7 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 1
+  m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -29,7 +29,7 @@ Material:
     - _LightSoftness: 0.411
     - _LightThreshold: 0.698
     - _RimWidth: 0
-    - _VertexColorWeight: 0
+    - _VertexColorWeight: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _HighlightColor: {r: 1, g: 0.949, b: 0.8392, a: 0.6}

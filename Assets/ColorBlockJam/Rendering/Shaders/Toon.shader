@@ -2,9 +2,8 @@
 // Light falls in two soft bands from a half-Lambert term, so shadow sides take a tinted color instead of going dark;
 // a small glint and a soft rim make surfaces read like candy. Only the main light is used, with its shadows.
 // Everything is per pixel but cheap: no textures, one light, and the only keywords are the ones URP needs for
-// main light shadows, which it strips when shadows are off, and GPU instancing.
-// Blocks and doors share one material and set their color through a property block (_Tint); with instancing the
-// tint is read per instance, so each renderer keeps its color. All passes share one material buffer.
+// main light shadows, which it strips when shadows are off. Blocks, doors and bursts bring their color in their
+// vertices, so each kind shares one material, and all passes share one material buffer for the SRP Batcher.
 Shader "Color Block Jam/Toon"
 {
     Properties
@@ -18,7 +17,6 @@ Shader "Color Block Jam/Toon"
         _RimColor ("Rim Color (A = strength)", Color) = (1, 0.88, 0.97, 0.3)
         _RimWidth ("Rim Width", Range(0, 1)) = 0.3
         _VertexColorWeight ("Use Vertex Color", Range(0, 1)) = 0
-        [HideInInspector] _Tint ("Tint", Color) = (1, 1, 1, 1)
     }
 
     SubShader
@@ -43,20 +41,7 @@ Shader "Color Block Jam/Toon"
             half4 _RimColor;
             half _RimWidth;
             half _VertexColorWeight;
-            #ifndef UNITY_INSTANCING_ENABLED
-                half4 _Tint;
-            #endif
         CBUFFER_END
-
-        // Set per renderer through a property block; per instance when drawn instanced.
-        #ifdef UNITY_INSTANCING_ENABLED
-            UNITY_INSTANCING_BUFFER_START(ToonPerInstance)
-                UNITY_DEFINE_INSTANCED_PROP(half4, _Tint)
-            UNITY_INSTANCING_BUFFER_END(ToonPerInstance)
-            #define TOON_TINT UNITY_ACCESS_INSTANCED_PROP(ToonPerInstance, _Tint)
-        #else
-            #define TOON_TINT _Tint
-        #endif
         ENDHLSL
 
         Pass
@@ -69,7 +54,6 @@ Shader "Color Block Jam/Toon"
             #pragma fragment Fragment
             #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
             #pragma multi_compile_fragment _ _SHADOWS_SOFT
-            #pragma multi_compile_instancing
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
@@ -78,7 +62,6 @@ Shader "Color Block Jam/Toon"
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
                 half4 color : COLOR;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             struct Varyings
@@ -91,14 +74,13 @@ Shader "Color Block Jam/Toon"
 
             Varyings Vertex(Attributes input)
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 Varyings output;
                 output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 output.positionCS = TransformWorldToHClip(output.positionWS);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
 
-                // Particles bring their color in the vertices; everything else ignores it.
-                output.tint = _BaseColor.rgb * TOON_TINT.rgb * lerp(half3(1, 1, 1), input.color.rgb, _VertexColorWeight);
+                // Blocks, doors and bursts bring their color in the vertices; the board ignores it.
+                output.tint = _BaseColor.rgb * lerp(half3(1, 1, 1), input.color.rgb, _VertexColorWeight);
                 return output;
             }
 
@@ -141,7 +123,6 @@ Shader "Color Block Jam/Toon"
             HLSLPROGRAM
             #pragma vertex ShadowVertex
             #pragma fragment ShadowFragment
-            #pragma multi_compile_instancing
 
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/CommonMaterial.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Shadows.hlsl"
@@ -152,12 +133,10 @@ Shader "Color Block Jam/Toon"
             {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             float4 ShadowVertex(Attributes input) : SV_POSITION
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
                 float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
@@ -189,17 +168,14 @@ Shader "Color Block Jam/Toon"
             HLSLPROGRAM
             #pragma vertex DepthVertex
             #pragma fragment DepthFragment
-            #pragma multi_compile_instancing
 
             struct Attributes
             {
                 float4 positionOS : POSITION;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
             float4 DepthVertex(Attributes input) : SV_POSITION
             {
-                UNITY_SETUP_INSTANCE_ID(input);
                 return TransformObjectToHClip(input.positionOS.xyz);
             }
 

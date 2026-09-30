@@ -85,9 +85,10 @@ namespace ColorBlockJam.Gameplay
                 var piece = door.Piece;
                 piece.transform = Matrix4x4.Translate(-door.Pivot) * piece.transform;
                 var doorName = $"Door {door.Side} {door.From}";
-                var doorRenderer = AddRenderer(doorParts, doorName, Combine(doorName, new List<CombineInstance> { piece }), art.DoorMaterial);
+                var doorMesh = Combine(doorName, new List<CombineInstance> { piece });
+                MeshTint.Paint(doorMesh, palette.GetColor(door.Color));
+                var doorRenderer = AddRenderer(doorParts, doorName, doorMesh, art.DoorMaterial);
                 doorRenderer.transform.localPosition = door.Pivot;
-                ToonTint.Apply(doorRenderer, palette.GetColor(door.Color));
 
                 var doorView = doorRenderer.gameObject.AddComponent<DoorView>();
                 doorView.Initialize(door.Side, door.From, door.To, config);

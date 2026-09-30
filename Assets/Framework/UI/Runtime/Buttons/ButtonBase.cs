@@ -16,6 +16,11 @@ namespace Framework.UI.Buttons
         [SerializeField] private ButtonFeedback feedback;
         [Tooltip("The part the feedback moves. Leave empty to move the whole button.")]
         [SerializeField] private RectTransform feedbackTarget;
+        [Tooltip("How see-through the button is while it is not interactable, so the player can tell it is off.")]
+        [SerializeField, Range(0f, 1f)] private float disabledAlpha = 0.5f;
+
+        // Added the first time the button is switched off, so buttons that never are need no component.
+        private CanvasGroup dimmer;
 
         private ButtonFeedbackTarget feedbackRest;
         private ButtonFeedbackMotions feedbackMotions;
@@ -32,7 +37,7 @@ namespace Framework.UI.Buttons
                 }
 
                 interactable = value;
-                OnInteractableChanged(value);
+                ShowInteractable();
             }
         }
 
@@ -40,6 +45,7 @@ namespace Framework.UI.Buttons
         {
             feedbackTarget = feedbackTarget != null ? feedbackTarget : (RectTransform)transform;
             feedbackRest = new ButtonFeedbackTarget(feedbackTarget);
+            ShowInteractable();
         }
 
         protected virtual void OnDisable()
@@ -82,8 +88,19 @@ namespace Framework.UI.Buttons
 
         protected abstract void OnClick();
 
-        protected virtual void OnInteractableChanged(bool isInteractable)
+        private void ShowInteractable()
         {
+            if (dimmer == null)
+            {
+                if (interactable)
+                {
+                    return;
+                }
+
+                dimmer = gameObject.AddComponent<CanvasGroup>();
+            }
+
+            dimmer.alpha = interactable ? 1f : disabledAlpha;
         }
 
         private bool CanInteract()

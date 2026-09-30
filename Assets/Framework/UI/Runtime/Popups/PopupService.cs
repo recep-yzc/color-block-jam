@@ -31,6 +31,8 @@ namespace Framework.UI.Popups
             ownerScope = resolver.ApplicationOrigin as LifetimeScope;
         }
 
+        public event Action BackPressedWithoutPopup;
+
         public bool HasOpenPopup => openPopups.Count > 0;
 
         private Popup TopPopup => openPopups.Count > 0 ? openPopups[openPopups.Count - 1] : null;
@@ -55,7 +57,16 @@ namespace Framework.UI.Popups
 
         public void Tick()
         {
-            if (backAction.WasPressedThisFrame() && TopPopup != null && TopPopup.CloseOnBackButton)
+            if (!backAction.WasPressedThisFrame())
+            {
+                return;
+            }
+
+            if (TopPopup == null)
+            {
+                BackPressedWithoutPopup?.Invoke();
+            }
+            else if (TopPopup.CloseOnBackButton)
             {
                 TopPopup.RequestClose();
             }

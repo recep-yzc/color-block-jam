@@ -1,5 +1,3 @@
-using Cysharp.Threading.Tasks;
-using Framework.UI.Popups;
 using Framework.UI.Views;
 using UnityEngine;
 using VContainer.Unity;
@@ -9,15 +7,15 @@ namespace ColorBlockJam.Gameplay
     public sealed class GameplayHudPresenter : ViewPresenter<GameplayHudView>, ITickable
     {
         private readonly LevelSession session;
-        private readonly IPopupService popups;
+        private readonly PauseRequester pause;
         private readonly GameplayConfig config;
         private int shownSeconds = -1;
 
-        public GameplayHudPresenter(GameplayHudView view, LevelSession session, IPopupService popups, GameplayConfig config)
+        public GameplayHudPresenter(GameplayHudView view, LevelSession session, PauseRequester pause, GameplayConfig config)
             : base(view)
         {
             this.session = session;
-            this.popups = popups;
+            this.pause = pause;
             this.config = config;
         }
 
@@ -68,7 +66,7 @@ namespace ColorBlockJam.Gameplay
 
         private void OnPauseClicked()
         {
-            popups.ShowAsync<PausePopup>().Forget();
+            pause.Request();
         }
 
         private void OnAutoPlayClicked()

@@ -11,7 +11,7 @@ namespace ColorBlockJam.Gameplay
     public sealed class GameplayInstaller : MonoInstaller
     {
         [Header("Data")]
-        [Tooltip("Sürükleme, animasyon, çözücü, booster ve kamera ayarları.")]
+        [Tooltip("Sürükleme, animasyon, çözücü ve kamera ayarları.")]
         [SerializeField] private GameplayConfig config;
         [Tooltip("Tahtanın ve blokların kurulduğu mesh ve materyaller.")]
         [SerializeField] private BoardArt art;
@@ -29,8 +29,6 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Transform effectsRoot;
         [Tooltip("Seviye, zorluk, süre, duraklatma ve otomatik oynatmanın olduğu üst çubuk.")]
         [SerializeField] private GameplayHudView hud;
-        [Tooltip("Tahtanın altındaki booster butonları.")]
-        [SerializeField] private BoosterBarView boosterBar;
         [Tooltip("Coin miktarını gösteren sayaç.")]
         [SerializeField] private CoinHudView coinHud;
 
@@ -53,10 +51,7 @@ namespace ColorBlockJam.Gameplay
             builder.Register<LevelResults>(Lifetime.Singleton);
             builder.Register<BoardCamera>(Lifetime.Singleton);
             builder.Register(_ => new BlockBurstEffects(config.BurstPrefab, effectsRoot, config.BurstPrewarm), Lifetime.Singleton);
-            builder.Register<FreezeBooster>(Lifetime.Singleton);
-            builder.Register<HammerBooster>(Lifetime.Singleton);
             builder.Register<BlockPressRouter>(Lifetime.Singleton);
-            builder.RegisterBuildCallback(resolver => resolver.Resolve<BlockPressRouter>().Add(resolver.Resolve<HammerBooster>()));
 
             builder.RegisterEntryPoint<BoardPointer>().AsSelf();
             builder.RegisterEntryPoint<BlockDragController>().AsSelf();
@@ -65,8 +60,6 @@ namespace ColorBlockJam.Gameplay
 
             builder.RegisterComponent(hud);
             builder.RegisterEntryPoint<GameplayHudPresenter>();
-            builder.RegisterComponent(boosterBar);
-            builder.RegisterEntryPoint<BoosterBarPresenter>();
             builder.RegisterCoinHud(coinHud);
         }
     }

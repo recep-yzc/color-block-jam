@@ -64,14 +64,8 @@ namespace ColorBlockJam.Gameplay
         [Tooltip("Donmuş bloğun sallanma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float frozenShakeDuration = 0.3f;
 
-        [Header("Boosters")]
-        [Tooltip("Bir freeze'in coin fiyatı.")]
-        [SerializeField, Min(1)] private int freezeCost = 30;
-        [Tooltip("Freeze'in seviye süresini durdurduğu oyun süresi, saniye.")]
-        [SerializeField, Min(1f)] private float freezeSeconds = 10f;
-        [Tooltip("Bir hammer'ın coin fiyatı. Coin blok kırılınca ödenir, hammer'ı kaldırıp geri koymak bedavadır.")]
-        [SerializeField, Min(1)] private int hammerCost = 50;
-        [Tooltip("Hammer altındaki bloğun patlamadan önce ezilme süresi, saniye.")]
+        [Header("Breaking")]
+        [Tooltip("Bir booster'ın kırdığı bloğun patlamadan önce ezilme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float smashDuration = 0.2f;
 
         [Header("Solver")]
@@ -126,9 +120,6 @@ namespace ColorBlockJam.Gameplay
         public Color IceBurstColor => iceBurstColor;
         public float FrozenShakeStrength => frozenShakeStrength;
         public float FrozenShakeDuration => frozenShakeDuration;
-        public int FreezeCost => freezeCost;
-        public float FreezeSeconds => freezeSeconds;
-        public int HammerCost => hammerCost;
         public float SmashDuration => smashDuration;
         public int StuckSearchBudget => stuckSearchBudget;
         public int AutoPlaySearchBudget => autoPlaySearchBudget;

@@ -42,6 +42,9 @@ namespace ColorBlockJam.Gameplay
             builder.Register<LevelOutcome>(Lifetime.Singleton);
             builder.Register<BoardSolver>(Lifetime.Singleton);
             builder.Register<AutoPlayer>(Lifetime.Singleton);
+            builder.Register<LevelBoard>(Lifetime.Singleton);
+            builder.Register<SolvabilityWatcher>(Lifetime.Singleton);
+            builder.Register<LevelResults>(Lifetime.Singleton);
             builder.Register<BoardCamera>(Lifetime.Singleton);
             builder.Register(_ => new BlockBurstEffects(config.BurstPrefab, effectsRoot, config.BurstPrewarm), Lifetime.Singleton);
 

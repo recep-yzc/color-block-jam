@@ -1,7 +1,7 @@
-// The outline drawn around the block the player holds, added as a second material on the block.
-// Inverted hull: the mesh is pushed out along its normals and only its back faces are drawn in one flat color,
-// so the rim shows around the block and the block itself covers the rest. One pass, no lighting, no textures and
-// no keywords: cheap on mobile, and it keeps the SRP Batcher working.
+// Second half of the held block's outline: the block's mesh pushed out along its normals, drawn in one flat color
+// only where the outline mask did not mark the silhouette, so just the outer rim shows. It ignores depth and draws
+// after everything else, so the rim stays on top of walls and other blocks.
+// One pass, no lighting, no textures and no keywords: cheap on mobile, and it keeps the SRP Batcher working.
 // The push uses normals averaged over vertices that share a position (TEXCOORD3, written by the block builder),
 // so hard edges do not split the rim; meshes without them use their own normals.
 Shader "Color Block Jam/Block Outline"
@@ -16,9 +16,9 @@ Shader "Color Block Jam/Block Outline"
     {
         Tags
         {
-            "RenderType" = "Opaque"
+            "RenderType" = "Transparent"
             "RenderPipeline" = "UniversalPipeline"
-            "Queue" = "Geometry"
+            "Queue" = "Transparent+500"
         }
 
         Pass
@@ -26,9 +26,16 @@ Shader "Color Block Jam/Block Outline"
             Name "Outline"
             Tags { "LightMode" = "SRPDefaultUnlit" }
 
-            Cull Front
-            ZWrite On
-            ZTest LEqual
+            Cull Back
+            ZWrite Off
+            ZTest Always
+
+            // Outside the silhouette the outline mask marked with 1.
+            Stencil
+            {
+                Ref 1
+                Comp NotEqual
+            }
 
             HLSLPROGRAM
             #pragma vertex Vertex

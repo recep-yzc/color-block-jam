@@ -18,6 +18,7 @@ namespace ColorBlockJam.Home
         [SerializeField] private RectTransform pathNodesRoot;
 
         private int currentLevel;
+        private int lastUnlockedLevel;
         private bool isStarted;
 
         public ActionButton PlayButton => playButton;
@@ -28,9 +29,14 @@ namespace ColorBlockJam.Home
             ShowTiles();
         }
 
-        public void SetLevel(int level)
+        /// <summary>
+        /// Shows the button for <paramref name="level"/> and numbers the path up from it. Tiles of levels after
+        /// <paramref name="lastUnlocked"/> show as locked.
+        /// </summary>
+        public void Show(int level, int lastUnlocked)
         {
             currentLevel = level;
+            lastUnlockedLevel = lastUnlocked;
             levelLabel.SetText("Level {0}", level);
 
             // Layout groups only work after OnEnable, so tiles are measured from Start on.
@@ -47,10 +53,11 @@ namespace ColorBlockJam.Home
             var nodes = pathNodesRoot.GetComponentsInChildren<LevelPathNodeView>(true);
             Array.Sort(nodes, (a, b) => HeightInRoot(a).CompareTo(HeightInRoot(b)));
 
-            // The lowest tile is the current level; the ones above it are not reached yet.
+            // The lowest tile is the current level, and the path climbs from there.
             for (var i = 0; i < nodes.Length; i++)
             {
-                nodes[i].Show(currentLevel + i, isLocked: i > 0);
+                var level = currentLevel + i;
+                nodes[i].Show(level, isLocked: level > lastUnlockedLevel);
             }
         }
 

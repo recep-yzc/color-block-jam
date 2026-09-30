@@ -21,7 +21,8 @@ namespace ColorBlockJam.Home
 
         protected override void OnInitialize()
         {
-            View.SetLevel(progression.CurrentLevel);
+            // Only the level the player is on is open; the path above it is still to come.
+            View.Show(progression.CurrentLevel, lastUnlocked: progression.CurrentLevel);
             View.PlayButton.Clicked += OnPlayClicked;
         }
 

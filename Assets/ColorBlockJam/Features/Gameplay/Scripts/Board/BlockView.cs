@@ -49,7 +49,9 @@ namespace ColorBlockJam.Gameplay
             GetComponent<MeshFilter>().sharedMesh = mesh;
             meshRenderer = GetComponent<MeshRenderer>();
             restMaterials = new[] { material };
-            heldMaterials = art.BlockOutlineMaterial != null ? new[] { material, art.BlockOutlineMaterial } : restMaterials;
+            heldMaterials = art.BlockOutlineMaskMaterial != null && art.BlockOutlineMaterial != null
+                ? new[] { material, art.BlockOutlineMaskMaterial, art.BlockOutlineMaterial }
+                : restMaterials;
             meshRenderer.sharedMaterials = restMaterials;
             transform.localScale = Vector3.one * RestScale;
             middle = new Vector2(block.MinX + block.MaxX + 1, block.MinY + block.MaxY + 1) * 0.5f;

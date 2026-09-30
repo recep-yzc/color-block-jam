@@ -47,7 +47,9 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Material doorMaterial;
         [SerializeField] private Material wallMaterial;
         [SerializeField] private Material groundMaterial;
-        [Tooltip("Drawn as a second material on the block the player holds, as its outline.")]
+        [Tooltip("Marks the held block's silhouette, so its outline draws only outside it.")]
+        [SerializeField] private Material blockOutlineMaskMaterial;
+        [Tooltip("The outer rim drawn around the block the player holds, on top of everything.")]
         [SerializeField] private Material blockOutlineMaterial;
 
         public Mesh BlockCenter => blockCenter;
@@ -67,6 +69,7 @@ namespace ColorBlockJam.Gameplay
         public Material DoorMaterial => doorMaterial;
         public Material WallMaterial => wallMaterial;
         public Material GroundMaterial => groundMaterial;
+        public Material BlockOutlineMaskMaterial => blockOutlineMaskMaterial;
         public Material BlockOutlineMaterial => blockOutlineMaterial;
     }
 }

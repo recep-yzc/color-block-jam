@@ -29,6 +29,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Mesh door;
         [Tooltip("Height of the wall origin, in world units. Walls are taller than blocks.")]
         [SerializeField] private float wallHeightOffset = -0.8f;
+        [Tooltip("The wall, corner and door models are exported upside down; this turns them upright on the board.")]
+        [SerializeField] private bool wallsUpsideDown = true;
 
         [Header("Materials")]
         [Tooltip("Tinted with the palette color of each block.")]
@@ -48,6 +50,7 @@ namespace ColorBlockJam.Gameplay
         public Mesh WallCorner => wallCorner;
         public Mesh Door => door;
         public float WallHeightOffset => wallHeightOffset;
+        public bool WallsUpsideDown => wallsUpsideDown;
         public Material BlockMaterial => blockMaterial;
         public Material DoorMaterial => doorMaterial;
         public Material WallMaterial => wallMaterial;

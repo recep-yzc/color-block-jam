@@ -98,13 +98,13 @@ namespace ColorBlockJam.Gameplay
                         doorPieces.Add(door, pieces);
                     }
 
-                    pieces.Add(Piece(art.Door, EdgePoint(board, side, i + 0.5f), art.WallHeightOffset, turn));
+                    pieces.Add(WallPiece(art, art.Door, EdgePoint(board, side, i + 0.5f), turn));
                     continue;
                 }
 
                 // A cell edge is two wall pieces long.
-                walls.Add(Piece(art.Wall, EdgePoint(board, side, i + 0.25f), art.WallHeightOffset, turn));
-                walls.Add(Piece(art.Wall, EdgePoint(board, side, i + 0.75f), art.WallHeightOffset, turn));
+                walls.Add(WallPiece(art, art.Wall, EdgePoint(board, side, i + 0.25f), turn));
+                walls.Add(WallPiece(art, art.Wall, EdgePoint(board, side, i + 0.75f), turn));
             }
         }
 
@@ -114,10 +114,10 @@ namespace ColorBlockJam.Gameplay
             var right = board.Width + 0.25f;
             var top = board.Height + 0.25f;
 
-            walls.Add(Piece(art.WallCorner, new Vector2(outside, outside), art.WallHeightOffset, Quaternion.identity));
-            walls.Add(Piece(art.WallCorner, new Vector2(outside, top), art.WallHeightOffset, Quaternion.Euler(0f, 90f, 0f)));
-            walls.Add(Piece(art.WallCorner, new Vector2(right, top), art.WallHeightOffset, Quaternion.Euler(0f, 180f, 0f)));
-            walls.Add(Piece(art.WallCorner, new Vector2(right, outside), art.WallHeightOffset, Quaternion.Euler(0f, 270f, 0f)));
+            walls.Add(WallPiece(art, art.WallCorner, new Vector2(outside, outside), Quaternion.identity));
+            walls.Add(WallPiece(art, art.WallCorner, new Vector2(outside, top), Quaternion.Euler(0f, 90f, 0f)));
+            walls.Add(WallPiece(art, art.WallCorner, new Vector2(right, top), Quaternion.Euler(0f, 180f, 0f)));
+            walls.Add(WallPiece(art, art.WallCorner, new Vector2(right, outside), Quaternion.Euler(0f, 270f, 0f)));
         }
 
         /// <summary>The middle of the wall band outside a side, at a distance along that side, in cell units.</summary>
@@ -151,6 +151,28 @@ namespace ColorBlockJam.Gameplay
         {
             var position = new Vector3(cell.x * cellSize, height * artScale, cell.y * cellSize);
             return new CombineInstance { mesh = mesh, transform = Matrix4x4.TRS(position, turn, Vector3.one * artScale) };
+        }
+
+        /// <summary>A wall, wall corner or door piece at wall height, turned upright when the art needs it.</summary>
+        private CombineInstance WallPiece(BoardArt art, Mesh mesh, Vector2 cell, Quaternion turn)
+        {
+            var piece = Piece(mesh, cell, art.WallHeightOffset, turn);
+            if (art.WallsUpsideDown)
+            {
+                piece.transform *= UpsideDown(mesh);
+            }
+
+            return piece;
+        }
+
+        /// <summary>
+        /// Turns a model upside down around the middle of its bounds, so it keeps its footprint and height.
+        /// The turn is around the Z axis, so the side facing the board still faces it.
+        /// </summary>
+        private static Matrix4x4 UpsideDown(Mesh mesh)
+        {
+            var center = mesh.bounds.center;
+            return Matrix4x4.TRS(new Vector3(center.x * 2f, center.y * 2f, 0f), Quaternion.Euler(0f, 0f, 180f), Vector3.one);
         }
 
         private void AddPart(string partName, List<CombineInstance> pieces, Material material)

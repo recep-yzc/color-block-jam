@@ -54,7 +54,9 @@ namespace ColorBlockJam.Gameplay
             builder.Register<BoardCamera>(Lifetime.Singleton);
             builder.Register(_ => new BlockBurstEffects(config.BurstPrefab, effectsRoot, config.BurstPrewarm), Lifetime.Singleton);
             builder.Register<FreezeBooster>(Lifetime.Singleton);
-            builder.Register<HammerBooster>(Lifetime.Singleton).AsSelf().As<IBlockTargeting>();
+            builder.Register<HammerBooster>(Lifetime.Singleton);
+            builder.Register<BlockPressRouter>(Lifetime.Singleton);
+            builder.RegisterBuildCallback(resolver => resolver.Resolve<BlockPressRouter>().Add(resolver.Resolve<HammerBooster>()));
 
             builder.RegisterEntryPoint<BoardPointer>().AsSelf();
             builder.RegisterEntryPoint<BlockDragController>().AsSelf();

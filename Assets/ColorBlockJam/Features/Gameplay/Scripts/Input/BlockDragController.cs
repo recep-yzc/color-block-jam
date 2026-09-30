@@ -16,7 +16,7 @@ namespace ColorBlockJam.Gameplay
         private readonly BoardView boardView;
         private readonly Camera viewCamera;
         private readonly GameplayConfig config;
-        private readonly IBlockTargeting targeting;
+        private readonly BlockPressRouter pressRouter;
         private readonly BlockDragMover mover;
 
         private Board board;
@@ -27,13 +27,13 @@ namespace ColorBlockJam.Gameplay
         private NVector2 grabOffset;
 
         public BlockDragController(BoardPointer pointer, BoardView boardView, Camera viewCamera, GameplayConfig config,
-            IBlockTargeting targeting)
+            BlockPressRouter pressRouter)
         {
             this.pointer = pointer;
             this.boardView = boardView;
             this.viewCamera = viewCamera;
             this.config = config;
-            this.targeting = targeting;
+            this.pressRouter = pressRouter;
             mover = new BlockDragMover(config.CornerRounding);
         }
 
@@ -85,15 +85,10 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            var block = board.BlockAt(new GridPoint((int)MathF.Floor(cell.X), (int)MathF.Floor(cell.Y)));
-            if (block == null)
+            var pressed = new GridPoint((int)MathF.Floor(cell.X), (int)MathF.Floor(cell.Y));
+            var block = board.BlockAt(pressed);
+            if (block == null || pressRouter.TryPick(block, pressed))
             {
-                return;
-            }
-
-            if (targeting.IsAiming)
-            {
-                targeting.Pick(block);
                 return;
             }
 

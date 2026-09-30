@@ -33,7 +33,7 @@ namespace ColorBlockJam.Gameplay
             SetAiming(false);
         }
 
-        public void Pick(BoardBlock block)
+        public void Pick(BoardBlock block, GridPoint cell)
         {
             SetAiming(false);
             if (wallet.TrySpend(Cost))

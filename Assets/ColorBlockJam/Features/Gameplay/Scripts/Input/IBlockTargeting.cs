@@ -6,6 +6,6 @@ namespace ColorBlockJam.Gameplay
     {
         bool IsAiming { get; }
 
-        void Pick(BoardBlock block);
+        void Pick(BoardBlock block, GridPoint cell);
     }
 }

@@ -5,9 +5,6 @@ using VContainer.Unity;
 
 namespace Framework.Navigation
 {
-    /// <summary>
-    /// Adds page and tab navigation to the scene.
-    /// </summary>
     public sealed class NavigationInstaller : MonoInstaller
     {
         [Tooltip("Sayfa sırası, kaydırma ve sekme ayarları.")]

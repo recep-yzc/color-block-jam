@@ -18,12 +18,6 @@ namespace ColorBlockJam.Gameplay
         Failed
     }
 
-    /// <summary>
-    /// One attempt at one level: runs the timer and decides when the level is won or lost. The level is won when the
-    /// board is cleared, and lost when time runs out or when the player is stuck, meaning no sequence of moves can clear
-    /// the board. Building the board, watching whether it can be cleared and paying out the result belong to the
-    /// classes this one drives. A restart reloads the scene, so a session never has to reset itself.
-    /// </summary>
     public sealed class LevelSession : IStartable, ITickable, IDisposable
     {
         private readonly ILevelProvider levels;
@@ -47,7 +41,6 @@ namespace ColorBlockJam.Gameplay
             this.results = results;
             this.popups = popups;
 
-            // The data is ready at once, so the HUD can show it before the board is built.
             Level = levels.Load();
             Timer = new LevelTimer(Level.timeLimit);
         }
@@ -58,7 +51,6 @@ namespace ColorBlockJam.Gameplay
         public LevelTimer Timer { get; }
         public int LevelNumber => levels.LevelNumber;
 
-        /// <summary>True when the level editor started this level.</summary>
         public bool IsEditorTest => levels.IsEditorTest;
         public LevelState State { get; private set; }
 
@@ -84,7 +76,6 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            // A popup on screen, such as pause, stops the level.
             var isHeld = popups.HasOpenPopup;
             drag.IsEnabled = State == LevelState.Playing && !isHeld;
             Timer.IsPaused = State != LevelState.Playing || isHeld;
@@ -105,7 +96,6 @@ namespace ColorBlockJam.Gameplay
             solvability.FoundUnsolvable -= FailIfStuck;
         }
 
-        /// <summary>Lets the solver finish the level from where the player left it.</summary>
         public void StartAutoPlay()
         {
             if (State != LevelState.Playing)
@@ -126,7 +116,6 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            // The solver gave up within its budget; hand the board back to the player.
             Debug.LogWarning("Auto play found no solution from this board.");
             SetState(LevelState.Playing);
             FailIfStuck();
@@ -138,7 +127,6 @@ namespace ColorBlockJam.Gameplay
             FailIfStuck();
         }
 
-        /// <summary>A block is off the board, through <paramref name="door"/> or, when it is null, broken by the hammer.</summary>
         private void OnBlockCleared(BoardBlock block, BoardDoor door)
         {
             levelBoard.ShowBlockCleared(door);
@@ -149,7 +137,6 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            // Fewer blocks make a smaller search, so an unknown answer may now be found.
             solvability.Check(Board);
             FailIfStuck();
         }
@@ -159,7 +146,6 @@ namespace ColorBlockJam.Gameplay
             OnBlockCleared(block, null);
         }
 
-        /// <summary>The player sees the fail popup after trying a move, not the moment the level opens.</summary>
         private void FailIfStuck()
         {
             if (solvability.IsUnsolvable && hasPlayerMoved && State == LevelState.Playing)

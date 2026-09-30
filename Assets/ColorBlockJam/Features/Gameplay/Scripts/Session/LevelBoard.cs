@@ -9,11 +9,6 @@ using Object = UnityEngine.Object;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The level on screen. It builds the board's rules and views from the level data and frames the camera, then
-    /// plays what the player sees when a block leaves: the door opening, the burst in the block's color, a haptic and
-    /// the ice of other blocks melting a step.
-    /// </summary>
     public sealed class LevelBoard
     {
         private readonly BoardView boardView;
@@ -37,12 +32,10 @@ namespace ColorBlockJam.Gameplay
             this.haptics = haptics;
         }
 
-        /// <summary>Raised when a block has been broken where it stood; it is already off the board.</summary>
         public event Action<BoardBlock> BlockSmashed;
 
         public Board Board { get; private set; }
 
-        /// <summary>The block views, indexed by block id.</summary>
         public IReadOnlyList<BlockView> Views => views;
 
         public void Build(LevelData level)
@@ -62,10 +55,6 @@ namespace ColorBlockJam.Gameplay
             boardCamera.Frame(boardView.WorldBounds);
         }
 
-        /// <summary>
-        /// Shows what follows a block leaving the board: the door it went through opens, when it left through one,
-        /// and the ice on the other blocks counts down, breaking where it is done.
-        /// </summary>
         public void ShowBlockCleared(BoardDoor door)
         {
             if (door != null)
@@ -89,7 +78,6 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        /// <summary>Breaks a block where it stands, as the hammer does, frozen or not.</summary>
         public void Smash(BoardBlock block)
         {
             Board.Clear(block);

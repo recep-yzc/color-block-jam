@@ -2,7 +2,6 @@ using ColorBlockJam.Economy;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>Stops the level timer for a while, for coins. One freeze runs at a time.</summary>
     public sealed class FreezeBooster
     {
         private readonly LevelSession session;

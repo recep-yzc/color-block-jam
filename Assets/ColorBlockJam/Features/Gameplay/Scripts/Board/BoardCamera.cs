@@ -2,10 +2,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Frames the board with an orthographic camera tilted by the configured pitch,
-    /// leaving the configured share of the screen to the HUD, over the configured background color.
-    /// </summary>
     public sealed class BoardCamera
     {
         private const float Distance = 60f;

@@ -5,11 +5,6 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Knows whether the board can still be cleared. Moves can be undone and leaving only frees space, so the answer
-    /// never changes during play: the solver is asked once, on a copy of the board on a worker thread, and asked again
-    /// only while the answer is unknown, since a board with fewer blocks is a smaller search.
-    /// </summary>
     public sealed class SolvabilityWatcher : IDisposable
     {
         private enum Answer
@@ -31,12 +26,10 @@ namespace ColorBlockJam.Gameplay
             this.config = config;
         }
 
-        /// <summary>Raised when the solver finds that the board cannot be cleared.</summary>
         public event Action FoundUnsolvable;
 
         public bool IsUnsolvable => answer == Answer.Unsolvable;
 
-        /// <summary>Starts a search of the board as it is now, unless the answer is known or a search is running.</summary>
         public void Check(Board board)
         {
             if (answer == Answer.Unknown && !isSearching)

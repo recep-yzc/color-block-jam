@@ -6,7 +6,6 @@ using NUnit.Framework;
 
 namespace ColorBlockJam.Tests
 {
-    /// <summary>Arrow blocks move along one axis only; ice keeps a block frozen until enough others have left.</summary>
     public sealed class SpecialBlockTests
     {
         private static readonly GridPoint[] Single = { new(0, 0) };
@@ -38,7 +37,6 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheSolverKeepsArrowBlocksOnTheirAxis()
         {
-            // The only door is across the block's axis, so it can never leave.
             var block = new BoardBlock(0, 0, new GridPoint(1, 1), Single, BlockAxis.Vertical);
             var board = new Board(4, 4, new[] { block }, new[] { new BoardDoor(BoardSide.Right, 0, 4, 0) });
 
@@ -64,7 +62,6 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheSolverWaitsForIceToMelt()
         {
-            // The frozen block sits right at its door, but it can only leave after the other block is gone.
             var frozen = new BoardBlock(0, 0, new GridPoint(0, 0), Single, ice: 1);
             var other = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
             var doors = new[] { new BoardDoor(BoardSide.Left, 0, 1, 0), new BoardDoor(BoardSide.Right, 0, 1, 1) };
@@ -98,7 +95,6 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheIceCountSitsOnTheBlock()
         {
-            // The middle of this L's bounds is an empty cell, so the count goes on a cell of the block next to it.
             var l = new[] { new GridPoint(0, 0), new GridPoint(0, 1), new GridPoint(0, 2), new GridPoint(1, 0), new GridPoint(2, 0) };
 
             var cell = BlockMarks.FindIceCell(l);

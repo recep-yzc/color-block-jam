@@ -9,10 +9,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The top bar of the level: level number, difficulty, the countdown, pause and auto play.
-    /// The countdown turns icy while the freeze booster holds it.
-    /// </summary>
     public sealed class GameplayHudView : UIView
     {
         [Tooltip("Seviye numarasını gösteren yazı.")]
@@ -50,7 +46,6 @@ namespace ColorBlockJam.Gameplay
             levelLabel.SetText("Level {0}", level);
         }
 
-        /// <summary>Shown instead of the level number for a level played from the level editor.</summary>
         public void SetTestLevel()
         {
             levelLabel.text = "Test Level";
@@ -82,7 +77,6 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        /// <summary>Shows the timer as frozen while the freeze booster holds it.</summary>
         public void SetTimerFrozen(bool isFrozen)
         {
             isTimerFrozen = isFrozen;

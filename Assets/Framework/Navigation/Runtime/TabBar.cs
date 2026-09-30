@@ -7,10 +7,6 @@ using UnityEngine.UI;
 
 namespace Framework.Navigation
 {
-    /// <summary>
-    /// Holds the <see cref="NavigationTab"/>s, sorts them by the config, widens the selected tab
-    /// and moves the selection highlight.
-    /// </summary>
     public sealed class TabBar : MonoBehaviour
     {
         [Tooltip("Sekmelerin altında durduğu obje. Layout group'u sekmeleri yan yana dizer.")]
@@ -44,7 +40,6 @@ namespace Framework.Navigation
                 tabs[i].Clicked += OnTabClicked;
                 tabs[i].SetSelected(false, config, instant: true);
 
-                // The selected tab gets its extra width as preferred width; the layout group shares the rest.
                 tabLayouts[i] = tabs[i].TryGetComponent(out LayoutElement layout) ? layout : tabs[i].gameObject.AddComponent<LayoutElement>();
                 tabLayouts[i].preferredWidth = 0f;
             }
@@ -78,9 +73,6 @@ namespace Framework.Navigation
             ResizeTabs(instant);
         }
 
-        /// <summary>
-        /// Places the highlight between two tabs. <paramref name="blend"/> 0 is on <paramref name="fromIndex"/>, 1 is on <paramref name="toIndex"/>.
-        /// </summary>
         public void MoveHighlight(int fromIndex, int toIndex, float blend)
         {
             highlightFrom = fromIndex;
@@ -91,7 +83,6 @@ namespace Framework.Navigation
 
         private void OnRectTransformDimensionsChange()
         {
-            // The layout group moves the tabs later in this frame; place the highlight after it.
             isLayoutDirty = tabs.Count > 0;
         }
 
@@ -112,7 +103,6 @@ namespace Framework.Navigation
             resizeMotion.TryCancel();
         }
 
-        // A separator sits on the right edge of its tab, so the selected tab hides its own and its left neighbor's.
         private void UpdateSeparators()
         {
             for (var i = 0; i < tabs.Count; i++)

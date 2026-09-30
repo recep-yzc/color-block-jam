@@ -6,9 +6,6 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Plays the level by itself: asks the solver for a solution and performs its moves one by one.
-    /// </summary>
     public sealed class AutoPlayer
     {
         private readonly BoardSolver solver;
@@ -20,11 +17,9 @@ namespace ColorBlockJam.Gameplay
             this.config = config;
         }
 
-        /// <returns>False when the solver finds no way to clear the board from its current state.</returns>
         public async UniTask<bool> PlayAsync(Board board, IReadOnlyList<BlockView> views, Action<BoardBlock, BoardDoor> onLeft,
             CancellationToken cancellationToken)
         {
-            // The search runs on a copy on a worker thread, so the game keeps rendering while it thinks.
             var snapshot = board.Clone();
             var result = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.AutoPlaySearchBudget, cancellationToken),
                 cancellationToken: cancellationToken);

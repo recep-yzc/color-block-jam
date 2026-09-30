@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Shrinks while pressed and wiggles side to side on release, like a buzzing phone.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Wiggle", fileName = "WiggleButtonFeedback")]
     public sealed class WiggleButtonFeedback : ButtonFeedback
     {

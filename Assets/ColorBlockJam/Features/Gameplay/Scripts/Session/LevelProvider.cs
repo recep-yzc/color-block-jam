@@ -3,7 +3,6 @@ using ColorBlockJam.Progression;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>The player's current level from the catalog, or the level the level editor is testing.</summary>
     public sealed class LevelProvider : ILevelProvider
     {
         private readonly LevelCatalog catalog;

@@ -4,9 +4,6 @@ using VContainer;
 
 namespace Framework.UI.Popups
 {
-    /// <summary>
-    /// Adds the popup service to the scene. Popups from <see cref="catalog"/> open under <see cref="layer"/>.
-    /// </summary>
     public sealed class PopupInstaller : MonoInstaller
     {
         [Tooltip("Popup'ların açıldığı katman.")]

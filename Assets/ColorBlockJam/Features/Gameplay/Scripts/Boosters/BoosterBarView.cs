@@ -8,10 +8,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The booster buttons under the board. Freeze and hammer work and show their price; the others are placeholder
-    /// buttons that need no code. While the hammer is taken up, its icon pulses and a hint asks for a block.
-    /// </summary>
     public sealed class BoosterBarView : UIView
     {
         [Tooltip("Süreyi bir süreliğine durduran freeze butonu.")]

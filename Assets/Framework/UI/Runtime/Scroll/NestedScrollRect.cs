@@ -4,11 +4,6 @@ using UnityEngine.UI;
 
 namespace Framework.UI.Scroll
 {
-    /// <summary>
-    /// A ScrollRect that can live inside another drag area, such as a page navigator.
-    /// A drag along its scroll axis scrolls it; a drag across it goes to the parent,
-    /// so a vertical list inside a horizontally swiped page does not block the swipe.
-    /// </summary>
     public sealed class NestedScrollRect : ScrollRect
     {
         private bool isRoutingToParent;

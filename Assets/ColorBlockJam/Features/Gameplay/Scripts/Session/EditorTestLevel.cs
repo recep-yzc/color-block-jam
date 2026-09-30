@@ -2,9 +2,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// A level the level editor's Play button hands to the gameplay scene, in the editor only.
-    /// </summary>
     public static class EditorTestLevel
     {
         public const string SessionKey = "ColorBlockJam.EditorTestLevel";

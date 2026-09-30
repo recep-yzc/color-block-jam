@@ -6,7 +6,6 @@ namespace ColorBlockJam.Gameplay
     {
         int LevelNumber { get; }
 
-        /// <summary>True when the level comes from the level editor instead of the player's progress.</summary>
         bool IsEditorTest { get; }
 
         LevelData Load();

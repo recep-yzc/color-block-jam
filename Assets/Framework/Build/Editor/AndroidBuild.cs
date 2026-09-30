@@ -6,11 +6,6 @@ using UnityEngine;
 
 namespace Framework.Build
 {
-    /// <summary>
-    /// Builds an Android APK of the scenes enabled in the build settings, with the player settings as they are.
-    /// The APK goes to <c>Builds/Android</c>, named after the product. From the menu, or from the command line:
-    /// <code>Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod Framework.Build.AndroidBuild.BuildFromCommandLine</code>
-    /// </summary>
     public static class AndroidBuild
     {
         private const string OutputFolder = "Builds/Android";
@@ -25,7 +20,6 @@ namespace Framework.Build
             }
         }
 
-        /// <summary>For <c>-executeMethod</c>. Exits with 1 when the build fails, so a script can tell.</summary>
         public static void BuildFromCommandLine()
         {
             var report = Build();
@@ -44,7 +38,6 @@ namespace Framework.Build
                 options = BuildOptions.None
             };
 
-            // An APK rather than an app bundle, so it installs straight onto a device; the setting is put back after.
             var wasAppBundle = EditorUserBuildSettings.buildAppBundle;
             EditorUserBuildSettings.buildAppBundle = false;
             try
@@ -52,7 +45,6 @@ namespace Framework.Build
                 var report = BuildPipeline.BuildPlayer(options);
                 var summary = report.summary;
 
-                // The report's total size counts the build's intermediate files too, so the APK itself is measured.
                 var megabytes = summary.result == BuildResult.Succeeded ? new FileInfo(path).Length / (1024f * 1024f) : 0f;
                 Debug.Log($"Android build {summary.result}: {path}, {megabytes:0.0} MB, {summary.totalErrors} errors, " +
                           $"{summary.totalTime.TotalSeconds:0} s.");

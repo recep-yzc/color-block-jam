@@ -15,7 +15,6 @@ namespace ColorBlockJam.Gameplay.Logic
         IceNeverMelts
     }
 
-    /// <summary>A mistake in a level found without solving it. <see cref="Block"/> and <see cref="Color"/> are -1 when unused.</summary>
     public readonly struct LevelProblem
     {
         public readonly LevelProblemKind Kind;
@@ -30,11 +29,6 @@ namespace ColorBlockJam.Gameplay.Logic
         }
     }
 
-    /// <summary>
-    /// Quick checks that catch most broken levels at once, before the slower solver runs:
-    /// every block on the board and apart, every door on an edge, a door each block fits through (along its axis for
-    /// an arrow block), and ice that enough other blocks can melt.
-    /// </summary>
     public static class LevelDiagnostics
     {
         public static List<LevelProblem> Find(LevelData level)
@@ -119,7 +113,6 @@ namespace ColorBlockJam.Gameplay.Logic
                     problems.Add(new LevelProblem(LevelProblemKind.BlockFitsNoDoor, b, block.color));
                 }
 
-                // Ice melts one step for every other block that leaves, so it cannot ask for more than there are.
                 if (block.ice > level.blocks.Length - 1)
                 {
                     problems.Add(new LevelProblem(LevelProblemKind.IceNeverMelts, b, block.color));
@@ -129,10 +122,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return problems;
         }
 
-        /// <summary>
-        /// True when the shape, alone on an empty board, fits through some door of its color. An arrow block also has to
-        /// reach the door along its axis, so it stays on the row or column of <paramref name="origin"/>.
-        /// </summary>
         public static bool CanEverLeave(int width, int height, GridPoint[] shape, int color, IReadOnlyList<DoorData> doors,
             BlockAxis axis = BlockAxis.Free, GridPoint origin = default)
         {

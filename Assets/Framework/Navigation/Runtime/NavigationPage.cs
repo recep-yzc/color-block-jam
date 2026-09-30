@@ -2,10 +2,6 @@ using UnityEngine;
 
 namespace Framework.Navigation
 {
-    /// <summary>
-    /// A full screen page shown by <see cref="PageNavigator"/>.
-    /// Drop the prefab under the navigator content and pick its id; the navigator places it.
-    /// </summary>
     [RequireComponent(typeof(RectTransform))]
     public sealed class NavigationPage : MonoBehaviour, INavigationItem
     {

@@ -7,9 +7,6 @@ using VContainer.Unity;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The one pointer the board listens to (mouse or first touch), read through the Input System.
-    /// </summary>
     public sealed class BoardPointer : IInitializable, IDisposable
     {
         private readonly InputAction position = new("Point", InputActionType.Value, "<Pointer>/position");
@@ -21,10 +18,6 @@ namespace ColorBlockJam.Gameplay
         public bool WasPressedThisFrame => press.WasPressedThisFrame();
         public bool IsPressed => press.IsPressed();
 
-        /// <summary>
-        /// True when the pointer is over UI, which then gets the touch instead of the board. It raycasts the UI itself:
-        /// on the first frame of a touch the event system has not handled the touch yet and would answer no.
-        /// </summary>
         public bool IsOverUI
         {
             get

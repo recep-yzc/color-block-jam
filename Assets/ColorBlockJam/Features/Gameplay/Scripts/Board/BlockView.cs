@@ -10,31 +10,15 @@ using NVector2 = System.Numerics.Vector2;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The look of one block. While dragged it lifts, gets an outline and sits exactly where the drag mover puts it,
-    /// so what the player sees never overlaps another block; the smoothness comes from how the drag catches up with
-    /// the finger. A frozen block wears a shell of ice showing how many blocks still have to leave.
-    /// </summary>
     [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class BlockView : MonoBehaviour
     {
-        // Shortest time any move of the block takes, so tiny moves still read as motion.
         private const float MinMotionDuration = 0.05f;
-
-        // Lining up in front of a door takes this share of the snap duration.
         private const float LineUpShare = 0.6f;
-
-        // Scale a leaving block shrinks to while it slides out.
         private const float LeftScale = 0.2f;
-
-        // Shape a block squashes to under the hammer, as shares of its size.
         private const float SmashSpread = 1.2f;
         private const float SmashHeight = 0.3f;
-
-        // Swings of the shake a frozen block gives when it is pulled.
         private const int ShakeFrequency = 6;
-
-        // Gap, in art units, between the top of the block and its ice count.
         private const float IceCountLift = 0.25f;
 
         [Header("Ice")]
@@ -50,7 +34,6 @@ namespace ColorBlockJam.Gameplay
         private Mesh mesh;
         private MeshRenderer meshRenderer;
 
-        // The material sets for resting and for being held, made once so a grab allocates nothing.
         private Material[] restMaterials;
         private Material[] heldMaterials;
         private Vector2 cellPosition;
@@ -63,18 +46,12 @@ namespace ColorBlockJam.Gameplay
         private MotionHandle shakeMotion;
         private MotionHandle iceMotion;
 
-        /// <summary>
-        /// Raised when the block is gone from the board, out through its door or broken by the hammer, just before
-        /// it hides.
-        /// </summary>
         public event Action<BlockView> Removed;
 
         public BoardBlock Block { get; private set; }
 
-        /// <summary>True while the block wears its ice.</summary>
         public bool IsFrozen => iceLeft > 0;
 
-        /// <summary>World position of the middle of the block, at half its height.</summary>
         public Vector3 Center => transform.position + Vector3.up * (config.CellSize * ArtSpace.BlockHalfHeight * transform.localScale.y / RestScale);
 
         private float RestScale => config.CellSize / ArtSpace.CellSize;
@@ -117,13 +94,11 @@ namespace ColorBlockJam.Gameplay
             AnimateLift(config.LiftHeight);
         }
 
-        /// <summary>Puts the dragged block where it is on the board, in cell units.</summary>
         public void Follow(NVector2 cell)
         {
             MoveTo(new Vector2(cell.X, cell.Y));
         }
 
-        /// <summary>Ends a drag by settling on a board cell.</summary>
         public void Settle(GridPoint cell)
         {
             meshRenderer.sharedMaterials = restMaterials;
@@ -135,7 +110,6 @@ namespace ColorBlockJam.Gameplay
                 .AddTo(this);
         }
 
-        /// <summary>Slides straight to a cell, as auto play moves.</summary>
         public UniTask SlideAsync(GridPoint cell, CancellationToken cancellationToken)
         {
             moveMotion.TryCancel();
@@ -148,10 +122,6 @@ namespace ColorBlockJam.Gameplay
             return moveMotion.ToUniTask(cancellationToken);
         }
 
-        /// <summary>
-        /// Lines up with <paramref name="cell"/> in front of a door, then slides out through it, which takes
-        /// <paramref name="stepsToLeave"/> cells from there.
-        /// </summary>
         public async UniTask LeaveFromAsync(GridPoint cell, Direction direction, float stepsToLeave, CancellationToken cancellationToken)
         {
             meshRenderer.sharedMaterials = restMaterials;
@@ -165,10 +135,6 @@ namespace ColorBlockJam.Gameplay
             await ExitAsync(direction, stepsToLeave, cancellationToken);
         }
 
-        /// <summary>
-        /// Slides out through a door, shrinking, then hides. <paramref name="stepsToLeave"/> is how many cells take it
-        /// fully off the board; it slides a little further so it clears the wall.
-        /// </summary>
         public async UniTask ExitAsync(Direction direction, float stepsToLeave, CancellationToken cancellationToken)
         {
             var distance = stepsToLeave + config.ExitOvershoot;
@@ -195,7 +161,6 @@ namespace ColorBlockJam.Gameplay
             gameObject.SetActive(false);
         }
 
-        /// <summary>Breaks the block where it stands, as the hammer does: it squashes flat, then pops and hides.</summary>
         public async UniTask SmashAsync(CancellationToken cancellationToken)
         {
             moveMotion.TryCancel();
@@ -211,7 +176,6 @@ namespace ColorBlockJam.Gameplay
             gameObject.SetActive(false);
         }
 
-        /// <summary>A short shake, when the player tries to move the block while it is frozen.</summary>
         public void PlayFrozenShake()
         {
             shakeMotion.TryComplete();
@@ -221,7 +185,6 @@ namespace ColorBlockJam.Gameplay
                 .AddTo(this);
         }
 
-        /// <summary>Shows how many more blocks must leave before this one thaws; at zero the ice breaks away.</summary>
         public void ShowIce(int left)
         {
             if (!IsFrozen || left == iceLeft)
@@ -253,7 +216,6 @@ namespace ColorBlockJam.Gameplay
             Destroy(mesh);
         }
 
-        /// <summary>Just over the top of the cell <see cref="BlockMarks"/> picks for the count.</summary>
         private Vector3 IceCountPosition(BoardBlock block)
         {
             var cell = BlockMarks.FindIceCell(block.Cells);

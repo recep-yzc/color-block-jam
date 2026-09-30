@@ -5,10 +5,6 @@ namespace Framework.Navigation
 {
     internal static class NavigationOrder
     {
-        /// <summary>
-        /// Collects the items that are direct children of <paramref name="parent"/> and sorts them by
-        /// <see cref="NavigationConfig.PageOrder"/>. Items with an unknown id keep their hierarchy order and go to the end.
-        /// </summary>
         public static void CollectSorted<T>(Transform parent, NavigationConfig config, List<T> result)
             where T : Component, INavigationItem
         {

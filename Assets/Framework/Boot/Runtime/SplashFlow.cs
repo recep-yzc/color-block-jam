@@ -8,10 +8,6 @@ using VContainer.Unity;
 
 namespace Framework.Boot
 {
-    /// <summary>
-    /// Runs the startup tasks, preloads the main scene and switches to it
-    /// once the loading bar is full.
-    /// </summary>
     public sealed class SplashFlow : IAsyncStartable
     {
         private readonly IReadOnlyList<IStartupTask> startupTasks;
@@ -71,7 +67,6 @@ namespace Framework.Boot
             {
                 await UniTask.Yield(PlayerLoopTiming.Update, cancellation);
 
-                // The bar never runs ahead of real loading or of the minimum splash duration.
                 var elapsedShare = config.MinimumDuration > 0f
                     ? (Time.realtimeSinceStartup - startTime) / config.MinimumDuration
                     : 1f;

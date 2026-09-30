@@ -7,10 +7,6 @@ using Framework.UI.Popups;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// What ending a level does: a win moves the player's progress on and pays the reward, and either end shows its
-    /// result popup after a short delay, so the last moves can finish on screen first.
-    /// </summary>
     public sealed class LevelResults : IDisposable
     {
         private readonly ILevelProvider levels;
@@ -36,7 +32,6 @@ namespace ColorBlockJam.Gameplay
 
         public void Win()
         {
-            // A level tried from the level editor is not part of the player's progress.
             if (!levels.IsEditorTest)
             {
                 progression.CompleteCurrentLevel();

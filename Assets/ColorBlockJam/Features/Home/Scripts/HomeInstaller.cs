@@ -6,9 +6,6 @@ using VContainer.Unity;
 
 namespace ColorBlockJam.Home
 {
-    /// <summary>
-    /// The home page content: top bar, coin counter and level button.
-    /// </summary>
     public sealed class HomeInstaller : MonoInstaller
     {
         [Tooltip("Ana ekranın üst çubuğu.")]

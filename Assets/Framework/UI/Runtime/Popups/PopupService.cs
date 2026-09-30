@@ -18,7 +18,6 @@ namespace Framework.UI.Popups
         private readonly Dictionary<Type, Popup> instances = new();
         private readonly List<Popup> openPopups = new();
 
-        // Android's back button arrives as the keyboard escape key.
         private readonly InputAction backAction = new("Back", InputActionType.Button, "<Keyboard>/escape");
 
         public PopupService(PopupLayer layer, PopupCatalog catalog, IObjectResolver resolver)
@@ -26,8 +25,6 @@ namespace Framework.UI.Popups
             this.layer = layer;
             this.catalog = catalog;
 
-            // The scope that built this service. Popups with their own scope become its children,
-            // so their presenters can use the scene's services.
             ownerScope = resolver.ApplicationOrigin as LifetimeScope;
         }
 
@@ -116,7 +113,6 @@ namespace Framework.UI.Popups
 
             await popup.HideAsync(cancellationToken);
 
-            // Skip when the popup was opened again during its hide transition.
             if (popup.DestroyOnHide && popup.State == ViewState.Hidden)
             {
                 Destroy(popup);

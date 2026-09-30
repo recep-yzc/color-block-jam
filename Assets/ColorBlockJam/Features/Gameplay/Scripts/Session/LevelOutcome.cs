@@ -6,7 +6,6 @@ namespace ColorBlockJam.Gameplay
         Stuck
     }
 
-    /// <summary>How the level ended, for the result popups to show.</summary>
     public sealed class LevelOutcome
     {
         public LevelFailReason FailReason { get; private set; }

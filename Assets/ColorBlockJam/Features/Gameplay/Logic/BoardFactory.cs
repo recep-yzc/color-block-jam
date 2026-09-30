@@ -4,7 +4,6 @@ namespace ColorBlockJam.Gameplay.Logic
 {
     public static class BoardFactory
     {
-        /// <summary>Builds a fresh board from a level. Block ids are their index in the level.</summary>
         public static Board Create(LevelData level)
         {
             var blocks = new BoardBlock[level.blocks.Length];

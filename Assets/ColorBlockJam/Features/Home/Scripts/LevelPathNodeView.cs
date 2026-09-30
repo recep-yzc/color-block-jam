@@ -4,10 +4,6 @@ using UnityEngine.UI;
 
 namespace ColorBlockJam.Home
 {
-    /// <summary>
-    /// One level tile on the home page path. The current level's tile keeps its colors;
-    /// tiles of later levels show a lock and a faded background.
-    /// </summary>
     public sealed class LevelPathNodeView : MonoBehaviour
     {
         [Tooltip("Karonun seviye numarası.")]

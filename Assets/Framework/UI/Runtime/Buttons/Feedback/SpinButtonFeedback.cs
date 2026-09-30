@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Winds up while pressed and spins one full turn on release.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Spin", fileName = "SpinButtonFeedback")]
     public sealed class SpinButtonFeedback : ButtonFeedback
     {

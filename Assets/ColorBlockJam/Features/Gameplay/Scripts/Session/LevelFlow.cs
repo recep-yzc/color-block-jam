@@ -5,10 +5,6 @@ using Framework.Core.SceneManagement;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Leaves the level by loading a scene. Reloading the gameplay scene is what makes a restart clean:
-    /// nothing from the previous attempt survives.
-    /// </summary>
     public sealed class LevelFlow : ILevelFlow
     {
         private readonly ISceneLoader sceneLoader;

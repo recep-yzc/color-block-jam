@@ -7,7 +7,6 @@ namespace Framework.Core.SceneManagement
 {
     public sealed class SceneLoader : ISceneLoader
     {
-        // Unity stops at 0.9 while allowSceneActivation is false; this value means "loaded".
         private const float LoadedProgress = 0.9f;
 
         public async UniTask<PreloadedScene> PreloadAsync(string sceneName, IProgress<float> progress, CancellationToken cancellationToken)

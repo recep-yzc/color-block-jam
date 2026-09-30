@@ -2,9 +2,6 @@ using System.Collections.Generic;
 
 namespace Framework.Core.Persistence
 {
-    /// <summary>
-    /// Storage that forgets everything when the session ends. For tests and for builds without saving.
-    /// </summary>
     public sealed class InMemoryStorage : IKeyValueStorage
     {
         private readonly Dictionary<string, int> values = new();

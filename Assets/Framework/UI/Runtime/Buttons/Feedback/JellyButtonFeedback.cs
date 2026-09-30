@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Squashes flat while pressed and wobbles like jelly on release.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Jelly", fileName = "JellyButtonFeedback")]
     public sealed class JellyButtonFeedback : ButtonFeedback
     {

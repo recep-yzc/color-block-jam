@@ -2,9 +2,6 @@ using System;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// A button whose click is handled by code, usually a presenter.
-    /// </summary>
     public sealed class ActionButton : ButtonBase
     {
         public event Action Clicked;

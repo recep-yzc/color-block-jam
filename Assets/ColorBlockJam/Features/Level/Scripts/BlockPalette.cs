@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Level
 {
-    /// <summary>
-    /// The block and door colors. Levels store a color as an index into this list.
-    /// </summary>
     [CreateAssetMenu(menuName = "Color Block Jam/Level/Block Palette", fileName = "BlockPalette")]
     public sealed class BlockPalette : ScriptableObject
     {

@@ -4,9 +4,6 @@ using VContainer.Unity;
 
 namespace Framework.Navigation
 {
-    /// <summary>
-    /// Connects the <see cref="TabBar"/> and the <see cref="PageNavigator"/>, which do not know each other.
-    /// </summary>
     public sealed class NavigationPresenter : IStartable, IDisposable
     {
         private readonly NavigationConfig config;
@@ -76,7 +73,6 @@ namespace Framework.Navigation
             var fromTab = tabIndexByPage[fromPage];
             var toTab = tabIndexByPage[toPage];
 
-            // Pages without a tab keep the highlight where it is.
             if (fromTab < 0 || toTab < 0)
             {
                 return;

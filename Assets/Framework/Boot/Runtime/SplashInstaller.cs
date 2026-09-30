@@ -5,9 +5,6 @@ using VContainer.Unity;
 
 namespace Framework.Boot
 {
-    /// <summary>
-    /// Runs the splash flow in the scene it is placed in.
-    /// </summary>
     public sealed class SplashInstaller : MonoInstaller
     {
         [Tooltip("Açılış ekranı ayarları.")]

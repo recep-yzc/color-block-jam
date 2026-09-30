@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Closes the popup it is placed in. Needs no wiring: drop it anywhere under a <see cref="Popup"/>.
-    /// </summary>
     public sealed class CloseButton : ButtonBase
     {
         private Popup popup;

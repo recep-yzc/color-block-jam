@@ -5,21 +5,11 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The board as one mesh: ground tiles, walls and corners, with a submesh for the ground and one for the walls.
-    /// Each colored door is a mesh of its own. Along a side, every run of wall, and every run of door cells of one
-    /// color, even when it is several doors side by side, is a single piece stretched to fit.
-    /// Also converts between board cells and world positions: cell (0, 0) starts at this transform's position
-    /// and cells grow along world X and Z.
-    /// </summary>
     public sealed class BoardView : MonoBehaviour
     {
         private const int NoDoor = -1;
-
-        // Walls are a quarter cell thick band just outside the board.
         private const float WallBand = 0.25f;
 
-        /// <summary>A stretched door piece covering the cells <see cref="From"/> up to <see cref="To"/> of a side, in one color.</summary>
         private readonly struct DoorRun
         {
             public readonly BoardSide Side;
@@ -54,8 +44,6 @@ namespace ColorBlockJam.Gameplay
             cellSize = config.CellSize;
             artScale = cellSize / ArtSpace.CellSize;
 
-            // The board sits apart from the blocks, which are children of this view too, and from the doors: both move.
-            // It is one mesh already, so static batching would have nothing to merge; the flag only marks it as fixed.
             staticParts = new GameObject("Board Parts") { isStatic = true }.transform;
             staticParts.SetParent(transform, false);
             doorParts = new GameObject("Doors").transform;
@@ -81,7 +69,6 @@ namespace ColorBlockJam.Gameplay
 
             foreach (var door in doors)
             {
-                // Built around the middle of its base, so it can squash toward the ground.
                 var piece = door.Piece;
                 piece.transform = Matrix4x4.Translate(-door.Pivot) * piece.transform;
                 var doorName = $"Door {door.Side} {door.From}";
@@ -99,7 +86,6 @@ namespace ColorBlockJam.Gameplay
             WorldBounds = new Bounds(CellToWorld(new Vector2(board.Width * 0.5f, board.Height * 0.5f)), size);
         }
 
-        /// <summary>Plays the opening of the door a block is going through.</summary>
         public void PlayDoorEntry(BoardDoor door)
         {
             foreach (var doorView in doorViews)
@@ -112,13 +98,11 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        /// <summary>World position of a point in cell units, on the ground.</summary>
         public Vector3 CellToWorld(Vector2 cell)
         {
             return transform.position + new Vector3(cell.x * cellSize, 0f, cell.y * cellSize);
         }
 
-        /// <summary>Where a screen point hits a horizontal plane at <paramref name="height"/>, in cell units.</summary>
         public bool TryScreenToCell(Camera viewCamera, Vector2 screenPoint, float height, out Vector2 cell)
         {
             var ray = viewCamera.ScreenPointToRay(screenPoint);
@@ -142,10 +126,6 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        /// <summary>
-        /// Walks a side cell by cell and ends a run wherever the door color changes; wall cells count as a color of
-        /// their own. Each run becomes one piece stretched over it: a wall, or a door of that color.
-        /// </summary>
         private void BuildSide(Board board, BoardSide side, int length, BoardArt art, List<CombineInstance> walls, List<DoorRun> doors)
         {
             var turn = side is BoardSide.Left or BoardSide.Right ? Quaternion.Euler(0f, 90f, 0f) : Quaternion.identity;
@@ -177,7 +157,6 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        /// <summary>One piece stretched along a side from cell <paramref name="from"/> up to <paramref name="to"/>.</summary>
         private CombineInstance Stretched(Board board, BoardArt art, Mesh mesh, Quaternion rotation, BoardSide side, int from, int to,
             Quaternion turn)
         {
@@ -185,7 +164,6 @@ namespace ColorBlockJam.Gameplay
             return WallPiece(art, mesh, rotation, EdgePoint(board, side, (from + to) * 0.5f), turn, stretch);
         }
 
-        /// <summary>The color of the door at a cell along a side, or <see cref="NoDoor"/> for wall.</summary>
         private static int DoorColorAt(Board board, BoardSide side, int alongEdge)
         {
             var door = DoorAt(board, side, alongEdge);
@@ -204,7 +182,6 @@ namespace ColorBlockJam.Gameplay
             walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, outside), Quaternion.Euler(0f, 270f, 0f), 1f));
         }
 
-        /// <summary>The middle of the wall band outside a side, at a distance along that side, in cell units.</summary>
         private static Vector2 EdgePoint(Board board, BoardSide side, float along)
         {
             return side switch
@@ -235,10 +212,6 @@ namespace ColorBlockJam.Gameplay
             return new CombineInstance { mesh = mesh, transform = Matrix4x4.TRS(position, turn, Vector3.one * artScale) };
         }
 
-        /// <summary>
-        /// A wall, wall corner or door piece at wall height: its model set right first, then stretched along the side
-        /// by <paramref name="stretch"/> around its middle.
-        /// </summary>
         private CombineInstance WallPiece(BoardArt art, Mesh mesh, Quaternion modelRotation, Vector2 cell, Quaternion turn, float stretch)
         {
             var middle = mesh.bounds.center;
@@ -248,14 +221,12 @@ namespace ColorBlockJam.Gameplay
             return piece;
         }
 
-        /// <summary>Turns a model around the middle of its bounds, so it stays where it was.</summary>
         private static Matrix4x4 AroundMiddle(Mesh mesh, Quaternion rotation)
         {
             var middle = mesh.bounds.center;
             return Matrix4x4.TRS(middle - rotation * middle, rotation, Vector3.one);
         }
 
-        /// <summary>How long the model is along X once turned, in art units.</summary>
         private static float LengthAlongX(Mesh mesh, Quaternion rotation)
         {
             var extents = mesh.bounds.extents;
@@ -263,7 +234,6 @@ namespace ColorBlockJam.Gameplay
             return 2f * (Mathf.Abs(turned.m00) * extents.x + Mathf.Abs(turned.m01) * extents.y + Mathf.Abs(turned.m02) * extents.z);
         }
 
-        /// <summary>Ground and walls as one mesh with a submesh each, so the whole board is one renderer.</summary>
         private void AddBoard(List<CombineInstance> ground, List<CombineInstance> walls, BoardArt art)
         {
             var groundMesh = Combine("Ground", ground);

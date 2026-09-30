@@ -8,17 +8,8 @@ using NVector2 = System.Numerics.Vector2;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Turns pointer input into block moves: grab the block under the finger, settle it on the nearest free cell on
-    /// release, or let it leave when it is pushed through its door. A block dropped right in front of a door it fits
-    /// through goes in on its own. A frozen block only shakes, and while a booster aims, a press picks its target.
-    /// The finger only sets a target. Every frame the block catches up with it like a weight on a spring, fast when far
-    /// and gently when close, and the drag mover sweeps that step so the block slides along and rolls around whatever
-    /// is in the way. It keeps catching up while the finger rests, so a quick flick is never left halfway.
-    /// </summary>
     public sealed class BlockDragController : ITickable
     {
-        // Closer to the finger than this, in cells, the block is where it should be.
         private const float MinChase = 0.0005f;
 
         private readonly BoardPointer pointer;
@@ -46,15 +37,12 @@ namespace ColorBlockJam.Gameplay
             mover = new BlockDragMover(config.CornerRounding);
         }
 
-        /// <summary>Raised when a dragged block settles on a different cell.</summary>
         public event Action<BoardBlock> BlockMoved;
 
-        /// <summary>Raised when a block is pushed out through its door.</summary>
         public event Action<BoardBlock, BoardDoor> BlockLeft;
 
         public bool IsEnabled { get; set; }
 
-        // Blocks are picked at half their height so taps hit what the player sees.
         private float PickHeight => config.CellSize * ArtSpace.BlockHalfHeight;
 
         public void Attach(Board targetBoard, IReadOnlyList<BlockView> blockViews)
@@ -86,7 +74,6 @@ namespace ColorBlockJam.Gameplay
             }
             else
             {
-                // A drag ended by a pause or the end of the level only settles the block.
                 Release(canEnterDoor: IsEnabled);
             }
         }

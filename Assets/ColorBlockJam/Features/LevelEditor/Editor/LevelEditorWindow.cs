@@ -9,10 +9,6 @@ using Random = System.Random;
 
 namespace ColorBlockJam.LevelEditor
 {
-    /// <summary>
-    /// A visual editor for the levels of the catalog. Paint blocks and doors on the board, set its size, time and
-    /// difficulty, check that it can be solved, and play it. Levels are saved as the JSON files the game reads.
-    /// </summary>
     internal sealed class LevelEditorWindow : EditorWindow
     {
         private enum Tool
@@ -93,7 +89,6 @@ namespace ColorBlockJam.LevelEditor
         private List<GridPoint[]> shapes;
         private List<LevelProblem> problems = new();
 
-        // Blocks named by a problem, drawn with a red outline so the designer sees which one is wrong.
         private readonly HashSet<int> problemBlocks = new();
         private GUIStyle iceCountStyle;
         private int selectedBlock = -1;
@@ -120,7 +115,6 @@ namespace ColorBlockJam.LevelEditor
         private Vector2 sidebarScroll;
         private Vector2 inspectorScroll;
 
-        // Set when an edit changes what the window lays out, so the rest of this GUI pass is skipped.
         private bool isLayoutStale;
 
         [MenuItem("Color Block Jam/Level Editor", priority = 0)]
@@ -156,7 +150,6 @@ namespace ColorBlockJam.LevelEditor
             catalog = FindAsset<LevelCatalog>();
             palette = FindAsset<BlockPalette>();
 
-            // The window survives script reloads; the level comes back from its saved JSON.
             var restored = string.IsNullOrEmpty(levelJson) ? null : LevelSerializer.FromJson(levelJson);
             level = restored != null ? EditableLevel.From(restored) : NewLevel();
             if (restored == null && catalog != null && catalog.Count > 0)
@@ -211,10 +204,6 @@ namespace ColorBlockJam.LevelEditor
             DrawStatusBar();
         }
 
-        /// <summary>
-        /// After an edit in the middle of a GUI pass the remaining controls would not match the layout Unity measured,
-        /// so the pass ends here and the next one draws the new state.
-        /// </summary>
         private void ExitIfLayoutStale()
         {
             if (!isLayoutStale)
@@ -228,8 +217,6 @@ namespace ColorBlockJam.LevelEditor
                 GUIUtility.ExitGUI();
             }
         }
-
-        // ------------------------------------------------------------ layout
 
         private void DrawToolbar()
         {
@@ -645,8 +632,6 @@ namespace ColorBlockJam.LevelEditor
             EditorGUILayout.EndHorizontal();
         }
 
-        // ------------------------------------------------------------ board drawing
-
         private void DrawBoard()
         {
             for (var x = 0; x < level.Width; x++)
@@ -656,8 +641,6 @@ namespace ColorBlockJam.LevelEditor
                     EditorGUI.DrawRect(Shrink(CellRect(x, y), 1f), CellColor);
                 }
             }
-
-            // The wall ring around the board, with its door slots.
 
             foreach (BoardSide side in System.Enum.GetValues(typeof(BoardSide)))
             {
@@ -746,7 +729,6 @@ namespace ColorBlockJam.LevelEditor
                 var down = !Contains(cells, cell + new GridPoint(0, -1));
                 var up = !Contains(cells, cell + new GridPoint(0, 1));
 
-                // Neighbor cells of the same block touch, so the block reads as one piece.
                 var inner = new Rect(rect.x + (left ? 2f : 0f), rect.y + (up ? 2f : 0f),
                     rect.width - (left ? 2f : 0f) - (right ? 2f : 0f), rect.height - (up ? 2f : 0f) - (down ? 2f : 0f));
                 EditorGUI.DrawRect(inner, edge);
@@ -783,7 +765,6 @@ namespace ColorBlockJam.LevelEditor
             }
         }
 
-        /// <summary>A double-headed arrow along the run, like the one the game lays on an arrow block.</summary>
         private void DrawAxisArrow(ArrowRun run, BlockAxis axis, float alpha)
         {
             var center = CellPoint(run.CenterX, run.CenterY);
@@ -811,7 +792,6 @@ namespace ColorBlockJam.LevelEditor
             Handles.DrawAAConvexPolygon(tip, back + side, back - side);
         }
 
-        /// <summary>A point in board cells, where cell (x, y) spans x to x + 1, on screen.</summary>
         private Vector2 CellPoint(float x, float y)
         {
             return new Vector2(boardRect.x + (x + 1f) * cellSize, boardRect.y + (level.Height + 1f - y) * cellSize);
@@ -837,7 +817,6 @@ namespace ColorBlockJam.LevelEditor
             var step = side is BoardSide.Bottom or BoardSide.Left ? 1f : -1f;
             for (var i = 0; i < 3; i++)
             {
-                // A small wedge pointing out of the board.
                 var length = size * (1f - i * 0.3f);
                 var offset = (i - 1) * size * 0.3f * -step;
                 var rect = isVertical
@@ -846,8 +825,6 @@ namespace ColorBlockJam.LevelEditor
                 EditorGUI.DrawRect(rect, color);
             }
         }
-
-        // ------------------------------------------------------------ board input
 
         private void HandleBoardInput(Rect area)
         {
@@ -942,7 +919,6 @@ namespace ColorBlockJam.LevelEditor
                     break;
 
                 case Tool.Door when hit.IsSlot:
-                    // Clicking a door of the chosen color removes it; a drag paints the same way.
                     paintValue = level.GetDoor(hit.Side, hit.Slot) == color ? EditableLevel.NoDoor : color;
                     Change(() => level.SetDoor(hit.Side, hit.Slot, paintValue));
                     break;
@@ -1071,14 +1047,11 @@ namespace ColorBlockJam.LevelEditor
             }
         }
 
-        // ------------------------------------------------------------ geometry
-
         private Rect CellRect(int x, int y)
         {
             return new Rect(boardRect.x + (x + 1) * cellSize, boardRect.y + (level.Height - y) * cellSize, cellSize, cellSize);
         }
 
-        /// <summary>The door bar in the wall ring, on the half of the ring cell that touches the board.</summary>
         private Rect SlotBar(BoardSide side, int slot)
         {
             var thickness = cellSize * 0.42f;
@@ -1180,8 +1153,6 @@ namespace ColorBlockJam.LevelEditor
         private static Rect Shrink(Rect rect, float amount) => new(rect.x + amount, rect.y + amount, rect.width - amount * 2f, rect.height - amount * 2f);
 
         private static Rect Grow(Rect rect, float amount) => Shrink(rect, -amount);
-
-        // ------------------------------------------------------------ level state
 
         private void Change(System.Action edit)
         {
@@ -1286,8 +1257,6 @@ namespace ColorBlockJam.LevelEditor
             return !isDirty || EditorUtility.DisplayDialog("Level Editor", "The level has unsaved changes. Discard them?", "Discard", "Keep Editing");
         }
 
-        // ------------------------------------------------------------ checking and generating
-
         private void StartValidation()
         {
             if (validation != null)
@@ -1379,8 +1348,6 @@ namespace ColorBlockJam.LevelEditor
                 _ => LevelDifficulty.Hard
             };
         }
-
-        // ------------------------------------------------------------ files and catalog
 
         private void Save(bool asNew)
         {
@@ -1495,8 +1462,6 @@ namespace ColorBlockJam.LevelEditor
                 levelSummaries.Add($"{i + 1}. {text.name}  ·  {data.difficulty}");
             }
         }
-
-        // ------------------------------------------------------------ helpers
 
         private string[] ColorNames()
         {

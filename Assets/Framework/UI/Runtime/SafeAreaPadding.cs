@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace Framework.UI
 {
-    /// <summary>
-    /// Moves a top or bottom anchored element out of the notch and the system bars.
-    /// </summary>
     [RequireComponent(typeof(RectTransform))]
     public sealed class SafeAreaPadding : MonoBehaviour
     {

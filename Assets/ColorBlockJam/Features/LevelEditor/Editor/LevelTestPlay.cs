@@ -7,10 +7,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.LevelEditor
 {
-    /// <summary>
-    /// Plays a level straight from the level editor: the gameplay scene opens with that level instead of
-    /// the player's progress, and everything goes back to normal when play mode ends.
-    /// </summary>
     [InitializeOnLoad]
     internal static class LevelTestPlay
     {

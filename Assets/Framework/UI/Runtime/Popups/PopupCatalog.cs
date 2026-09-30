@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace Framework.UI.Popups
 {
-    /// <summary>
-    /// The popup prefabs a scene can open. The popup service instantiates a prefab the first time it opens.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Popup Catalog", fileName = "PopupCatalog")]
     public sealed class PopupCatalog : ScriptableObject
     {

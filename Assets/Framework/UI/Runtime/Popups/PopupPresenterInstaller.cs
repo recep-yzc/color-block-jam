@@ -6,11 +6,6 @@ using VContainer.Unity;
 
 namespace Framework.UI.Popups
 {
-    /// <summary>
-    /// Base of the installer put on a popup prefab, next to its InstallerScope, that gives the popup its presenter.
-    /// A popup needs only an empty subclass:
-    /// <c>public sealed class ConfirmPopupInstaller : PopupPresenterInstaller&lt;ConfirmPopup, ConfirmPopupPresenter&gt; { }</c>
-    /// </summary>
     public abstract class PopupPresenterInstaller<TPopup, TPresenter> : MonoInstaller
         where TPopup : Popup
         where TPresenter : ViewPresenter<TPopup>

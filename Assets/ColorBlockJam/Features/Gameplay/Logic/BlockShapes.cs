@@ -2,10 +2,6 @@ using System.Collections.Generic;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>
-    /// The block shapes levels are built from, grouped by how hard they are to route through the board.
-    /// Every shape starts at (0, 0) and grows toward +X and +Y.
-    /// </summary>
     public static class BlockShapes
     {
         public static readonly IReadOnlyList<GridPoint[]> Small = new[]

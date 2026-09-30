@@ -4,9 +4,6 @@ using Framework.Core.Persistence;
 
 namespace Framework.Settings
 {
-    /// <summary>
-    /// Keeps the player settings in memory and saves every change. All settings are on by default.
-    /// </summary>
     public sealed class SettingsService : ISettingsService
     {
         private const string KeyPrefix = "settings.";

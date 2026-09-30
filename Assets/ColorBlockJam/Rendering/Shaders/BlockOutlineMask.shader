@@ -1,6 +1,3 @@
-// First half of the held block's outline: marks the block's silhouette in the stencil buffer, drawing no color.
-// It ignores depth, so the whole silhouette is marked even where walls or other blocks cover it. The outline
-// material then draws only outside this mark. Its queue puts it right before the outline, after everything else.
 Shader "Color Block Jam/Block Outline Mask"
 {
     SubShader
@@ -22,7 +19,6 @@ Shader "Color Block Jam/Block Outline Mask"
             ZTest Always
             ColorMask 0
 
-            // Must match the reference the outline tests against.
             Stencil
             {
                 Ref 1

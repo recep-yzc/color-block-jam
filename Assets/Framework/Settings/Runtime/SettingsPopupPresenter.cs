@@ -42,7 +42,6 @@ namespace Framework.Settings
         {
             settings.SetEnabled(setting, isOn);
 
-            // Let the player feel that haptics are back on.
             if (setting == SettingKind.Haptic && isOn)
             {
                 haptics.Play();

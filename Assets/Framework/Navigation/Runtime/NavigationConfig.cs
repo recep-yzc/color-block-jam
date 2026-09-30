@@ -71,9 +71,6 @@ namespace Framework.Navigation
         public float TabTransitionDuration => tabTransitionDuration;
         public Ease TabTransitionEase => tabTransitionEase;
 
-        /// <summary>
-        /// Position of the page in <see cref="PageOrder"/>, or -1 when the id is unknown.
-        /// </summary>
         public int GetOrder(string pageId)
         {
             return Array.IndexOf(pageOrder, pageId);

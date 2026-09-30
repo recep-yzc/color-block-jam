@@ -1,10 +1,3 @@
-// The ice around a frozen block: the block's mesh pushed out a little along its normals and drawn see-through over
-// it, so the block's color shows through, cooled. The frost texture is projected along the side each face points to,
-// in world space, so it tiles evenly on every shape and lines up across blocks. Thick ice looks whiter at grazing
-// angles, which a rim gives, and a small glint from the main light makes it read as glossy.
-// One pass, one texture sample, the main light only and no keywords: cheap on mobile, and SRP Batcher friendly.
-// The push uses normals averaged over vertices that share a position (TEXCOORD3, written by the block builder),
-// so the shell stays closed at hard edges; meshes without them use their own normals.
 Shader "Color Block Jam/Ice"
 {
     Properties
@@ -91,7 +84,6 @@ Shader "Color Block Jam/Ice"
                 half3 normalWS = normalize(input.normalWS);
                 half3 viewWS = normalize(GetWorldSpaceViewDir(input.positionWS));
 
-                // Projected along the axis the face points to most: the top from above, the sides from the side.
                 half3 facing = abs(normalWS);
                 float2 uv = facing.y >= max(facing.x, facing.z) ? input.positionWS.xz
                     : facing.x >= facing.z ? input.positionWS.zy : input.positionWS.xy;

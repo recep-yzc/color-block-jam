@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Home
 {
-    /// <summary>
-    /// The top bar of the home page. The coin counter in it is a CoinHud with its own presenter.
-    /// </summary>
     public sealed class HomeHudView : UIView
     {
         [Tooltip("Ayarlar popup'ını açan buton.")]

@@ -5,9 +5,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Shown when every block has left the board, with the coins won.
-    /// </summary>
     public sealed class LevelCompletePopup : Popup
     {
         [Tooltip("Kazanılan coin'i gösteren yazı.")]

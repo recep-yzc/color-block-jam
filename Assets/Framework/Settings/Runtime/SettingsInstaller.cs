@@ -4,9 +4,6 @@ using VContainer;
 
 namespace Framework.Settings
 {
-    /// <summary>
-    /// Project-wide player settings and haptics. Needs the core services for storage.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/Installers/Settings", fileName = "SettingsInstaller")]
     public sealed class SettingsInstaller : ScriptableInstaller
     {

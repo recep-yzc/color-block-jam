@@ -38,8 +38,6 @@ namespace ColorBlockJam.Tests
             var mover = new BlockDragMover(Rounding);
             TestDelegate frame = () => mover.Move(board, block, Vector2.Zero, new Vector2(2.6f, 1.4f));
 
-            // The first calls compile the code. The first test of a run can also pick up one-off work of the test
-            // runner in its measurement, so a clean frame gets a few tries; code that allocates every frame fails them all.
             frame();
             frame();
             var isClean = false;
@@ -73,7 +71,6 @@ namespace ColorBlockJam.Tests
 
             var reached = Drag(board, block, new Vector2(0f, 0.75f), new Vector2(3f, 0.75f), frames: 120);
 
-            // Square corners would stop it at x = 1 against the lower block.
             Assert.AreEqual(3f, reached.X, 0.02f);
             Assert.AreEqual(0.75f, reached.Y, 0.02f, "Past the gap it follows the finger again.");
         }
@@ -81,7 +78,6 @@ namespace ColorBlockJam.Tests
         [Test]
         public void RollsAroundACornerWithoutStopping()
         {
-            // The block starts pressed against the left side of an obstacle; the finger is up and to the right of it.
             var block = new BoardBlock(0, 0, new GridPoint(1, 1), Single);
             var obstacle = new BoardBlock(1, 1, new GridPoint(2, 1), Single);
             var board = new Board(4, 4, new[] { block, obstacle }, Array.Empty<BoardDoor>());
@@ -107,14 +103,12 @@ namespace ColorBlockJam.Tests
         [Test]
         public void APushIntoARoundedCornerRollsOverIt()
         {
-            // Just below the obstacle's top, the block is pushed straight right, into the rounded corner.
             var block = new BoardBlock(0, 0, new GridPoint(1, 1), Single);
             var obstacle = new BoardBlock(1, 1, new GridPoint(2, 1), Single);
             var board = new Board(4, 4, new[] { block, obstacle }, Array.Empty<BoardDoor>());
 
             var reached = new BlockDragMover(Rounding).Move(board, block, new Vector2(1f, 1.8f), new Vector2(1.8f, 1.8f));
 
-            // A square corner would stop it dead at x = 1; the curve turns the push up and over the corner.
             Assert.AreEqual(1.8f, reached.X, 0.02f);
             Assert.AreEqual(2f, reached.Y, 0.02f);
         }
@@ -177,7 +171,6 @@ namespace ColorBlockJam.Tests
             return position;
         }
 
-        /// <summary>One frame of catching up with the finger, as the drag controller does it.</summary>
         private static Vector2 Chase(BlockDragMover mover, Board board, BoardBlock block, Vector2 position, Vector2 finger)
         {
             var toFinger = finger - position;
@@ -191,7 +184,6 @@ namespace ColorBlockJam.Tests
             return mover.Move(board, block, position, position + toFinger * (step / distance));
         }
 
-        /// <summary>Cells may only meet at their rounded corners, never overlap along a side beyond the mover's sliver of play.</summary>
         private static void AssertTouchesOnlyAtCorners(Board board, BoardBlock block, Vector2 position)
         {
             const float tolerance = 0.001f;

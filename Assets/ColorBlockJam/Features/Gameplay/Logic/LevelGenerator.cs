@@ -4,7 +4,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>How a difficulty shapes a generated level.</summary>
     public sealed class GeneratorSettings
     {
         public int Width;
@@ -14,17 +13,14 @@ namespace ColorBlockJam.Gameplay.Logic
         public int MaxBlocks;
         public int MaxDoorLength;
 
-        /// <summary>How many blocks the best solution has to move out of the way; see <see cref="SolveResult.Repositions"/>.</summary>
         public int MinRepositions;
         public int MaxRepositions;
 
         public int BaseSeconds;
         public int SecondsPerBlock;
 
-        /// <summary>Share of blocks that become arrow blocks, moving along one axis only.</summary>
         public double ArrowShare;
 
-        /// <summary>How many blocks start under ice, each needing up to <see cref="MaxIce"/> other blocks to leave first.</summary>
         public int IceBlocks;
         public int MaxIce;
         public IReadOnlyList<GridPoint[]>[] ShapePools;
@@ -68,13 +64,8 @@ namespace ColorBlockJam.Gameplay.Logic
         public SolveResult Solution { get; }
     }
 
-    /// <summary>
-    /// Makes random levels of a difficulty and keeps the first one the solver proves solvable
-    /// with a shortest solution in the difficulty's range. The same seed always gives the same level.
-    /// </summary>
     public sealed class LevelGenerator
     {
-        // Random places tried for a door, and for all the blocks of a layout, before the layout is dropped.
         private const int DoorPlacementTries = 30;
         private const int BlockPlacementTries = 400;
 
@@ -82,13 +73,9 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private readonly BoardSolver solver = new();
 
-        /// <summary>States searched per candidate. Candidates that need more are dropped as too hard to prove.</summary>
         public int SolveBudget { get; } = 5000;
         public int MaxAttempts { get; } = 300;
 
-        /// <param name="paletteSize">How many colors the palette has; the level picks its colors from them.</param>
-        /// <param name="onAttempt">Called before each attempt with its number; return false to stop, for example from a cancel button.</param>
-        /// <returns>Null when no level in range was found within <see cref="MaxAttempts"/>.</returns>
         public GeneratedLevel Generate(LevelDifficulty difficulty, int paletteSize, int seed, Func<int, bool> onAttempt = null)
         {
             var settings = GeneratorSettings.For(difficulty);
@@ -165,7 +152,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return colors;
         }
 
-        /// <summary>One door per color, on random sides, never sharing a cell of wall.</summary>
         private static List<DoorData> PlaceDoors(GeneratorSettings settings, int[] colors, Random random)
         {
             var doors = new List<DoorData>();
@@ -216,7 +202,6 @@ namespace ColorBlockJam.Gameplay.Logic
 
             for (var tries = 0; tries < BlockPlacementTries && blocks.Count < count; tries++)
             {
-                // The first blocks cover every color once, so every door is used.
                 var color = blocks.Count < colors.Length ? colors[blocks.Count] : colors[random.Next(colors.Length)];
                 var pool = settings.ShapePools[random.Next(settings.ShapePools.Length)];
                 var shape = pool[random.Next(pool.Count)];
@@ -257,7 +242,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return blocks;
         }
 
-        /// <summary>Freezes a few random blocks; each asks for fewer blocks to leave first than there are others.</summary>
         private static void AddIce(GeneratorSettings settings, List<BlockData> blocks, Random random)
         {
             for (var i = 0; i < settings.IceBlocks; i++)

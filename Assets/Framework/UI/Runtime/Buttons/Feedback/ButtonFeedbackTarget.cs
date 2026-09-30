@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// The transform a <see cref="ButtonFeedback"/> animates, with its values at rest.
-    /// </summary>
     public readonly struct ButtonFeedbackTarget
     {
         public readonly RectTransform Transform;

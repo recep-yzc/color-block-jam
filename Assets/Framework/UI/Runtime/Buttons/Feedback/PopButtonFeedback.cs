@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Grows while pressed, the opposite of a squash, and settles back elastically on release.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Pop", fileName = "PopButtonFeedback")]
     public sealed class PopButtonFeedback : ButtonFeedback
     {

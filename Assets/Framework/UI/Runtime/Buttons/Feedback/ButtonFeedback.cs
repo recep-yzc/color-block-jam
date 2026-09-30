@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Strategy for how a button reacts to touch. One asset is shared by many buttons,
-    /// so it must not keep per-button state; the button passes its target and its running motions.
-    /// </summary>
     public abstract class ButtonFeedback : ScriptableObject
     {
         public abstract void PlayPress(in ButtonFeedbackTarget target, ref ButtonFeedbackMotions motions);

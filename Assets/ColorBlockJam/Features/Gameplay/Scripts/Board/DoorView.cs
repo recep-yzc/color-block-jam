@@ -8,10 +8,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// One door on the board, covering a run of cells along a side. When a block goes through, the door squashes down
-    /// to let it pass and springs back up. Its pivot is the middle of its base, so it squashes toward the ground.
-    /// </summary>
     public sealed class DoorView : MonoBehaviour
     {
         private GameplayConfig config;
@@ -28,13 +24,11 @@ namespace ColorBlockJam.Gameplay
             config = gameplayConfig;
         }
 
-        /// <summary>True when the door covers the cell <paramref name="alongEdge"/> of <paramref name="doorSide"/>.</summary>
         public bool Covers(BoardSide doorSide, int alongEdge)
         {
             return doorSide == side && alongEdge >= start && alongEdge < end;
         }
 
-        /// <summary>Opens for a block going through; a new block restarts it from where it is.</summary>
         public void PlayEntry()
         {
             playback?.Cancel();

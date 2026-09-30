@@ -39,7 +39,6 @@ namespace ColorBlockJam.Tests
         [Test]
         public void ShapeMustPassTheDoorWhole()
         {
-            // An L whose foot fits the door but whose upright column has no door under it.
             var shape = new[] { new GridPoint(1, 0), new GridPoint(0, 1), new GridPoint(1, 1) };
             var block = new BoardBlock(0, 2, new GridPoint(0, 0), shape);
             var footOnly = new Board(4, 4, new[] { block }, new[] { new BoardDoor(BoardSide.Bottom, 1, 1, 2) });
@@ -76,7 +75,6 @@ namespace ColorBlockJam.Tests
             var result = new BoardSolver().Solve(board, 1000);
 
             Assert.IsTrue(result.IsSolved);
-            // Red leaves at once; blue slides to the right edge, then leaves.
             Assert.AreEqual(3, result.Moves.Count);
             Assert.AreEqual(0, result.Repositions);
             Assert.AreEqual(2, board.RemainingBlocks, "The solver leaves the board as it was.");
@@ -85,7 +83,6 @@ namespace ColorBlockJam.Tests
         [Test]
         public void SolverReportsStuckBoards()
         {
-            // The only door is for a color that is not on the board.
             var block = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
             var board = new Board(2, 2, new[] { block }, new[] { new BoardDoor(BoardSide.Top, 0, 2, 5) });
 

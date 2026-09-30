@@ -5,9 +5,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Shown when the level is lost, with the reason. The only ways on are a restart or home.
-    /// </summary>
     public sealed class LevelFailPopup : Popup
     {
         [Tooltip("Seviyenin neden kaybedildiğini gösteren yazı.")]

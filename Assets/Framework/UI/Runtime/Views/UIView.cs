@@ -6,11 +6,6 @@ using UnityEngine;
 
 namespace Framework.UI.Views
 {
-    /// <summary>
-    /// Base of every UI part that opens and closes: popups, HUD panels, overlays.
-    /// The view only shows and hides itself; what it looks like while doing it is a <see cref="ViewTransition"/>
-    /// asset, and what it does is decided by its presenter.
-    /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public abstract class UIView : MonoBehaviour
     {
@@ -27,7 +22,6 @@ namespace Framework.UI.Views
         private Vector2 restPosition;
         private bool isInitialized;
 
-        /// <summary>Raised when the view starts to show. Presenters refresh the view here.</summary>
         public event Action Showing;
         public event Action Shown;
         public event Action Hiding;
@@ -94,7 +88,6 @@ namespace Framework.UI.Views
             Hidden?.Invoke();
         }
 
-        /// <summary>Hides without transition or events, for the initial state of a scene.</summary>
         public void HideImmediate()
         {
             EnsureInitialized();
@@ -125,7 +118,6 @@ namespace Framework.UI.Views
             canvasGroup.alpha = 1f;
         }
 
-        /// <returns>True when the transition was interrupted by another one.</returns>
         private async UniTask<bool> PlayAsync(ViewTransition transition, bool show, CancellationToken token)
         {
             if (transition == null)

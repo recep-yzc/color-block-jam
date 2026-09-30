@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace Framework.Settings
 {
-    /// <summary>
-    /// One row of the settings popup: a toggle bound to one <see cref="SettingKind"/>.
-    /// </summary>
     public sealed class SettingToggleView : MonoBehaviour
     {
         [Tooltip("Bu satırın açıp kapattığı ayar.")]

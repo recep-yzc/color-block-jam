@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Tints graphics with one color while the toggle is on and another while it is off.
-    /// </summary>
     public sealed class ToggleColorVisual : ToggleStateVisual
     {
         [Tooltip("Açık ya da kapalı olmaya göre rengi değişen grafikler.")]

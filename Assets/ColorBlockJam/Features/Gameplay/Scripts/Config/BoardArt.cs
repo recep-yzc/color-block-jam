@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The meshes and materials the board is built from. Block modules and arrows are modeled on the XY plane
-    /// facing -Z; walls, doors and ground tiles are modeled Y-up. All are made for a 2-unit cell.
-    /// </summary>
     [CreateAssetMenu(menuName = "Color Block Jam/Gameplay/Board Art", fileName = "BoardArt")]
     public sealed class BoardArt : ScriptableObject
     {
@@ -93,13 +89,11 @@ namespace ColorBlockJam.Gameplay
         public Material BlockOutlineMaterial => blockOutlineMaterial;
         public Material IceMaterial => iceMaterial;
 
-        /// <summary>The arrow for a straight run of <paramref name="cells"/> cells; longer runs get the longest arrow.</summary>
         public Mesh ArrowFor(int cells)
         {
             return arrows[Math.Clamp(cells, 1, arrows.Length) - 1];
         }
 
-        /// <summary>The arrow's color on a block of <paramref name="blockColor"/>: a light shade of it.</summary>
         public Color ArrowColorOn(Color blockColor)
         {
             return Color.Lerp(blockColor, arrowColor, arrowColorBlend);

@@ -6,10 +6,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// The burst played when a block leaves the board, tinted with the block's color.
-    /// Particle systems come from a pool and go back to it when they finish.
-    /// </summary>
     public sealed class BlockBurstEffects : IDisposable
     {
         private readonly ComponentPool<ParticleSystem> pool;

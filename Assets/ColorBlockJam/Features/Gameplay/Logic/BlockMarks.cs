@@ -3,7 +3,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>A straight run of a block's cells, where its arrow is drawn.</summary>
     public readonly struct ArrowRun
     {
         public ArrowRun(float centerX, float centerY, int length)
@@ -13,24 +12,14 @@ namespace ColorBlockJam.Gameplay.Logic
             Length = length;
         }
 
-        /// <summary>Middle of the run, in cells, in the same space as the cells it was found in.</summary>
         public float CenterX { get; }
         public float CenterY { get; }
 
-        /// <summary>How many cells long the run is; zero for a block that moves freely.</summary>
         public int Length { get; }
     }
 
-    /// <summary>
-    /// Where the marks on a block go: the arrow of an arrow block and the count on its ice. The game and the level
-    /// editor both draw them here, so the two always agree.
-    /// </summary>
     public static class BlockMarks
     {
-        /// <summary>
-        /// The arrow lies along the block's longest straight run of cells on its axis, and across the runs next to it
-        /// that span the same cells, so a 2x2 block gets it in the middle and a T gets it on its bar.
-        /// </summary>
         public static ArrowRun FindArrow(ReadOnlySpan<GridPoint> cells, BlockAxis axis)
         {
             if (axis == BlockAxis.Free || cells.IsEmpty)
@@ -90,7 +79,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return best;
         }
 
-        /// <summary>The cell nearest the middle of the block, where its ice count goes, so an L or a T shows it on itself.</summary>
         public static GridPoint FindIceCell(ReadOnlySpan<GridPoint> cells)
         {
             GetMiddle(cells, out var middleX, out var middleY);
@@ -124,7 +112,6 @@ namespace ColorBlockJam.Gameplay.Logic
             y = (minY + maxY + 1) * 0.5f;
         }
 
-        /// <summary>True when the line at <paramref name="across"/> has every cell from <paramref name="from"/> to <paramref name="to"/>.</summary>
         private static bool Spans(ReadOnlySpan<GridPoint> cells, int from, int to, int across, bool isHorizontal)
         {
             for (var along = from; along <= to; along++)

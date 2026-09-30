@@ -2,10 +2,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>
-    /// A door on one side of the board. The cells beyond it are open for blocks of its color,
-    /// so a block that fits the door can slide out of the board through it.
-    /// </summary>
     public sealed class BoardDoor
     {
         public BoardDoor(BoardSide side, int start, int length, int color)
@@ -21,10 +17,8 @@ namespace ColorBlockJam.Gameplay.Logic
         public int Length { get; }
         public int Color { get; }
 
-        /// <summary>The direction a block moves to leave the board through this door.</summary>
         public Direction ExitDirection => ExitDirectionOf(Side);
 
-        /// <summary>The direction a block moves to leave the board through a door on <paramref name="side"/>.</summary>
         public static Direction ExitDirectionOf(BoardSide side) => side switch
         {
             BoardSide.Bottom => Direction.Down,
@@ -33,7 +27,6 @@ namespace ColorBlockJam.Gameplay.Logic
             _ => Direction.Right
         };
 
-        /// <summary>True when <paramref name="alongEdge"/> (x for top and bottom doors, y for side doors) is inside the door.</summary>
         public bool Covers(int alongEdge)
         {
             return alongEdge >= Start && alongEdge < Start + Length;

@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Shows one set of objects while the toggle is on and another while it is off.
-    /// </summary>
     public sealed class ToggleObjectsVisual : ToggleStateVisual
     {
         [Tooltip("Sadece açıkken görünen objeler.")]

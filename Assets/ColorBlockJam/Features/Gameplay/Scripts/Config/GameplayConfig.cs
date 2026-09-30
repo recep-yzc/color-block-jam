@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    /// <summary>
-    /// Every tuning value of the gameplay scene: how blocks feel under the finger, animation timing,
-    /// search budgets, boosters and camera framing.
-    /// </summary>
     [CreateAssetMenu(menuName = "Color Block Jam/Gameplay/Gameplay Config", fileName = "GameplayConfig")]
     public sealed class GameplayConfig : ScriptableObject
     {

@@ -1,9 +1,3 @@
-// The toon look of the whole gameplay scene: blocks, doors, walls, ground and bursts.
-// Light falls in two soft bands from a half-Lambert term, so shadow sides take a tinted color instead of going dark;
-// a small glint and a soft rim make surfaces read like candy. Only the main light is used, with its shadows.
-// Everything is per pixel but cheap: no textures, one light, and the only keywords are the ones URP needs for
-// main light shadows, which it strips when shadows are off. Blocks, doors and bursts bring their color in their
-// vertices, so each kind shares one material, and all passes share one material buffer for the SRP Batcher.
 Shader "Color Block Jam/Toon"
 {
     Properties
@@ -79,7 +73,6 @@ Shader "Color Block Jam/Toon"
                 output.positionCS = TransformWorldToHClip(output.positionWS);
                 output.normalWS = TransformObjectToWorldNormal(input.normalOS);
 
-                // Blocks, doors and bursts bring their color in the vertices; the board ignores it.
                 output.tint = _BaseColor.rgb * lerp(half3(1, 1, 1), input.color.rgb, _VertexColorWeight);
                 return output;
             }
@@ -90,18 +83,15 @@ Shader "Color Block Jam/Toon"
                 half3 viewWS = GetWorldSpaceNormalizeViewDir(input.positionWS);
                 Light light = GetMainLight(TransformWorldToShadowCoord(input.positionWS));
 
-                // Two soft bands of light, darkened where a shadow falls.
                 half halfLambert = dot(normalWS, light.direction) * 0.5 + 0.5;
                 half lit = smoothstep(_LightThreshold - _LightSoftness, _LightThreshold + _LightSoftness, halfLambert);
                 lit *= light.shadowAttenuation;
                 half3 color = input.tint * lerp(_ShadowColor.rgb, light.color, lit);
 
-                // A small glint where the light catches the surface.
                 half3 halfDirection = normalize(light.direction + viewWS);
                 half glint = smoothstep(1.0 - _HighlightSize - 0.01, 1.0 - _HighlightSize + 0.01, dot(normalWS, halfDirection));
                 color += _HighlightColor.rgb * (_HighlightColor.a * glint * lit);
 
-                // A soft rim along the edges turned away from the camera.
                 half facing = 1.0 - saturate(dot(normalWS, viewWS));
                 half rim = smoothstep(1.0 - _RimWidth - 0.05, 1.0 - _RimWidth + 0.05, facing);
                 color += _RimColor.rgb * (_RimColor.a * rim);
@@ -141,7 +131,6 @@ Shader "Color Block Jam/Toon"
                 float3 normalWS = TransformObjectToWorldNormal(input.normalOS);
                 float4 positionCS = TransformWorldToHClip(ApplyShadowBias(positionWS, normalWS, _LightDirection));
 
-                // Keep casters behind the near plane of the shadow camera from being clipped.
                 #if UNITY_REVERSED_Z
                     positionCS.z = min(positionCS.z, UNITY_NEAR_CLIP_VALUE);
                 #else

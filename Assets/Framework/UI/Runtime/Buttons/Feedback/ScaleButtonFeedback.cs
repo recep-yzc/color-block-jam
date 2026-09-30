@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Shrinks while pressed and springs back on release.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Scale", fileName = "ScaleButtonFeedback")]
     public sealed class ScaleButtonFeedback : ButtonFeedback
     {

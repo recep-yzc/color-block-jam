@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.Tests
 {
-    /// <summary>
-    /// Counts the pool callbacks it receives.
-    /// </summary>
     public sealed class PoolableProbe : MonoBehaviour, IPoolable
     {
         public int TakenCount { get; private set; }

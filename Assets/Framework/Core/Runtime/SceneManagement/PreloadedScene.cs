@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace Framework.Core.SceneManagement
 {
-    /// <summary>
-    /// A scene that is fully loaded in the background and waits for activation.
-    /// </summary>
     public readonly struct PreloadedScene
     {
         private readonly AsyncOperation operation;

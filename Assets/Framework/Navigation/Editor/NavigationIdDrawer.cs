@@ -4,10 +4,6 @@ using UnityEngine;
 
 namespace Framework.Navigation.Editor
 {
-    /// <summary>
-    /// Draws a dropdown of the page ids in the project's <see cref="NavigationConfig"/>,
-    /// so designers pick an id instead of typing it.
-    /// </summary>
     [CustomPropertyDrawer(typeof(NavigationIdAttribute))]
     public sealed class NavigationIdDrawer : PropertyDrawer
     {

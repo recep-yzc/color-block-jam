@@ -2,9 +2,6 @@ using UnityEngine;
 
 namespace Framework.UI.Transitions
 {
-    /// <summary>
-    /// What a <see cref="ViewTransition"/> animates, with the values of the fully visible state.
-    /// </summary>
     public readonly struct ViewTransitionTarget
     {
         public readonly RectTransform Content;

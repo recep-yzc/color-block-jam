@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace ColorBlockJam.LevelEditor
 {
-    /// <summary>Adds level editor shortcuts to the level catalog and opens level files in the editor on double-click.</summary>
     [CustomEditor(typeof(LevelCatalog))]
     internal sealed class LevelCatalogEditor : UnityEditor.Editor
     {

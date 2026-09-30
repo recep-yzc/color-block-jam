@@ -7,11 +7,6 @@ using UnityEngine;
 
 namespace Framework.Navigation
 {
-    /// <summary>
-    /// A button in the <see cref="TabBar"/> that opens the page with the same id.
-    /// Drop the prefab under the tab bar and pick its id; the tab bar places it.
-    /// A locked tab keeps its place in the order but only gives touch feedback, so it needs no page.
-    /// </summary>
     public sealed class NavigationTab : ButtonBase, INavigationItem
     {
         [Tooltip("Bu sekmenin açtığı sayfanın kimliği.")]
@@ -71,7 +66,6 @@ namespace Framework.Navigation
                 return;
             }
 
-            // The label appears from its rest place and disappears at once.
             selectedLabel.SetActive(selected);
             Animate(Label, labelRestPosition, ref labelScaleMotion, ref labelLiftMotion,
                 selected ? config.SelectedTabLabelScale : 1f,

@@ -3,10 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Sinks while pressed and bounces up on release. Do not use it on buttons placed by a layout group,
-    /// which owns their position.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Bounce", fileName = "BounceButtonFeedback")]
     public sealed class BounceButtonFeedback : ButtonFeedback
     {

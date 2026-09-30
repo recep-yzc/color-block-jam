@@ -5,9 +5,6 @@ using UnityEngine;
 
 namespace Framework.Navigation
 {
-    /// <summary>
-    /// Gives the target a short scale punch each time its page starts to open, to draw the eye to it.
-    /// </summary>
     public sealed class PunchOnPageOpening : MonoBehaviour, IPageOpeningListener
     {
         [Tooltip("Sayfa açılınca zıplatılan obje.")]

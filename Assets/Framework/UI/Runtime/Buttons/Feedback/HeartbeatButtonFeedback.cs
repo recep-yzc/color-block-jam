@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Shrinks while pressed and beats twice like a heart on release.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Heartbeat", fileName = "HeartbeatButtonFeedback")]
     public sealed class HeartbeatButtonFeedback : ButtonFeedback
     {

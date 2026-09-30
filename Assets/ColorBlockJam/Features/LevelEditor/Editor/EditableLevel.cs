@@ -5,10 +5,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.LevelEditor
 {
-    /// <summary>
-    /// A block while it is being edited: its color, the board cells it covers, the axis an arrow block moves along and
-    /// the ice it starts frozen under.
-    /// </summary>
     internal sealed class EditableBlock
     {
         public int Color;
@@ -24,10 +20,6 @@ namespace ColorBlockJam.LevelEditor
         public bool Covers(GridPoint cell) => Cells.Contains(cell);
     }
 
-    /// <summary>
-    /// The level in a shape that is easy to edit: blocks as absolute cells and doors as one color per edge slot.
-    /// It converts to and from <see cref="LevelData"/>, the format the game reads.
-    /// </summary>
     internal sealed class EditableLevel
     {
         public const int MinSize = 3;
@@ -113,7 +105,6 @@ namespace ColorBlockJam.LevelEditor
                 blocks.Add(new BlockData { color = block.Color, x = minX, y = minY, cells = cells, axis = block.Axis, ice = block.Ice });
             }
 
-            // Neighboring slots of one color become one door.
             var doors = new List<DoorData>();
             foreach (var pair in doorSlots)
             {
@@ -155,7 +146,6 @@ namespace ColorBlockJam.LevelEditor
 
         public bool IsInside(GridPoint cell) => cell.X >= 0 && cell.Y >= 0 && cell.X < Width && cell.Y < Height;
 
-        /// <returns>The index of the block covering the cell, or -1.</returns>
         public int BlockAt(GridPoint cell)
         {
             for (var i = 0; i < Blocks.Count; i++)
@@ -169,7 +159,6 @@ namespace ColorBlockJam.LevelEditor
             return -1;
         }
 
-        /// <summary>True when every cell is on the board and free, not counting the block <paramref name="ignored"/>.</summary>
         public bool Fits(IEnumerable<GridPoint> cells, int ignored = -1)
         {
             foreach (var cell in cells)
@@ -189,7 +178,6 @@ namespace ColorBlockJam.LevelEditor
             return true;
         }
 
-        /// <summary>Changes the board size. Blocks and doors that no longer fit are removed.</summary>
         public void Resize(int width, int height)
         {
             Width = Math.Clamp(width, MinSize, MaxSize);

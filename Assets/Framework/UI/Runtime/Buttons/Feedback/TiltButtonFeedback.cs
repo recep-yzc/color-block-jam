@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Tilts and shrinks a little while pressed, swings back past rest on release.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Tilt", fileName = "TiltButtonFeedback")]
     public sealed class TiltButtonFeedback : ButtonFeedback
     {

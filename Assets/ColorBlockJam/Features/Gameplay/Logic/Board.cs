@@ -4,10 +4,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>
-    /// The board rules: which cells are taken, where a block may be and which door lets it out.
-    /// It knows nothing about input, time or views.
-    /// </summary>
     public sealed class Board
     {
         private const int Empty = -1;
@@ -33,19 +29,12 @@ namespace ColorBlockJam.Gameplay.Logic
         public int RemainingBlocks { get; private set; }
         public bool IsCleared => RemainingBlocks == 0;
 
-        /// <summary>How many blocks have left the board so far.</summary>
         public int ClearedCount => blocks.Length - RemainingBlocks;
 
-        /// <summary>True while the block is under ice: fewer blocks have left than its ice asks for. It cannot move.</summary>
         public bool IsFrozen(BoardBlock block) => block.Ice > ClearedCount;
 
-        /// <summary>How many more blocks must leave before the block thaws; zero once it is free.</summary>
         public int IceLeft(BoardBlock block) => Math.Max(0, block.Ice - ClearedCount);
 
-        /// <summary>
-        /// A board in the same state that shares nothing that changes, so the solver can search it on another thread
-        /// while this one keeps being played.
-        /// </summary>
         public Board Clone()
         {
             var copies = new BoardBlock[blocks.Length];
@@ -73,10 +62,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return id == Empty ? null : blocks[id];
         }
 
-        /// <summary>
-        /// True when <paramref name="block"/> may cover the cell: an empty or own cell on the board,
-        /// or a cell beyond a door of its color.
-        /// </summary>
         public bool IsOpenFor(BoardBlock block, int x, int y)
         {
             if (IsInside(x, y))
@@ -88,7 +73,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return DoorBeyond(block, x, y) != null;
         }
 
-        /// <summary>The door of the block's color in front of an outside cell, or null.</summary>
         public BoardDoor DoorBeyond(BoardBlock block, int x, int y)
         {
             BoardSide side;
@@ -111,7 +95,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return null;
         }
 
-        /// <summary>True when every cell of the block at <paramref name="position"/> is on the board and open.</summary>
         public bool CanPlace(BoardBlock block, GridPoint position)
         {
             foreach (var cell in block.Cells)
@@ -127,11 +110,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return true;
         }
 
-        /// <summary>
-        /// True when the block, standing on the board at <paramref name="from"/>, can slide in
-        /// <paramref name="direction"/> until it is fully off the board: every cell it sweeps on the way is open for it.
-        /// A shape wider than its door, or one that would scrape a wall on the way out, cannot leave.
-        /// </summary>
         public bool CanPassThrough(BoardBlock block, GridPoint from, Direction direction)
         {
             if (!block.MovesAlong(direction))
@@ -181,7 +159,6 @@ namespace ColorBlockJam.Gameplay.Logic
             RemainingBlocks--;
         }
 
-        /// <summary>Puts every block back to the given state. Used by the solver to visit states.</summary>
         public void SetState(IReadOnlyList<GridPoint> positions, IReadOnlyList<bool> cleared)
         {
             for (var i = 0; i < blocks.Length; i++)

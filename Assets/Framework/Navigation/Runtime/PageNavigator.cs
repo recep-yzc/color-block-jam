@@ -7,11 +7,6 @@ using UnityEngine.EventSystems;
 
 namespace Framework.Navigation
 {
-    /// <summary>
-    /// Places the <see cref="NavigationPage"/>s side by side, sorted by the config,
-    /// and moves between them by code or by a horizontal drag (mouse or touch).
-    /// Put it on the viewport; the viewport needs a raycast target and a RectMask2D.
-    /// </summary>
     [RequireComponent(typeof(RectTransform))]
     public sealed class PageNavigator : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
@@ -26,10 +21,8 @@ namespace Framework.Navigation
         private float pageWidth;
         private float dragSpeed;
 
-        /// <summary>Raised when a page starts to open, before the transition.</summary>
         public event Action<NavigationPage> PageOpening;
 
-        /// <summary>Raised when the content moves. The value is in pages: 0 is the first page, 1 the second.</summary>
         public event Action<float> ScrollPositionChanged;
 
         public IReadOnlyList<NavigationPage> Pages => pages;
@@ -87,7 +80,6 @@ namespace Framework.Navigation
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            // Positive offset means the content moved toward the next page.
             var offset = -content.anchoredPosition.x / pageWidth - currentIndex;
             var targetIndex = currentIndex;
 

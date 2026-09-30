@@ -6,10 +6,6 @@ using Object = UnityEngine.Object;
 
 namespace Framework.Pooling
 {
-    /// <summary>
-    /// Reuses instances of one prefab instead of instantiating and destroying them.
-    /// Every <see cref="IPoolable"/> on an instance is told when it is taken and returned.
-    /// </summary>
     public sealed class ComponentPool<T> : IDisposable where T : Component
     {
         private readonly T prefab;
@@ -18,11 +14,6 @@ namespace Framework.Pooling
         private readonly ObjectPool<T> pool;
         private readonly Dictionary<T, IPoolable[]> poolables = new();
 
-        /// <param name="prefab">The prefab to copy.</param>
-        /// <param name="root">Parent of the inactive instances.</param>
-        /// <param name="instantiate">How to create an instance, for example through the DI container so it gets injected.
-        /// Leave null for <see cref="Object.Instantiate(Object, Transform)"/>.</param>
-        /// <param name="maxSize">Returned instances above this count are destroyed.</param>
         public ComponentPool(T prefab, Transform root, Func<T, Transform, T> instantiate = null, int maxSize = 1000)
         {
             this.prefab = prefab;
@@ -33,7 +24,6 @@ namespace Framework.Pooling
 
         public int CountInactive => pool.CountInactive;
 
-        /// <summary>Creates instances ahead of time so the first uses do not allocate.</summary>
         public void Prewarm(int count)
         {
             var instances = new T[count];

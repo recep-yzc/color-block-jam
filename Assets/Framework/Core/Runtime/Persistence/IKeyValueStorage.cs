@@ -1,8 +1,5 @@
 namespace Framework.Core.Persistence
 {
-    /// <summary>
-    /// Small persistent key-value store for player data such as settings, coins and progress.
-    /// </summary>
     public interface IKeyValueStorage
     {
         bool GetBool(string key, bool defaultValue);

@@ -4,10 +4,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>
-    /// One straight slide of a block to <see cref="Target"/>, or, when <see cref="Exits"/> is set,
-    /// a slide from <see cref="Target"/> in <see cref="Direction"/> out through its door.
-    /// </summary>
     public readonly struct SolverMove
     {
         public readonly int BlockId;
@@ -36,33 +32,15 @@ namespace ColorBlockJam.Gameplay.Logic
 
         public bool IsSolved { get; }
 
-        /// <summary>True when every reachable state was searched, so an unsolved result is certain.</summary>
         public bool IsExhausted { get; }
 
-        /// <summary>The solution as straight slides, ready to be played back.</summary>
         public IReadOnlyList<SolverMove> Moves { get; }
 
-        /// <summary>
-        /// How many times a block has to be moved out of the way, not toward its door, in the best solution.
-        /// Zero means every block can leave as it is, in some order. This is the level's difficulty.
-        /// </summary>
         public int Repositions { get; }
 
-        /// <summary>No sequence of moves clears the board from here.</summary>
         public bool IsStuck => !IsSolved && IsExhausted;
     }
 
-    /// <summary>
-    /// Finds the fewest block repositions that clear the board. Frozen blocks stay where they are until enough blocks
-    /// have left, and arrow blocks only move along their axis.
-    /// Leaving is never a bad move, because a removed block only frees space; so before every step all blocks that can
-    /// reach their door leave. A step then moves one remaining block to any cell it can reach with the others still.
-    /// The search is breadth-first over those steps, so the found solution needs the fewest repositions.
-    /// Every move can be undone and leaving never hurts, so solvability never changes during play:
-    /// a stuck result means the board was never solvable.
-    /// The board is left in the state it had before the call. The solver keeps no state of its own, so one instance
-    /// can search several boards at once, for example a <see cref="Board.Clone"/> on a worker thread.
-    /// </summary>
     public sealed class BoardSolver
     {
         private sealed class Node
@@ -74,11 +52,8 @@ namespace ColorBlockJam.Gameplay.Logic
             public List<SolverMove> Moves;
         }
 
-        /// <param name="cancellationToken">Stops the search early, for example when the level it was for is gone;
-        /// the result is then neither solved nor exhausted.</param>
         public SolveResult Solve(Board board, int maxStates, CancellationToken cancellationToken = default)
         {
-            // Buffers live per call, so parallel calls share nothing.
             var expandReach = new ReachMap();
             var leaveReach = new ReachMap();
             var scratchMoves = new List<SolverMove>();
@@ -119,7 +94,6 @@ namespace ColorBlockJam.Gameplay.Logic
                         expandReach.AddPath(block.Id, target, scratchMoves);
                         LeaveAll(board, leaveReach, scratchMoves);
 
-                        // Only states not seen before keep a copy of their moves.
                         if (visited.Add(Key(board)))
                         {
                             nodes.Add(Capture(board, index, node.Depth + 1, new List<SolverMove>(scratchMoves)));
@@ -159,7 +133,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return new SolveResult(isSolved, isExhausted, solution, repositions);
         }
 
-        /// <summary>Lets every block that can reach its door leave, until none can.</summary>
         private static void LeaveAll(Board board, ReachMap reach, List<SolverMove> moves)
         {
             bool hasLeft;
@@ -169,7 +142,6 @@ namespace ColorBlockJam.Gameplay.Logic
                 hasLeft = false;
                 for (var i = 0; i < blocks.Count; i++)
                 {
-                    // A block that leaves can thaw another, so the loop goes round until nothing more leaves.
                     if (!blocks[i].IsCleared && !board.IsFrozen(blocks[i]) && TryLeave(board, blocks[i], reach, moves))
                     {
                         hasLeft = true;
@@ -189,7 +161,6 @@ namespace ColorBlockJam.Gameplay.Logic
                 for (var d = 0; d < doors.Count; d++)
                 {
                     var door = doors[d];
-                    // Every way out passes the cell where the block touches the door's side, so only those are tried.
                     if (door.Color != block.Color || !BlockPlacement.TouchesSide(board, block, from, door.Side) ||
                         !board.CanPassThrough(block, from, door.ExitDirection))
                     {
@@ -230,7 +201,6 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private static string Key(Board board)
         {
-            // Where a cleared block left does not matter, so all its states share one key.
             var blocks = board.Blocks;
             var chars = new char[blocks.Count * 2];
             for (var i = 0; i < blocks.Count; i++)
@@ -243,10 +213,6 @@ namespace ColorBlockJam.Gameplay.Logic
             return new string(chars);
         }
 
-        /// <summary>
-        /// Every board cell one block can reach with the other blocks where they are, in breadth-first order
-        /// (its own cell first), with the step that reached each one. Reused between blocks to avoid allocations.
-        /// </summary>
         private sealed class ReachMap
         {
             private const int Unvisited = -2;
@@ -266,7 +232,6 @@ namespace ColorBlockJam.Gameplay.Logic
 
             public void Fill(Board board, BoardBlock block)
             {
-                // Only positions with the whole block on the board are indexed.
                 originX = -block.MinX;
                 originY = -block.MinY;
                 columns = board.Width - block.Width + 1;
@@ -287,7 +252,6 @@ namespace ColorBlockJam.Gameplay.Logic
                 order.Add(block.Position);
                 previous[IndexOf(block.Position)] = Start;
 
-                // Each hop is a whole straight slide, so paths have as few turns as possible and play back naturally.
                 for (var head = 0; head < order.Count; head++)
                 {
                     var position = order[head];
@@ -321,7 +285,6 @@ namespace ColorBlockJam.Gameplay.Logic
                 }
             }
 
-            /// <summary>Adds the path from the block's cell to <paramref name="target"/> as straight slides.</summary>
             public void AddPath(int blockId, GridPoint target, List<SolverMove> moves)
             {
                 path.Clear();

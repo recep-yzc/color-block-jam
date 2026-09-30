@@ -3,9 +3,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Shrinks while pressed and pops out with a springy punch on release.
-    /// </summary>
     [CreateAssetMenu(menuName = "Framework/UI/Button Feedback/Punch", fileName = "PunchButtonFeedback")]
     public sealed class PunchButtonFeedback : ButtonFeedback
     {

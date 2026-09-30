@@ -4,11 +4,6 @@ using VContainer.Unity;
 
 namespace Framework.Core.Installers
 {
-    /// <summary>
-    /// A lifetime scope composed from installers instead of code, so modules are added and removed
-    /// in the Inspector. Used both for the project root (with <see cref="ScriptableInstaller"/> assets)
-    /// and for scenes (with <see cref="MonoInstaller"/> components on this GameObject or under it).
-    /// </summary>
     public sealed class InstallerScope : LifetimeScope
     {
         [Tooltip("Bu scope kurulurken servislerini kaydeden installer asset'leri.")]

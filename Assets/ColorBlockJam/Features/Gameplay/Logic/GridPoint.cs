@@ -2,9 +2,6 @@ using System;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    /// <summary>
-    /// A cell on the board grid. X grows to the right, Y grows up.
-    /// </summary>
     public readonly struct GridPoint : IEquatable<GridPoint>
     {
         public readonly int X;

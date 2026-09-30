@@ -3,11 +3,6 @@ using UnityEngine.EventSystems;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Base of every button. It handles touch input, the interactable state and the touch feedback;
-    /// derived buttons only decide what a click does.
-    /// The button needs a raycast target graphic on its own GameObject.
-    /// </summary>
     [RequireComponent(typeof(RectTransform))]
     public abstract class ButtonBase : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
     {
@@ -20,7 +15,6 @@ namespace Framework.UI.Buttons
         [Tooltip("Buton kapalıyken ne kadar saydam göründüğü. Oyuncu kapalı olduğunu anlasın diye.")]
         [SerializeField, Range(0f, 1f)] private float disabledAlpha = 0.5f;
 
-        // Added the first time the button is switched off, so buttons that never are need no component.
         private CanvasGroup dimmer;
 
         private ButtonFeedbackTarget feedbackRest;

@@ -4,9 +4,6 @@ using UnityEngine;
 
 namespace Framework.UI.Buttons
 {
-    /// <summary>
-    /// Slides a knob between an off and an on position, like a switch.
-    /// </summary>
     public sealed class SlideToggleVisual : ToggleStateVisual
     {
         [Tooltip("Açılıp kapanırken sağa sola kayan topuz.")]

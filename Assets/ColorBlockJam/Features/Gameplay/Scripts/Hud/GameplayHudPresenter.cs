@@ -54,7 +54,6 @@ namespace ColorBlockJam.Gameplay
                 View.SetTimerFrozen(isFrozen);
             }
 
-            // The label only changes once a second, so it is rebuilt only then.
             var seconds = Mathf.CeilToInt(session.Timer.Remaining);
             if (seconds == shownSeconds)
             {

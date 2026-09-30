@@ -29,8 +29,16 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Mesh door;
         [Tooltip("Height of the wall origin, in world units. Walls are taller than blocks.")]
         [SerializeField] private float wallHeightOffset = -0.8f;
-        [Tooltip("The wall, corner and door models are exported upside down; this turns them upright on the board.")]
-        [SerializeField] private bool wallsUpsideDown = true;
+
+        [Header("Model turns")]
+        [Tooltip("Turn, in degrees, that sets the wall model right, around its middle. The models in WallAndDoor.fbx " +
+                 "are exported upside down, and the wall also turned a quarter.")]
+        [SerializeField] private Vector3 wallModelRotation = new(0f, 90f, 180f);
+        [Tooltip("Turn, in degrees, that sets the wall corner model right, around its middle.")]
+        [SerializeField] private Vector3 cornerModelRotation = new(0f, 0f, 180f);
+        [Tooltip("Turn, in degrees, that sets the door model right, around its middle. The door is one cell long " +
+                 "along X, so a quarter turn would stand it across the edge.")]
+        [SerializeField] private Vector3 doorModelRotation = new(0f, 0f, 180f);
 
         [Header("Materials")]
         [Tooltip("Tinted with the palette color of each block.")]
@@ -50,7 +58,9 @@ namespace ColorBlockJam.Gameplay
         public Mesh WallCorner => wallCorner;
         public Mesh Door => door;
         public float WallHeightOffset => wallHeightOffset;
-        public bool WallsUpsideDown => wallsUpsideDown;
+        public Quaternion WallModelRotation => Quaternion.Euler(wallModelRotation);
+        public Quaternion CornerModelRotation => Quaternion.Euler(cornerModelRotation);
+        public Quaternion DoorModelRotation => Quaternion.Euler(doorModelRotation);
         public Material BlockMaterial => blockMaterial;
         public Material DoorMaterial => doorMaterial;
         public Material WallMaterial => wallMaterial;

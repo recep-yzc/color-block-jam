@@ -98,13 +98,13 @@ namespace ColorBlockJam.Gameplay
                         doorPieces.Add(door, pieces);
                     }
 
-                    pieces.Add(WallPiece(art, art.Door, EdgePoint(board, side, i + 0.5f), turn));
+                    pieces.Add(WallPiece(art, art.Door, art.DoorModelRotation, EdgePoint(board, side, i + 0.5f), turn));
                     continue;
                 }
 
                 // A cell edge is two wall pieces long.
-                walls.Add(WallPiece(art, art.Wall, EdgePoint(board, side, i + 0.25f), turn));
-                walls.Add(WallPiece(art, art.Wall, EdgePoint(board, side, i + 0.75f), turn));
+                walls.Add(WallPiece(art, art.Wall, art.WallModelRotation, EdgePoint(board, side, i + 0.25f), turn));
+                walls.Add(WallPiece(art, art.Wall, art.WallModelRotation, EdgePoint(board, side, i + 0.75f), turn));
             }
         }
 
@@ -114,10 +114,10 @@ namespace ColorBlockJam.Gameplay
             var right = board.Width + 0.25f;
             var top = board.Height + 0.25f;
 
-            walls.Add(WallPiece(art, art.WallCorner, new Vector2(outside, outside), Quaternion.identity));
-            walls.Add(WallPiece(art, art.WallCorner, new Vector2(outside, top), Quaternion.Euler(0f, 90f, 0f)));
-            walls.Add(WallPiece(art, art.WallCorner, new Vector2(right, top), Quaternion.Euler(0f, 180f, 0f)));
-            walls.Add(WallPiece(art, art.WallCorner, new Vector2(right, outside), Quaternion.Euler(0f, 270f, 0f)));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, outside), Quaternion.identity));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, top), Quaternion.Euler(0f, 90f, 0f)));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, top), Quaternion.Euler(0f, 180f, 0f)));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, outside), Quaternion.Euler(0f, 270f, 0f)));
         }
 
         /// <summary>The middle of the wall band outside a side, at a distance along that side, in cell units.</summary>
@@ -153,26 +153,19 @@ namespace ColorBlockJam.Gameplay
             return new CombineInstance { mesh = mesh, transform = Matrix4x4.TRS(position, turn, Vector3.one * artScale) };
         }
 
-        /// <summary>A wall, wall corner or door piece at wall height, turned upright when the art needs it.</summary>
-        private CombineInstance WallPiece(BoardArt art, Mesh mesh, Vector2 cell, Quaternion turn)
+        /// <summary>A wall, wall corner or door piece at wall height, with its model set right first.</summary>
+        private CombineInstance WallPiece(BoardArt art, Mesh mesh, Quaternion modelRotation, Vector2 cell, Quaternion turn)
         {
             var piece = Piece(mesh, cell, art.WallHeightOffset, turn);
-            if (art.WallsUpsideDown)
-            {
-                piece.transform *= UpsideDown(mesh);
-            }
-
+            piece.transform *= AroundMiddle(mesh, modelRotation);
             return piece;
         }
 
-        /// <summary>
-        /// Turns a model upside down around the middle of its bounds, so it keeps its footprint and height.
-        /// The turn is around the Z axis, so the side facing the board still faces it.
-        /// </summary>
-        private static Matrix4x4 UpsideDown(Mesh mesh)
+        /// <summary>Turns a model around the middle of its bounds, so it stays where it was.</summary>
+        private static Matrix4x4 AroundMiddle(Mesh mesh, Quaternion rotation)
         {
-            var center = mesh.bounds.center;
-            return Matrix4x4.TRS(new Vector3(center.x * 2f, center.y * 2f, 0f), Quaternion.Euler(0f, 0f, 180f), Vector3.one);
+            var middle = mesh.bounds.center;
+            return Matrix4x4.TRS(middle - rotation * middle, rotation, Vector3.one);
         }
 
         private void AddPart(string partName, List<CombineInstance> pieces, Material material)

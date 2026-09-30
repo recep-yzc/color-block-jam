@@ -22,7 +22,9 @@ MonoBehaviour:
   wallCorner: {fileID: 5732635521261682974, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
   door: {fileID: -621459505486514712, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
   wallHeightOffset: -0.8
-  wallsUpsideDown: 1
+  wallModelRotation: {x: 0, y: 90, z: 180}
+  cornerModelRotation: {x: 0, y: 0, z: 180}
+  doorModelRotation: {x: 0, y: 0, z: 180}
   blockMaterial: {fileID: 2100000, guid: 44a86e2faf62f28429bd0c1ad4c91c28, type: 2}
   doorMaterial: {fileID: 2100000, guid: 6e909acf08b5a4848b8679f7a5fc70c9, type: 2}
   wallMaterial: {fileID: 2100000, guid: 46ed6a5e2c7dd7748ae322b8b893bffa, type: 2}

@@ -69,7 +69,7 @@ namespace ColorBlockJam.Gameplay
 
             if (dragged == null)
             {
-                if (IsEnabled && pointer.WasPressedThisFrame && !pointer.IsOverUi)
+                if (IsEnabled && pointer.WasPressedThisFrame && !pointer.IsOverUI)
                 {
                     TryGrab();
                 }

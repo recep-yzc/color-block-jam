@@ -1,46 +1,8 @@
 using System.Collections.Generic;
 using System.Threading;
-using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
 {
-    public readonly struct SolverMove
-    {
-        public readonly int BlockId;
-        public readonly GridPoint Target;
-        public readonly Direction Direction;
-        public readonly bool Exits;
-
-        public SolverMove(int blockId, GridPoint target, Direction direction, bool exits)
-        {
-            BlockId = blockId;
-            Target = target;
-            Direction = direction;
-            Exits = exits;
-        }
-    }
-
-    public sealed class SolveResult
-    {
-        public SolveResult(bool isSolved, bool isExhausted, IReadOnlyList<SolverMove> moves, int repositions)
-        {
-            IsSolved = isSolved;
-            IsExhausted = isExhausted;
-            Moves = moves;
-            Repositions = repositions;
-        }
-
-        public bool IsSolved { get; }
-
-        public bool IsExhausted { get; }
-
-        public IReadOnlyList<SolverMove> Moves { get; }
-
-        public int Repositions { get; }
-
-        public bool IsStuck => !IsSolved && IsExhausted;
-    }
-
     public sealed class BoardSolver
     {
         private sealed class Node

@@ -1,11 +1,5 @@
 namespace ColorBlockJam.Gameplay
 {
-    public enum LevelFailReason
-    {
-        TimeUp,
-        Stuck
-    }
-
     public sealed class LevelOutcome
     {
         public LevelFailReason FailReason { get; private set; }

@@ -9,15 +9,6 @@ using VContainer.Unity;
 
 namespace ColorBlockJam.Gameplay
 {
-    public enum LevelState
-    {
-        Loading,
-        Playing,
-        AutoPlaying,
-        Won,
-        Failed
-    }
-
     public sealed class LevelSession : IStartable, ITickable, IDisposable
     {
         private readonly ILevelProvider levels;

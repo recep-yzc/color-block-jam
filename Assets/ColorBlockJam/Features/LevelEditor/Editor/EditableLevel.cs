@@ -5,21 +5,6 @@ using ColorBlockJam.Level;
 
 namespace ColorBlockJam.LevelEditor
 {
-    internal sealed class EditableBlock
-    {
-        public int Color;
-        public BlockAxis Axis;
-        public int Ice;
-        public readonly List<GridPoint> Cells = new();
-
-        public EditableBlock(int color)
-        {
-            Color = color;
-        }
-
-        public bool Covers(GridPoint cell) => Cells.Contains(cell);
-    }
-
     internal sealed class EditableLevel
     {
         public const int MinSize = 3;

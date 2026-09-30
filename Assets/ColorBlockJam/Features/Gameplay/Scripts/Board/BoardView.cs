@@ -95,7 +95,6 @@ namespace ColorBlockJam.Gameplay
                 doorViews.Add(doorView);
             }
 
-
             var size = new Vector3((board.Width + 1) * cellSize, cellSize, (board.Height + 1) * cellSize);
             WorldBounds = new Bounds(CellToWorld(new Vector2(board.Width * 0.5f, board.Height * 0.5f)), size);
         }

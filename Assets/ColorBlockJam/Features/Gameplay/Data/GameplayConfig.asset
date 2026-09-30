@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d4f9114d324ce347905dc3a95004435, type: 3}
   m_Name: GameplayConfig
   m_EditorClassIdentifier: 
-  cellSize: 2
+  cellSize: 1
   followSharpness: 26
   maxDragSpeed: 40
   cornerRounding: 0.3
-  liftHeight: 0.35
+  liftHeight: 0
   liftDuration: 0.1
   snapDuration: 0.14
   snapEase: 8

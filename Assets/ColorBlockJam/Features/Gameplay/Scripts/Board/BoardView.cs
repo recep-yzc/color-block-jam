@@ -52,6 +52,7 @@ namespace ColorBlockJam.Gameplay
             artScale = cellSize / ArtSpace.CellSize;
 
             // The board sits apart from the blocks, which are children of this view too, and from the doors: both move.
+            // It is one mesh already, so static batching would have nothing to merge; the flag only marks it as fixed.
             staticParts = new GameObject("Board Parts") { isStatic = true }.transform;
             staticParts.SetParent(transform, false);
             doorParts = new GameObject("Doors").transform;
@@ -90,9 +91,6 @@ namespace ColorBlockJam.Gameplay
                 doorViews.Add(doorView);
             }
 
-            // The board itself never moves: it is marked static and batched as static geometry. Static
-            // batching in a build only covers objects saved in a scene, so the built board is combined here.
-            StaticBatchingUtility.Combine(staticParts.gameObject);
 
             var size = new Vector3((board.Width + 1) * cellSize, cellSize, (board.Height + 1) * cellSize);
             WorldBounds = new Bounds(CellToWorld(new Vector2(board.Width * 0.5f, board.Height * 0.5f)), size);

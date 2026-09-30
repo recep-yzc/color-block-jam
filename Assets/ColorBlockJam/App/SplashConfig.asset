@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a949e13670f2b514ab8d15837859ea6b, type: 3}
   m_Name: SplashConfig
   m_EditorClassIdentifier: 
+  nextScene: Main
   minimumDuration: 1.5
   barFillSpeed: 1.5
   startupTasksShare: 0.3

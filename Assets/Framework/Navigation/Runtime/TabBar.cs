@@ -112,7 +112,7 @@ namespace Framework.Navigation
             resizeMotion.TryCancel();
         }
 
-        // A separator sits on the right edge of its tab, so the selected tab hides its own and its left neighbour's.
+        // A separator sits on the right edge of its tab, so the selected tab hides its own and its left neighbor's.
         private void UpdateSeparators()
         {
             for (var i = 0; i < tabs.Count; i++)

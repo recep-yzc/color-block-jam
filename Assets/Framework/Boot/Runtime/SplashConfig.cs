@@ -6,7 +6,7 @@ namespace Framework.Boot
     public sealed class SplashConfig : ScriptableObject
     {
         [Tooltip("The scene that opens after the splash screen. It must be in the build settings.")]
-        [SerializeField] private string nextScene = "Main";
+        [SerializeField] private string nextScene;
 
         [Tooltip("The splash screen stays open at least this long, even if loading is faster.")]
         [SerializeField, Min(0f)] private float minimumDuration = 1.5f;

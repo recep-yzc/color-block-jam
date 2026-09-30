@@ -9,7 +9,7 @@ Drag colored blocks around the board and slide each one out through a door of it
 1. Open the project with **Unity 2022.3.62f2**. Packages resolve from `Packages/manifest.json`: URP 14, Input System, UniTask, LitMotion, VContainer and TextMesh Pro.
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**. Set the Game view to a portrait resolution, such as 1080×1920 or 1080×2400.
 3. To build, pick Android in *File › Build Settings*. The scenes are already in order: Splash, Main, Gameplay.
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 22 tests. Among other things, they cover the board rules, the drag movement, the solver, the timer, the generator, and a check that every level in the catalog can be solved.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 27 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping), the solver, the timer, the generator, and a check that every level in the catalog can be solved.
 
 To reset progress and coins, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel` and `economy.coins`.
 
@@ -117,12 +117,14 @@ Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog
 
 ### Movement
 
-Movement is fully algorithmic, with no physics:
+Movement is fully algorithmic, with no physics engine, but it behaves like pushing a real object across a table:
 
-- The dragged block follows the finger in small sub-cell steps.
-- Each step is checked against the cells it overlaps.
-- When a step is blocked but the block is almost lined up with a gap, *corner assist* eases the other axis toward the line. The block then rounds the corner on a curve instead of stopping dead.
-- The view follows with exponential smoothing and a small lift, then settles on a cell with an OutBack snap.
+- **The finger only sets a target.** Every frame the block catches up with it like a weight on a spring: fast when far, gently when close, never faster than a speed cap. It keeps catching up while the finger rests, so a quick flick is never left halfway.
+- **Each step is swept** (`BlockDragMover`). The whole path of the frame is tested at once and stops at the first contact, so a fast drag never passes through anything.
+- **The rest of the step slides along what it touched.** The part pushing into the surface is dropped and the rest is swept again, several times per frame. That is how the block rubs along walls and other blocks instead of stopping.
+- **Corners are round, sides are flat.** The collision works on the block's position: every cell offset where the block would not fit is an obstacle shaped as a 2×2 square with rounded corners. Neighboring obstacles overlap by a whole cell, so flat sides have no seams to snag on, and only real corners are round. Pushed into a corner, the block rolls around it on a curve; pushed at a gap it is slightly out of line with, it is guided in.
+- **Blocks never overlap.** The view sits exactly where the mover puts the block, with no smoothing that could cut a corner. Only half a percent of a cell of play is kept, too small to see, so a block always fits a gap exactly its own size.
+- On release the block settles on the nearest free cell with an ease that does not overshoot into its neighbor.
 
 ### Doors
 

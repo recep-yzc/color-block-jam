@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
+using Cysharp.Threading.Tasks;
 using Framework.Settings;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ColorBlockJam.Gameplay
 {
@@ -33,6 +36,9 @@ namespace ColorBlockJam.Gameplay
             this.bursts = bursts;
             this.haptics = haptics;
         }
+
+        /// <summary>Raised when a block has been broken where it stood; it is already off the board.</summary>
+        public event Action<BoardBlock> BlockSmashed;
 
         public Board Board { get; private set; }
 
@@ -81,6 +87,15 @@ namespace ColorBlockJam.Gameplay
                     bursts.Play(view.Center, config.IceBurstColor);
                 }
             }
+        }
+
+        /// <summary>Breaks a block where it stands, as the hammer does, frozen or not.</summary>
+        public void Smash(BoardBlock block)
+        {
+            Board.Clear(block);
+            var view = views[block.Id];
+            view.SmashAsync(view.destroyCancellationToken).Forget();
+            BlockSmashed?.Invoke(block);
         }
 
         private void OnBlockRemoved(BlockView view)

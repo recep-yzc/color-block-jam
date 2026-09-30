@@ -70,6 +70,7 @@ namespace ColorBlockJam.Gameplay
             drag.Attach(Board, levelBoard.Views);
             drag.BlockMoved += OnBlockMoved;
             drag.BlockLeft += OnBlockCleared;
+            levelBoard.BlockSmashed += OnBlockSmashed;
             solvability.FoundUnsolvable += FailIfStuck;
 
             SetState(LevelState.Playing);
@@ -100,6 +101,7 @@ namespace ColorBlockJam.Gameplay
             lifetime.Dispose();
             drag.BlockMoved -= OnBlockMoved;
             drag.BlockLeft -= OnBlockCleared;
+            levelBoard.BlockSmashed -= OnBlockSmashed;
             solvability.FoundUnsolvable -= FailIfStuck;
         }
 
@@ -136,7 +138,7 @@ namespace ColorBlockJam.Gameplay
             FailIfStuck();
         }
 
-        /// <summary>A block is off the board through <paramref name="door"/>.</summary>
+        /// <summary>A block is off the board, through <paramref name="door"/> or, when it is null, broken by the hammer.</summary>
         private void OnBlockCleared(BoardBlock block, BoardDoor door)
         {
             levelBoard.ShowBlockCleared(door);
@@ -150,6 +152,11 @@ namespace ColorBlockJam.Gameplay
             // Fewer blocks make a smaller search, so an unknown answer may now be found.
             solvability.Check(Board);
             FailIfStuck();
+        }
+
+        private void OnBlockSmashed(BoardBlock block)
+        {
+            OnBlockCleared(block, null);
         }
 
         /// <summary>The player sees the fail popup after trying a move, not the moment the level opens.</summary>

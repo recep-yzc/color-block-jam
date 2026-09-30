@@ -11,7 +11,7 @@ namespace ColorBlockJam.Gameplay
     /// <summary>
     /// Turns pointer input into block moves: grab the block under the finger, settle it on the nearest free cell on
     /// release, or let it leave when it is pushed through its door. A block dropped right in front of a door it fits
-    /// through goes in on its own. A frozen block only shakes.
+    /// through goes in on its own. A frozen block only shakes, and while a booster aims, a press picks its target.
     /// The finger only sets a target. Every frame the block catches up with it like a weight on a spring, fast when far
     /// and gently when close, and the drag mover sweeps that step so the block slides along and rolls around whatever
     /// is in the way. It keeps catching up while the finger rests, so a quick flick is never left halfway.
@@ -25,6 +25,7 @@ namespace ColorBlockJam.Gameplay
         private readonly BoardView boardView;
         private readonly Camera viewCamera;
         private readonly GameplayConfig config;
+        private readonly IBlockTargeting targeting;
         private readonly BlockDragMover mover;
 
         private Board board;
@@ -34,12 +35,14 @@ namespace ColorBlockJam.Gameplay
         private NVector2 target;
         private NVector2 grabOffset;
 
-        public BlockDragController(BoardPointer pointer, BoardView boardView, Camera viewCamera, GameplayConfig config)
+        public BlockDragController(BoardPointer pointer, BoardView boardView, Camera viewCamera, GameplayConfig config,
+            IBlockTargeting targeting)
         {
             this.pointer = pointer;
             this.boardView = boardView;
             this.viewCamera = viewCamera;
             this.config = config;
+            this.targeting = targeting;
             mover = new BlockDragMover(config.CornerRounding);
         }
 
@@ -98,6 +101,12 @@ namespace ColorBlockJam.Gameplay
             var block = board.BlockAt(new GridPoint((int)MathF.Floor(cell.X), (int)MathF.Floor(cell.Y)));
             if (block == null)
             {
+                return;
+            }
+
+            if (targeting.IsAiming)
+            {
+                targeting.Pick(block);
                 return;
             }
 

@@ -10,6 +10,7 @@ namespace ColorBlockJam.Gameplay
         private readonly PauseRequester pause;
         private readonly GameplayConfig config;
         private int shownSeconds = -1;
+        private bool shownFrozen;
 
         public GameplayHudPresenter(GameplayHudView view, LevelSession session, PauseRequester pause, GameplayConfig config)
             : base(view)
@@ -46,6 +47,13 @@ namespace ColorBlockJam.Gameplay
 
         public void Tick()
         {
+            var isFrozen = session.Timer.IsFrozen;
+            if (isFrozen != shownFrozen)
+            {
+                shownFrozen = isFrozen;
+                View.SetTimerFrozen(isFrozen);
+            }
+
             // The label only changes once a second, so it is rebuilt only then.
             var seconds = Mathf.CeilToInt(session.Timer.Remaining);
             if (seconds == shownSeconds)

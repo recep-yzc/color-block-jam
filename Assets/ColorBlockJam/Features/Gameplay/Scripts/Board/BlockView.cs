@@ -27,6 +27,10 @@ namespace ColorBlockJam.Gameplay
         // Scale a leaving block shrinks to while it slides out.
         private const float LeftScale = 0.2f;
 
+        // Shape a block squashes to under the hammer, as shares of its size.
+        private const float SmashSpread = 1.2f;
+        private const float SmashHeight = 0.3f;
+
         // Swings of the shake a frozen block gives when it is pulled.
         private const int ShakeFrequency = 6;
 
@@ -58,7 +62,10 @@ namespace ColorBlockJam.Gameplay
         private MotionHandle shakeMotion;
         private MotionHandle iceMotion;
 
-        /// <summary>Raised when the block is gone from the board, out through its door, just before it hides.</summary>
+        /// <summary>
+        /// Raised when the block is gone from the board, out through its door or broken by the hammer, just before
+        /// it hides.
+        /// </summary>
         public event Action<BlockView> Removed;
 
         public BoardBlock Block { get; private set; }
@@ -183,6 +190,22 @@ namespace ColorBlockJam.Gameplay
                 .AddTo(this);
 
             await UniTask.WhenAll(moveMotion.ToUniTask(cancellationToken), shrink.ToUniTask(cancellationToken));
+            Removed?.Invoke(this);
+            gameObject.SetActive(false);
+        }
+
+        /// <summary>Breaks the block where it stands, as the hammer does: it squashes flat, then pops and hides.</summary>
+        public async UniTask SmashAsync(CancellationToken cancellationToken)
+        {
+            moveMotion.TryCancel();
+            var restScale = transform.localScale;
+            var squashed = new Vector3(restScale.x * SmashSpread, restScale.y * SmashHeight, restScale.z * SmashSpread);
+            moveMotion = LMotion.Create(restScale, squashed, config.SmashDuration)
+                .WithEase(Ease.InBack)
+                .BindToLocalScale(transform)
+                .AddTo(this);
+            await moveMotion.ToUniTask(cancellationToken);
+
             Removed?.Invoke(this);
             gameObject.SetActive(false);
         }

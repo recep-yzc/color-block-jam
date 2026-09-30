@@ -5,7 +5,7 @@ namespace ColorBlockJam.Gameplay
 {
     /// <summary>
     /// Every tuning value of the gameplay scene: how blocks feel under the finger, animation timing,
-    /// search budgets and camera framing.
+    /// search budgets, boosters and camera framing.
     /// </summary>
     [CreateAssetMenu(menuName = "Color Block Jam/Gameplay/Gameplay Config", fileName = "GameplayConfig")]
     public sealed class GameplayConfig : ScriptableObject
@@ -61,6 +61,16 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0f)] private float frozenShakeStrength = 0.08f;
         [SerializeField, Min(0.01f)] private float frozenShakeDuration = 0.3f;
 
+        [Header("Boosters")]
+        [Tooltip("Coins one freeze costs.")]
+        [SerializeField, Min(1)] private int freezeCost = 30;
+        [Tooltip("Seconds of play the level timer stands still.")]
+        [SerializeField, Min(1f)] private float freezeSeconds = 10f;
+        [Tooltip("Coins one hammer costs. They are paid when it breaks a block, so taking it up and putting it back " +
+                 "is free.")]
+        [SerializeField, Min(1)] private int hammerCost = 50;
+        [Tooltip("Seconds a block takes to squash flat under the hammer before it pops.")]
+        [SerializeField, Min(0.01f)] private float smashDuration = 0.2f;
 
         [Header("Solver")]
         [Tooltip("States searched to find out whether the board can still be cleared.")]
@@ -112,6 +122,10 @@ namespace ColorBlockJam.Gameplay
         public Color IceBurstColor => iceBurstColor;
         public float FrozenShakeStrength => frozenShakeStrength;
         public float FrozenShakeDuration => frozenShakeDuration;
+        public int FreezeCost => freezeCost;
+        public float FreezeSeconds => freezeSeconds;
+        public int HammerCost => hammerCost;
+        public float SmashDuration => smashDuration;
         public int StuckSearchBudget => stuckSearchBudget;
         public int AutoPlaySearchBudget => autoPlaySearchBudget;
         public float AutoPlayCellDuration => autoPlayCellDuration;

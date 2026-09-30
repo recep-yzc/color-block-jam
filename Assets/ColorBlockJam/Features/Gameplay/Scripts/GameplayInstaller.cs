@@ -9,7 +9,7 @@ using VContainer.Unity;
 namespace ColorBlockJam.Gameplay
 {
     /// <summary>
-    /// The gameplay scene: the level session, the board and its input, the HUD and the result flow.
+    /// The gameplay scene: the level session, the board and its input, the boosters, the HUD and the result flow.
     /// The popups are added by the PopupInstaller next to this one.
     /// </summary>
     public sealed class GameplayInstaller : MonoInstaller
@@ -47,6 +47,8 @@ namespace ColorBlockJam.Gameplay
             builder.Register<LevelResults>(Lifetime.Singleton);
             builder.Register<BoardCamera>(Lifetime.Singleton);
             builder.Register(_ => new BlockBurstEffects(config.BurstPrefab, effectsRoot, config.BurstPrewarm), Lifetime.Singleton);
+            builder.Register<FreezeBooster>(Lifetime.Singleton);
+            builder.Register<HammerBooster>(Lifetime.Singleton).AsSelf().As<IBlockTargeting>();
 
             builder.RegisterEntryPoint<BoardPointer>().AsSelf();
             builder.RegisterEntryPoint<BlockDragController>().AsSelf();

@@ -11,7 +11,7 @@ namespace ColorBlockJam.Gameplay
 {
     /// <summary>
     /// The top bar of the level: level number, difficulty, the countdown, pause and auto play.
-    /// The booster buttons below the board are placeholder buttons and need no code.
+    /// The countdown turns icy while the freeze booster holds it.
     /// </summary>
     public sealed class GameplayHudView : UIView
     {
@@ -24,10 +24,13 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0.01f)] private float timerPulseDuration = 0.3f;
         [SerializeField] private Color timerColor = Color.white;
         [SerializeField] private Color timerWarningColor = new(1f, 0.35f, 0.3f);
+        [SerializeField] private Color timerFrozenColor = new(0.6f, 0.88f, 1f);
         [SerializeField] private ActionButton pauseButton;
         [SerializeField] private ActionButton autoPlayButton;
 
         private MotionHandle pulse;
+        private bool isTimerWarning;
+        private bool isTimerFrozen;
 
         public ActionButton PauseButton => pauseButton;
         public ActionButton AutoPlayButton => autoPlayButton;
@@ -56,7 +59,8 @@ namespace ColorBlockJam.Gameplay
         public void SetTime(int seconds, bool isWarning)
         {
             timerLabel.SetText("{0}:{1:00}", seconds / 60, seconds % 60);
-            timerLabel.color = isWarning ? timerWarningColor : timerColor;
+            isTimerWarning = isWarning;
+            ShowTimerColor();
 
             if (isWarning && timerPulseTarget != null)
             {
@@ -66,6 +70,18 @@ namespace ColorBlockJam.Gameplay
                     .BindToLocalScale(timerPulseTarget)
                     .AddTo(this);
             }
+        }
+
+        /// <summary>Shows the timer as frozen while the freeze booster holds it.</summary>
+        public void SetTimerFrozen(bool isFrozen)
+        {
+            isTimerFrozen = isFrozen;
+            ShowTimerColor();
+        }
+
+        private void ShowTimerColor()
+        {
+            timerLabel.color = isTimerFrozen ? timerFrozenColor : isTimerWarning ? timerWarningColor : timerColor;
         }
     }
 }

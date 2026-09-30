@@ -44,7 +44,7 @@ namespace ColorBlockJam.Gameplay
             artScale = worldCellSize / ArtSpace.CellSize;
 
             // The board's own parts sit apart from the blocks, which are children of this view too and move.
-            parts = new GameObject("Board Parts").transform;
+            parts = new GameObject("Board Parts") { isStatic = true }.transform;
             parts.SetParent(transform, false);
 
             var ground = new List<CombineInstance>();
@@ -71,7 +71,8 @@ namespace ColorBlockJam.Gameplay
                 ToonTint.Apply(doorRenderer, palette.GetColor(door.Color));
             }
 
-            // Nothing on the board moves again, so its parts are batched as static geometry.
+            // Nothing on the board moves again: its parts are marked static and batched as static geometry. Static
+            // batching in a build only covers objects saved in a scene, so the built board is combined here.
             StaticBatchingUtility.Combine(parts.gameObject);
 
             var size = new Vector3((board.Width + 1) * cellSize, cellSize, (board.Height + 1) * cellSize);
@@ -252,7 +253,7 @@ namespace ColorBlockJam.Gameplay
         private MeshRenderer AddRenderer(string partName, Mesh mesh, params Material[] materials)
         {
             builtMeshes.Add(mesh);
-            var part = new GameObject(partName);
+            var part = new GameObject(partName) { isStatic = true };
             part.transform.SetParent(parts, false);
             part.AddComponent<MeshFilter>().sharedMesh = mesh;
             var meshRenderer = part.AddComponent<MeshRenderer>();

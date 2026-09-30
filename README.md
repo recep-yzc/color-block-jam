@@ -12,9 +12,9 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod Framework.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 40 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer and its freeze, the wallet, the generator, and a check that every level in the catalog can be solved.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 56 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer and its freeze, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound.
 
-To reset progress and coins, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel` and `economy.coins`.
+To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
 ### How to play
 
@@ -29,10 +29,12 @@ To reset progress and coins, use *Edit › Clear All PlayerPrefs*. The keys are 
 - The HUD has these buttons:
   - **Pause** opens Resume, Restart and Home. The level also pauses when the app loses focus and on the Android back button.
   - **AUTO** lets the solver play the level from where you are.
-- The boosters under the board are paid with coins (100 to start, 10 for each level):
-  - **Freeze** (30 coins) stops the timer for 10 seconds; the timer turns icy while it holds.
-  - **Hammer** (50 coins): tap it, then tap any block, frozen or not, to break it. You pay only when a block breaks, so tapping the hammer again to put it back is free.
-  - **Rocket** and **Vacuum** are placeholders that only give touch feedback.
+- Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.
+  - **Freeze** (level 2) stops the timer for 10 seconds; the timer turns icy while it holds.
+  - **Hammer** (level 3): tap it, then tap any block, frozen or not, to break it.
+  - **Rocket** (level 4): tap it, then tap a block to clear every block in its row.
+  - **Vacuum** (level 6): tap it, then tap a block to remove every block of its color.
+- Each booster comes with a few uses, counted on its badge. With none left, a use is bought with coins (100 to start, 10 for each level), and its price shows instead. A booster that aims at a block is paid only when it hits one, so tapping it again to put it back is free.
 
 ## Level editor
 
@@ -92,9 +94,19 @@ Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog
   - **Settings**: toggles and haptics.
   - **Pooling**.
   - **Build**: the Android APK build.
-- `Assets/ColorBlockJam` is the game built on that template. It has App, Art, Features (Economy, Progression, Home, Level, Gameplay, LevelEditor), UI and Scenes.
+- `Assets/ColorBlockJam` is the game built on that template. It has App, Art, Features (Economy, Progression, Home, Settings, Level, Gameplay, Boosters, LevelEditor), UI, Rendering, Scenes and Tests.
 - Every folder is an assembly definition. The framework never references the game, and the asmdefs enforce this. *Why:* the template can go into the next project unchanged, and each feature compiles and is tested on its own.
 - The template offers more than this game uses (more transitions, button feedbacks, view events, pool hooks). They are its public surface for the next project, not dead code of this one.
+
+### Folder layout
+
+- `Assets/Framework/<Module>/` is the template: `Runtime`, `Editor`, `Data` for ready-made assets and `Prefabs`, one assembly per module.
+- `Assets/ColorBlockJam/Features/<Feature>/` holds everything one feature owns: `Scripts` with its assembly, `Data` with its assets, `Prefabs`, and `Logic` or `Editor` where it has them. A feature is read, changed or removed in one place.
+- `Assets/ColorBlockJam/App/` is the composition root: the app scope and the installer assets that put the features together.
+- `Assets/ColorBlockJam/UI/` only holds widgets any feature can use, such as the close button and the slide switch.
+- `Art`, `Rendering` and `Scenes` hold the shared art, the shaders and render settings, and the three scenes.
+- `Tests/EditMode/<Feature>/` holds the tests, grouped by what they cover.
+- Every type has a file named after it. The code has no comments: names carry the meaning, every inspector setting explains itself in a tooltip (in Turkish), and this README holds the design.
 
 ### Composition with VContainer
 
@@ -122,7 +134,7 @@ Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog
 | Rules | `Features/Gameplay/Logic` (`noEngineReferences`) | `Board`, `BoardBlock`, `BlockDragMover`, `BlockPlacement`, `BoardSolver`, `LevelGenerator`, `LevelDiagnostics`, `LevelTimer`, `BlockMarks` |
 | View and input | `Features/Gameplay/Scripts/Board`, `Input` | `BoardView`, `DoorView`, `BlockView`, `BlockMeshBuilder`, `BlockDragController` (Input System), `BoardCamera`, `BlockBurstEffects` |
 | Flow | `Features/Gameplay/Scripts/Session` | `LevelSession` (timer, win and fail), `LevelBoard` (builds and shows the board), `SolvabilityWatcher`, `LevelResults`, `PauseRequester`, `AutoPlayer`, `LevelFlow`, `LevelProvider` |
-| Boosters | `Features/Gameplay/Scripts/Boosters` | `FreezeBooster`, `HammerBooster`, the booster bar |
+| Boosters | `Features/Boosters` (its own assembly) | the booster definitions and catalog, `BoosterInventory`, `LevelBoosters`, `BoosterUnlocks`, the bar and the unlock popup |
 | UI | `Features/Gameplay/Scripts/Hud`, `Popups` | HUD and the pause, fail and complete popups |
 
 *Why:* the rules know nothing about Unity. The game, the level editor, the tests and worker threads all use the same code.
@@ -132,21 +144,23 @@ How a move flows through the gameplay scene:
 ```mermaid
 flowchart LR
     Pointer[BoardPointer] --> Drag[BlockDragController]
-    Drag -- "a press while aiming" --> Hammer[HammerBooster]
+    Drag -- "a press while a booster aims" --> Router[BlockPressRouter]
+    Router --> Boosters[LevelBoosters]
     Drag -- "BlockMoved, BlockLeft" --> Session[LevelSession]
-    Hammer -- Smash --> Board[LevelBoard]
+    Boosters -- "smash" --> Board[LevelBoard]
+    Boosters -- "freeze the timer" --> Session
+    Boosters -- "take a use" --> Inventory[(BoosterInventory)]
     Board -- BlockSmashed --> Session
     Auto[AutoPlayer] -- "a block left" --> Session
     Session -- "door, ice" --> Board
     Session -- "can it still be cleared?" --> Watcher[SolvabilityWatcher]
     Session -- "win, fail" --> Results[LevelResults]
-    Freeze[FreezeBooster] -- "hold the timer" --> Session
-    Bar[BoosterBarPresenter] --> Freeze
-    Bar --> Hammer
+    Bar[BoosterBarPresenter] --> Boosters
+    Unlocks[BoosterUnlocks] -- "claim" --> Inventory
     Hud[GameplayHudPresenter] --> Session
 ```
 
-Every way a block leaves the board, through a door, by auto play or under the hammer, ends in one method of `LevelSession`, so the door animation, the ice, the win check and the stuck check follow each of them the same way.
+Every way a block leaves the board, through a door, by auto play or under a booster, ends in one method of `LevelSession`, so the door animation, the ice, the win check and the stuck check follow each of them the same way.
 
 ### Movement
 
@@ -174,10 +188,12 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 
 ### Boosters
 
-- A booster costs coins from the wallet, and `ICoinWallet.TrySpend` takes them only when there are enough.
-- The freeze holds `LevelTimer` without pausing the level: the player keeps playing while the countdown stands still.
-- The hammer aims through `IBlockTargeting`: while it aims, the drag controller hands it the next press on a block instead of starting a drag. Boosters that pick a block need no input code of their own.
-- Prices and durations are in `GameplayConfig`, next to the other tuning values.
+- **Each booster is an asset.** A `BoosterDefinition` holds its id, name, description, icon, unlock level, starting count and coin price, and creates its own effect. `BoosterCatalog` lists the boosters in bar order.
+- **Effects are small classes.** An `InstantBoosterEffect` runs at once; the freeze holds `LevelTimer` while the level goes on. An `AimedBoosterEffect` waits for the player to pick a block: the hammer breaks it, the rocket clears its row, the vacuum its color. The blocks they take come from `BoardTargets`, in the rules.
+- **No booster has input code, and the gameplay code does not know boosters exist.** While one aims, the drag controller hands the pressed block and cell to the `BlockPressRouter`, and `LevelBoosters` is on it. Without the feature, the gameplay scene runs just the same.
+- **The player's boosters are saved** by `BoosterInventory`, registered for the whole app. A use takes an owned booster first and buys one with coins only when none are left; an aimed booster is paid only when it hits.
+- **Unlocking.** At the start of a level, `BoosterUnlocks` finds the boosters the level has reached but the player has not claimed, so an old save catches up too, and shows `BoosterUnlockPopup` for each. The booster opens on **Claim**: the popup closes and the button rises into the bar with `ScaleUpTransition`. Locked boosters are not shown, and levels tried from the editor unlock nothing.
+- **Adding a booster** takes a definition class that returns its effect, the effect class, an asset made from the definition's *Create* menu, and an entry in `BoosterCatalog`. The bar, the inventory, the unlock popup and the catalog test pick it up from there.
 
 ### Solver and stuck
 
@@ -213,7 +229,8 @@ Coins, the current level and the settings go through `IKeyValueStorage`, which u
 
 - The APK (about 25 MB) is built into `Builds/`, which is not in the repository.
 - UI sprites are imported uncompressed (RGBA32) on Android, for the sharpest look. The full-screen backgrounds cost about 25 MB of memory that way; ASTC would cut that to a fraction if memory ever matters more.
-- Lives are a placeholder, as the case allows: failing a level costs nothing. The Rocket and Vacuum boosters are placeholders too.
+- Lives are a placeholder, as the case allows: failing a level costs nothing.
+- A booster's description is plain text in its asset, so changing, for example, the freeze's seconds means changing its description too.
 - On the levels that ship with the game, **stuck cannot happen**, because they are all proven solvable and solvability never changes during play. To see the stuck popup, make a level in the editor that cannot be solved (for example a block with no door of its color), then press ▶ Play.
 - While AUTO plays, the timer, the boosters and the pause button are off.
 - The solver has a budget. On a very large custom level, Check may answer "no solution found within the budget" instead of a clear yes or no.
@@ -236,4 +253,4 @@ Coins, the current level and the settings go through `IKeyValueStorage`, which u
 
 ## Work time
 
-Going by the commit history, about 12 hours in three evening sessions, from 28 Sep 2026 20:10 to 1 Oct 2026.
+Going by the commit history, about 13 hours in three evening sessions, from 28 Sep 2026 20:10 to 1 Oct 2026 01:30.

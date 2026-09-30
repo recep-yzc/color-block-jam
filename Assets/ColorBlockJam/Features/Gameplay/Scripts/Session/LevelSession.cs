@@ -69,7 +69,7 @@ namespace ColorBlockJam.Gameplay
             levelBoard.Build(Level);
             drag.Attach(Board, levelBoard.Views);
             drag.BlockMoved += OnBlockMoved;
-            drag.BlockLeft += OnBlockLeft;
+            drag.BlockLeft += OnBlockCleared;
             solvability.FoundUnsolvable += FailIfStuck;
 
             SetState(LevelState.Playing);
@@ -99,7 +99,7 @@ namespace ColorBlockJam.Gameplay
             lifetime.Cancel();
             lifetime.Dispose();
             drag.BlockMoved -= OnBlockMoved;
-            drag.BlockLeft -= OnBlockLeft;
+            drag.BlockLeft -= OnBlockCleared;
             solvability.FoundUnsolvable -= FailIfStuck;
         }
 
@@ -117,7 +117,7 @@ namespace ColorBlockJam.Gameplay
 
         private async UniTaskVoid AutoPlayAsync()
         {
-            var (isCanceled, isSolved) = await autoPlayer.PlayAsync(Board, levelBoard.Views, OnBlockLeft, lifetime.Token)
+            var (isCanceled, isSolved) = await autoPlayer.PlayAsync(Board, levelBoard.Views, OnBlockCleared, lifetime.Token)
                 .SuppressCancellationThrow();
             if (isCanceled || isSolved)
             {
@@ -136,9 +136,10 @@ namespace ColorBlockJam.Gameplay
             FailIfStuck();
         }
 
-        private void OnBlockLeft(BoardBlock block, BoardDoor door)
+        /// <summary>A block is off the board through <paramref name="door"/>.</summary>
+        private void OnBlockCleared(BoardBlock block, BoardDoor door)
         {
-            levelBoard.PlayLeave(door);
+            levelBoard.ShowBlockCleared(door);
             hasPlayerMoved = true;
             if (Board.IsCleared)
             {

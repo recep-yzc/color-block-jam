@@ -11,7 +11,7 @@ namespace ColorBlockJam.Gameplay
     /// <summary>
     /// Turns pointer input into block moves: grab the block under the finger, settle it on the nearest free cell on
     /// release, or let it leave when it is pushed through its door. A block dropped right in front of a door it fits
-    /// through goes in on its own.
+    /// through goes in on its own. A frozen block only shakes.
     /// The finger only sets a target. Every frame the block catches up with it like a weight on a spring, fast when far
     /// and gently when close, and the drag mover sweeps that step so the block slides along and rolls around whatever
     /// is in the way. It keeps catching up while the finger rests, so a quick flick is never left halfway.
@@ -98,6 +98,12 @@ namespace ColorBlockJam.Gameplay
             var block = board.BlockAt(new GridPoint((int)MathF.Floor(cell.X), (int)MathF.Floor(cell.Y)));
             if (block == null)
             {
+                return;
+            }
+
+            if (board.IsFrozen(block))
+            {
+                views[block.Id].PlayFrozenShake();
                 return;
             }
 

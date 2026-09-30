@@ -63,6 +63,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Material blockOutlineMaskMaterial;
         [Tooltip("The outer rim drawn around the block the player holds, on top of everything.")]
         [SerializeField] private Material blockOutlineMaterial;
+        [Tooltip("See-through shell around a frozen block.")]
+        [SerializeField] private Material iceMaterial;
 
         public Mesh BlockCenter => blockCenter;
         public Mesh BlockEdge => blockEdge;
@@ -84,6 +86,7 @@ namespace ColorBlockJam.Gameplay
         public Material GroundMaterial => groundMaterial;
         public Material BlockOutlineMaskMaterial => blockOutlineMaskMaterial;
         public Material BlockOutlineMaterial => blockOutlineMaterial;
+        public Material IceMaterial => iceMaterial;
 
         /// <summary>The arrow for a straight run of <paramref name="cells"/> cells; longer runs get the longest arrow.</summary>
         public Mesh ArrowFor(int cells)

@@ -50,6 +50,18 @@ namespace ColorBlockJam.Gameplay
         [Tooltip("Seconds between the level ending and its result popup, so the last moves can finish.")]
         [SerializeField, Min(0f)] private float resultPopupDelay = 0.6f;
 
+        [Header("Ice")]
+        [Tooltip("Seconds the ice takes to break away once enough blocks have left, and the bump of its count.")]
+        [SerializeField, Min(0.01f)] private float iceBreakDuration = 0.3f;
+        [Tooltip("How much the ice count grows for a moment when it goes down.")]
+        [SerializeField, Min(0f)] private float iceCountPunch = 0.35f;
+        [Tooltip("Color of the burst when the ice breaks.")]
+        [SerializeField] private Color iceBurstColor = new(0.72f, 0.9f, 1f);
+        [Tooltip("How far, in cells, a frozen block shakes when the player tries to move it.")]
+        [SerializeField, Min(0f)] private float frozenShakeStrength = 0.08f;
+        [SerializeField, Min(0.01f)] private float frozenShakeDuration = 0.3f;
+
+
         [Header("Solver")]
         [Tooltip("States searched to find out whether the board can still be cleared.")]
         [SerializeField, Min(100)] private int stuckSearchBudget = 30000;
@@ -95,6 +107,11 @@ namespace ColorBlockJam.Gameplay
         public ParticleSystem BurstPrefab => burstPrefab;
         public int BurstPrewarm => burstPrewarm;
         public float ResultPopupDelay => resultPopupDelay;
+        public float IceBreakDuration => iceBreakDuration;
+        public float IceCountPunch => iceCountPunch;
+        public Color IceBurstColor => iceBurstColor;
+        public float FrozenShakeStrength => frozenShakeStrength;
+        public float FrozenShakeDuration => frozenShakeDuration;
         public int StuckSearchBudget => stuckSearchBudget;
         public int AutoPlaySearchBudget => autoPlaySearchBudget;
         public float AutoPlayCellDuration => autoPlayCellDuration;

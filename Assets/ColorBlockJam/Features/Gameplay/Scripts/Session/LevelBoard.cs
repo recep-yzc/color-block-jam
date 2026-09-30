@@ -8,7 +8,8 @@ namespace ColorBlockJam.Gameplay
 {
     /// <summary>
     /// The level on screen. It builds the board's rules and views from the level data and frames the camera, then
-    /// plays what the player sees when a block leaves: the door opening, the burst in the block's color and a haptic.
+    /// plays what the player sees when a block leaves: the door opening, the burst in the block's color, a haptic and
+    /// the ice of other blocks melting a step.
     /// </summary>
     public sealed class LevelBoard
     {
@@ -48,23 +49,41 @@ namespace ColorBlockJam.Gameplay
                 var view = Object.Instantiate(config.BlockViewPrefab, boardView.transform);
                 view.name = $"Block {block.Id}";
                 view.Initialize(block, boardView, config, art, palette.GetColor(block.Color));
-                view.Exited += OnBlockExited;
+                view.Removed += OnBlockRemoved;
                 views.Add(view);
             }
 
             boardCamera.Frame(boardView.WorldBounds);
         }
 
-        /// <summary>Opens the door a block is leaving through.</summary>
-        public void PlayLeave(BoardDoor door)
+        /// <summary>
+        /// Shows what follows a block leaving the board: the door it went through opens, when it left through one,
+        /// and the ice on the other blocks counts down, breaking where it is done.
+        /// </summary>
+        public void ShowBlockCleared(BoardDoor door)
         {
             if (door != null)
             {
                 boardView.PlayDoorEntry(door);
             }
+
+            foreach (var view in views)
+            {
+                if (!view.IsFrozen || view.Block.IsCleared)
+                {
+                    continue;
+                }
+
+                var left = Board.IceLeft(view.Block);
+                view.ShowIce(left);
+                if (left == 0)
+                {
+                    bursts.Play(view.Center, config.IceBurstColor);
+                }
+            }
         }
 
-        private void OnBlockExited(BlockView view)
+        private void OnBlockRemoved(BlockView view)
         {
             bursts.Play(view.Center, palette.GetColor(view.Block.Color));
             haptics.Play();

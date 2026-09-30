@@ -22,6 +22,11 @@ MonoBehaviour:
   snapEase: 8
   exitDepth: 0.3
   exitSpeed: 12
+  doorOpenSquash: 0.35
+  doorOpenWiden: 1.08
+  doorOpenDuration: 0.08
+  doorHoldDuration: 0.18
+  doorCloseDuration: 0.35
   burstPrefab: {fileID: 3003805300057978667, guid: a9f507dad8fedde49b1ba50b9c79b030, type: 3}
   burstPrewarm: 4
   resultPopupDelay: 0.6

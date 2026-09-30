@@ -16,22 +16,29 @@ namespace ColorBlockJam.Gameplay
     {
         private const int NoDoor = -1;
 
-        /// <summary>A stretched door piece covering a run of door cells of one color.</summary>
+        /// <summary>A stretched door piece covering the cells <see cref="From"/> up to <see cref="To"/> of a side, in one color.</summary>
         private readonly struct DoorRun
         {
-            public readonly string Name;
+            public readonly BoardSide Side;
+            public readonly int From;
+            public readonly int To;
             public readonly int Color;
+            public readonly Vector3 Pivot;
             public readonly CombineInstance Piece;
 
-            public DoorRun(string name, int color, CombineInstance piece)
+            public DoorRun(BoardSide side, int from, int to, int color, Vector3 pivot, CombineInstance piece)
             {
-                Name = name;
+                Side = side;
+                From = from;
+                To = to;
                 Color = color;
+                Pivot = pivot;
                 Piece = piece;
             }
         }
 
         private readonly List<Mesh> builtMeshes = new();
+        private readonly List<DoorView> doorViews = new();
         private Transform staticParts;
         private Transform doorParts;
         private float cellSize;
@@ -39,10 +46,10 @@ namespace ColorBlockJam.Gameplay
 
         public Bounds WorldBounds { get; private set; }
 
-        public void Build(Board board, BoardArt art, BlockPalette palette, float worldCellSize)
+        public void Build(Board board, BoardArt art, BlockPalette palette, GameplayConfig config)
         {
-            cellSize = worldCellSize;
-            artScale = worldCellSize / ArtSpace.CellSize;
+            cellSize = config.CellSize;
+            artScale = cellSize / ArtSpace.CellSize;
 
             // The board sits apart from the blocks, which are children of this view too, and from the doors: both move.
             staticParts = new GameObject("Board Parts") { isStatic = true }.transform;
@@ -70,8 +77,17 @@ namespace ColorBlockJam.Gameplay
 
             foreach (var door in doors)
             {
-                var doorRenderer = AddRenderer(doorParts, door.Name, Combine(door.Name, new List<CombineInstance> { door.Piece }), art.DoorMaterial);
+                // Built around the middle of its base, so it can squash toward the ground.
+                var piece = door.Piece;
+                piece.transform = Matrix4x4.Translate(-door.Pivot) * piece.transform;
+                var doorName = $"Door {door.Side} {door.From}";
+                var doorRenderer = AddRenderer(doorParts, doorName, Combine(doorName, new List<CombineInstance> { piece }), art.DoorMaterial);
+                doorRenderer.transform.localPosition = door.Pivot;
                 ToonTint.Apply(doorRenderer, palette.GetColor(door.Color));
+
+                var doorView = doorRenderer.gameObject.AddComponent<DoorView>();
+                doorView.Initialize(door.Side, door.From, door.To, config);
+                doorViews.Add(doorView);
             }
 
             // The board itself never moves: it is marked static and batched as static geometry. Static
@@ -80,6 +96,19 @@ namespace ColorBlockJam.Gameplay
 
             var size = new Vector3((board.Width + 1) * cellSize, cellSize, (board.Height + 1) * cellSize);
             WorldBounds = new Bounds(CellToWorld(new Vector2(board.Width * 0.5f, board.Height * 0.5f)), size);
+        }
+
+        /// <summary>Plays the opening of the door a block is going through.</summary>
+        public void PlayDoorEntry(BoardDoor door)
+        {
+            foreach (var doorView in doorViews)
+            {
+                if (doorView.Covers(door.Side, door.Start))
+                {
+                    doorView.PlayEntry();
+                    return;
+                }
+            }
         }
 
         /// <summary>World position of a point in cell units, on the ground.</summary>
@@ -137,7 +166,9 @@ namespace ColorBlockJam.Gameplay
                 else
                 {
                     var piece = Stretched(board, art, art.Door, art.DoorModelRotation, side, runStart, i, turn);
-                    doors.Add(new DoorRun($"Door {side} {runStart}", runColor, piece));
+                    var middle = EdgePoint(board, side, (runStart + i) * 0.5f);
+                    var pivot = new Vector3(middle.x * cellSize, 0f, middle.y * cellSize);
+                    doors.Add(new DoorRun(side, runStart, i, runColor, pivot, piece));
                 }
 
                 runStart = i;

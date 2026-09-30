@@ -34,6 +34,15 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Range(0.05f, 1f)] private float exitDepth = 0.3f;
         [Tooltip("Speed of a leaving block, in cells per second.")]
         [SerializeField, Min(0.1f)] private float exitSpeed = 12f;
+        [Tooltip("Height a door squashes to while a block goes through it, as a share of its own.")]
+        [SerializeField, Range(0.05f, 1f)] private float doorOpenSquash = 0.35f;
+        [Tooltip("Width a door swells to while it squashes, as a share of its own.")]
+        [SerializeField, Range(1f, 1.5f)] private float doorOpenWiden = 1.08f;
+        [SerializeField, Min(0.01f)] private float doorOpenDuration = 0.08f;
+        [Tooltip("Seconds the door stays open for the block to pass.")]
+        [SerializeField, Min(0f)] private float doorHoldDuration = 0.18f;
+        [Tooltip("Seconds the door takes to spring back up.")]
+        [SerializeField, Min(0.01f)] private float doorCloseDuration = 0.35f;
         [SerializeField] private ParticleSystem burstPrefab;
         [SerializeField, Min(0)] private int burstPrewarm = 4;
         [Tooltip("Seconds between the level ending and its result popup, so the last moves can finish.")]
@@ -75,6 +84,11 @@ namespace ColorBlockJam.Gameplay
         public Ease SnapEase => snapEase;
         public float ExitDepth => exitDepth;
         public float ExitSpeed => exitSpeed;
+        public float DoorOpenSquash => doorOpenSquash;
+        public float DoorOpenWiden => doorOpenWiden;
+        public float DoorOpenDuration => doorOpenDuration;
+        public float DoorHoldDuration => doorHoldDuration;
+        public float DoorCloseDuration => doorCloseDuration;
         public ParticleSystem BurstPrefab => burstPrefab;
         public int BurstPrewarm => burstPrewarm;
         public float ResultPopupDelay => resultPopupDelay;

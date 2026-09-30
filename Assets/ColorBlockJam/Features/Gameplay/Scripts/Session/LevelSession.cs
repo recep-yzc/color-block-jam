@@ -103,7 +103,7 @@ namespace ColorBlockJam.Gameplay
         public void Start()
         {
             board = BoardFactory.Create(Level);
-            boardView.Build(board, art, palette, config.CellSize);
+            boardView.Build(board, art, palette, config);
 
             foreach (var block in board.Blocks)
             {
@@ -184,6 +184,11 @@ namespace ColorBlockJam.Gameplay
 
         private void OnBlockLeft(BoardBlock block, BoardDoor door)
         {
+            if (door != null)
+            {
+                boardView.PlayDoorEntry(door);
+            }
+
             hasPlayerMoved = true;
             if (board.IsCleared)
             {

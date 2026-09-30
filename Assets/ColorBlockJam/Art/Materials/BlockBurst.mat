@@ -14,7 +14,7 @@ Material:
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
+  m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
   stringTagMap: {}
@@ -25,14 +25,15 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _HighlightSize: 0.08
-    - _LightSoftness: 0.05
-    - _LightThreshold: 0.45
-    - _RimWidth: 0.3
-    - _VertexColorWeight: 1
+    - _HighlightSize: 0.015
+    - _LightSoftness: 0.411
+    - _LightThreshold: 0.698
+    - _RimWidth: 0
+    - _VertexColorWeight: 0
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _HighlightColor: {r: 1.0, g: 0.949, b: 0.8392, a: 0.5}
-    - _RimColor: {r: 1.0, g: 0.8784, b: 0.9569, a: 0.25}
-    - _ShadowColor: {r: 0.7216, g: 0.6039, b: 0.851, a: 1.0}
+    - _HighlightColor: {r: 1, g: 0.949, b: 0.8392, a: 0.5}
+    - _RimColor: {r: 1, g: 0.8784, b: 0.9569, a: 0.25}
+    - _ShadowColor: {r: 0.7216, g: 0.6039, b: 0.851, a: 1}
+    - _Tint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

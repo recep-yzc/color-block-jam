@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Framework.Settings;
 using Framework.UI.Popups;
 using UnityEngine;
 using VContainer.Unity;
@@ -36,7 +37,7 @@ namespace ColorBlockJam.Gameplay
         {
             if (session.State == LevelState.Playing && !popups.HasOpenPopup)
             {
-                popups.ShowAsync<PausePopup>().Forget();
+                popups.ShowAsync<SettingsPopup>().Forget();
             }
         }
 

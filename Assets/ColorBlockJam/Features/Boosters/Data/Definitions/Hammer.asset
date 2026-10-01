@@ -17,6 +17,6 @@ MonoBehaviour:
   description: Breaks any block you tap, even a frozen one.
   icon: {fileID: 21300000, guid: 9e9a0fe1cc78a1d47bc7e98fad01a1e0, type: 3}
   unlockLevel: 3
-  startingCount: 1
+  startingCount: 5
   coinCost: 50
   aimHint: Tap a block to break it

@@ -17,6 +17,6 @@ MonoBehaviour:
   description: Stops the timer for 10 seconds.
   icon: {fileID: 21300000, guid: 5a73e246277c4a24e9aea22d29c58f7d, type: 3}
   unlockLevel: 2
-  startingCount: 2
+  startingCount: 5
   coinCost: 30
   seconds: 10

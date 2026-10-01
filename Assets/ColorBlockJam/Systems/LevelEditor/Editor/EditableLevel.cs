@@ -28,6 +28,7 @@ namespace ColorBlockJam.LevelEditor
         public int TimeLimit = LevelData.DefaultTimeLimit;
         public LevelDifficulty Difficulty;
         public readonly List<EditableBlock> Blocks = new();
+        public readonly HashSet<GridPoint> Holes = new();
 
         public static EditableLevel From(LevelData data)
         {
@@ -46,6 +47,15 @@ namespace ColorBlockJam.LevelEditor
                 }
 
                 level.Blocks.Add(block);
+            }
+
+            foreach (var hole in data.holes ?? Array.Empty<CellData>())
+            {
+                var cell = new GridPoint(hole.x, hole.y);
+                if (level.IsInside(cell))
+                {
+                    level.Holes.Add(cell);
+                }
             }
 
             foreach (var door in data.doors)
@@ -112,6 +122,9 @@ namespace ColorBlockJam.LevelEditor
                 }
             }
 
+            var holes = new List<GridPoint>(Holes);
+            holes.Sort((a, b) => a.Y != b.Y ? a.Y.CompareTo(b.Y) : a.X.CompareTo(b.X));
+
             return new LevelData
             {
                 width = Width,
@@ -119,7 +132,8 @@ namespace ColorBlockJam.LevelEditor
                 timeLimit = TimeLimit,
                 difficulty = Difficulty,
                 blocks = blocks.ToArray(),
-                doors = doors.ToArray()
+                doors = doors.ToArray(),
+                holes = holes.ConvertAll(hole => new CellData(hole.X, hole.Y)).ToArray()
             };
         }
 
@@ -130,6 +144,22 @@ namespace ColorBlockJam.LevelEditor
         public void SetDoor(BoardSide side, int slot, int color) => doorSlots[side][slot] = color;
 
         public bool IsInside(GridPoint cell) => cell.X >= 0 && cell.Y >= 0 && cell.X < Width && cell.Y < Height;
+
+        public bool IsHole(GridPoint cell) => Holes.Contains(cell);
+
+        public bool IsFloor(GridPoint cell) => IsInside(cell) && !IsHole(cell);
+
+        public void SetHole(GridPoint cell, bool isHole)
+        {
+            if (isHole)
+            {
+                Holes.Add(cell);
+            }
+            else
+            {
+                Holes.Remove(cell);
+            }
+        }
 
         public int BlockAt(GridPoint cell)
         {
@@ -148,7 +178,7 @@ namespace ColorBlockJam.LevelEditor
         {
             foreach (var cell in cells)
             {
-                if (!IsInside(cell))
+                if (!IsFloor(cell))
                 {
                     return false;
                 }
@@ -168,6 +198,7 @@ namespace ColorBlockJam.LevelEditor
             Width = Math.Clamp(width, MinSize, MaxSize);
             Height = Math.Clamp(height, MinSize, MaxSize);
             Blocks.RemoveAll(block => !block.Cells.TrueForAll(IsInside));
+            Holes.RemoveWhere(hole => !IsInside(hole));
 
             foreach (BoardSide side in Enum.GetValues(typeof(BoardSide)))
             {

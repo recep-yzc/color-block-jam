@@ -77,6 +77,11 @@ namespace ColorBlockJam.LevelEditor
                         break;
                     }
 
+                    if (level.IsHole(hit.Cell))
+                    {
+                        break;
+                    }
+
                     RecordUndo();
                     drawing = new EditableBlock(color);
                     drawing.Cells.Add(hit.Cell);
@@ -115,6 +120,11 @@ namespace ColorBlockJam.LevelEditor
                 case Tool.Erase:
                     Erase(hit);
                     break;
+
+                case Tool.Hole when hit.IsCell && level.BlockAt(hit.Cell) < 0:
+                    paintHole = !level.IsHole(hit.Cell);
+                    Change(() => level.SetHole(hit.Cell, paintHole));
+                    break;
             }
         }
 
@@ -123,7 +133,7 @@ namespace ColorBlockJam.LevelEditor
             switch (tool)
             {
                 case Tool.Draw when drawing != null && hit.IsCell:
-                    if (level.BlockAt(hit.Cell) < 0 && IsNextTo(drawing.Cells, hit.Cell))
+                    if (level.BlockAt(hit.Cell) < 0 && !level.IsHole(hit.Cell) && IsNextTo(drawing.Cells, hit.Cell))
                     {
                         drawing.Cells.Add(hit.Cell);
                         OnLevelChanged();
@@ -145,6 +155,10 @@ namespace ColorBlockJam.LevelEditor
 
                 case Tool.Erase:
                     Erase(hit);
+                    break;
+
+                case Tool.Hole when hit.IsCell && level.BlockAt(hit.Cell) < 0 && level.IsHole(hit.Cell) != paintHole:
+                    Change(() => level.SetHole(hit.Cell, paintHole));
                     break;
             }
 
@@ -182,6 +196,10 @@ namespace ColorBlockJam.LevelEditor
                 {
                     Select(-1);
                     Change(() => level.Blocks.RemoveAt(owner));
+                }
+                else if (level.IsHole(hit.Cell))
+                {
+                    Change(() => level.SetHole(hit.Cell, false));
                 }
             }
             else if (hit.IsSlot && level.GetDoor(hit.Side, hit.Slot) != EditableLevel.NoDoor)

@@ -12,7 +12,7 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod ColorBlockJam.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 70 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 73 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
@@ -21,6 +21,7 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
 - Drag a block with the mouse or a finger. The block slides until it meets something. If you push it past a corner, it rounds the bevel on a curve.
 - A block leaves the board when you push it into a door of its own color, but only if its whole shape fits through that door. Dropping it right in front of such a door is enough: it goes in by itself.
 - **Arrow blocks** carry a double arrow and move only along it. They can only leave through a door ahead of them.
+- Some boards have **holes**: cells taken out of the board, with a wall around them. Blocks go around them like around the outer wall.
 - **Frozen blocks** sit in ice showing a number: how many more blocks must leave before the ice breaks. Until then they cannot move, and pulling them only makes them shake.
 - Clear the board before the timer reaches zero. **Level Complete** shows the coins you won, and **Continue** opens the next level.
 - When the timer reaches zero, **Out of Time!** offers 20 more seconds for 100 coins (both are set on `GameplayConfig`). **Continue** buys them and the level goes on. With fewer coins the price turns red and the button does nothing. ✕ or the back button gives up.
@@ -62,21 +63,23 @@ The window has three columns:
    - **Stamp**: pick a shape, then click a cell.
    - **Door**: click or drag along the wall. Clicking a door of the chosen color removes it.
    - **Move**: drag a block somewhere else. It turns red where it does not fit.
-   - **Erase**: click a block or a door.
+   - **Erase**: click a block, a door or a removed cell.
+   - **Hole**: click or drag over empty cells to take them out of the board, and again to put them back. In the game a removed cell is a hole with a wall around it.
 
    Right-click erases with every tool. Keys 1–0 pick a color, Delete removes the selected block, and Ctrl+Z / Ctrl+Y undo and redo.
 4. Click a block to select it. **Moves** makes it an arrow block (Horizontal or Vertical), and **Ice** freezes it until that many other blocks have left. The board draws the arrow and the ice count where the game puts them.
-5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps. It then runs the solver in the background. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
+5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps, a block on a removed cell, a door that opens onto one. It then runs the solver in the background. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
 6. **Generate** makes a new solvable level of the chosen difficulty. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. The same seed always gives the same level.
 7. **Save** writes over the level's file. **Save As New Level** adds a file at the end of the catalog. Before saving a level that has problems or has not been checked, the editor warns you.
 8. **▶ Play** starts the gameplay scene with this level, without touching the player's progress.
 
-**Format.** The editor and the game read the same JSON file (`LevelData`). `axis` is 0 free, 1 horizontal, 2 vertical; `ice` is how many blocks must leave first:
+**Format.** The editor and the game read the same JSON file (`LevelData`). `axis` is 0 free, 1 horizontal, 2 vertical; `ice` is how many blocks must leave first; `holes` are the removed cells:
 
 ```json
 { "width": 6, "height": 7, "timeLimit": 95, "difficulty": 1,
   "blocks": [ { "color": 3, "x": 1, "y": 2, "cells": [ {"x":0,"y":0}, {"x":1,"y":0} ], "axis": 1, "ice": 0 } ],
-  "doors":  [ { "side": 0, "start": 2, "length": 2, "color": 3 } ] }
+  "doors":  [ { "side": 0, "start": 2, "length": 2, "color": 3 } ],
+  "holes":  [ {"x":2,"y":3}, {"x":3,"y":3} ] }
 ```
 
 Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog.asset` lists the level files in play order; after the last level, the game starts again from the first.
@@ -192,6 +195,11 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 - A block leaves when `Board.CanPassThrough` holds: every cell the whole shape sweeps on the way out is free or beyond a door of its color. An L-shaped block therefore cannot leave through a door that only its foot fits.
 - A block dropped on a cell right in front of a door it can pass through goes in by itself (`BlockPlacement.DoorToEnter`).
 - Doors of one color side by side are one stretched piece, and each squashes and springs back as a block goes through it.
+
+### Holes
+
+- A level lists the cells taken out of its board. `Board` treats them like walls: no block can be placed on one, slide into one or pass through one. The drag, the solver, the stuck check and the level checks all follow from that without knowing about holes.
+- `BoardView` lays no ground tile on a hole and builds its rim from the supplied wall and corner models. A wall runs inside the hole along every side that faces the board, a corner piece rounds each outer corner, and another fills the notch where a hole turns inward. The background shows through the middle, as in the original game.
 
 ### Arrow blocks and ice
 

@@ -10,14 +10,26 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private readonly BoardBlock[] blocks;
         private readonly BoardDoor[] doors;
+        private readonly GridPoint[] holes;
+        private readonly bool[] isHole;
         private readonly int[] occupancy;
 
-        public Board(int width, int height, BoardBlock[] blocks, BoardDoor[] doors)
+        public Board(int width, int height, BoardBlock[] blocks, BoardDoor[] doors, GridPoint[] holes = null)
         {
             Width = width;
             Height = height;
             this.blocks = blocks;
             this.doors = doors;
+            this.holes = holes ?? Array.Empty<GridPoint>();
+            isHole = new bool[width * height];
+            foreach (var hole in this.holes)
+            {
+                if (IsInside(hole.X, hole.Y))
+                {
+                    isHole[hole.Y * width + hole.X] = true;
+                }
+            }
+
             occupancy = new int[width * height];
             Rebuild();
         }
@@ -26,6 +38,7 @@ namespace ColorBlockJam.Gameplay.Logic
         public int Height { get; }
         public IReadOnlyList<BoardBlock> Blocks => blocks;
         public IReadOnlyList<BoardDoor> Doors => doors;
+        public IReadOnlyList<GridPoint> Holes => holes;
         public int RemainingBlocks { get; private set; }
         public bool IsCleared => RemainingBlocks == 0;
 
@@ -43,12 +56,22 @@ namespace ColorBlockJam.Gameplay.Logic
                 copies[i] = blocks[i].Copy();
             }
 
-            return new Board(Width, Height, copies, doors);
+            return new Board(Width, Height, copies, doors, holes);
         }
 
         public bool IsInside(int x, int y)
         {
             return x >= 0 && y >= 0 && x < Width && y < Height;
+        }
+
+        public bool IsHole(int x, int y)
+        {
+            return IsInside(x, y) && isHole[y * Width + x];
+        }
+
+        public bool IsFloor(int x, int y)
+        {
+            return IsInside(x, y) && !isHole[y * Width + x];
         }
 
         public BoardBlock BlockAt(GridPoint cell)
@@ -66,8 +89,8 @@ namespace ColorBlockJam.Gameplay.Logic
         {
             if (IsInside(x, y))
             {
-                var id = occupancy[y * Width + x];
-                return id == Empty || id == block.Id;
+                var index = y * Width + x;
+                return !isHole[index] && (occupancy[index] == Empty || occupancy[index] == block.Id);
             }
 
             return DoorBeyond(block, x, y) != null;

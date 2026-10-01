@@ -5,8 +5,10 @@ namespace ColorBlockJam.Gameplay.Logic
         NoBlocks,
         BlockOutsideBoard,
         BlocksOverlap,
+        BlockOnHole,
         DoorOutsideBoard,
         DoorsOverlap,
+        DoorFacesHole,
         ColorHasNoDoor,
         BlockFitsNoDoor,
         IceNeverMelts

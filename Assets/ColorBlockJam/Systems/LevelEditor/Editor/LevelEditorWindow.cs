@@ -15,7 +15,8 @@ namespace ColorBlockJam.LevelEditor
             Stamp,
             Door,
             Move,
-            Erase
+            Erase,
+            Hole
         }
 
         private readonly struct Hit
@@ -50,14 +51,16 @@ namespace ColorBlockJam.LevelEditor
         private const int ValidationBudget = 100000;
         private const int HistoryLimit = 100;
 
-        private static readonly string[] ToolNames = { "Draw", "Stamp", "Door", "Move", "Erase" };
+        private static readonly string[] ToolNames = { "Draw", "Stamp", "Door", "Move", "Erase", "Hole" };
         private static readonly string[] ToolHelp =
         {
             "Drag over empty cells to draw one block of the chosen color. Click a block to select it.",
             "Click a cell to place the chosen shape in the chosen color.",
             "Click or drag along the walls to place doors of the chosen color. A block leaves through a door of its own color.",
             "Drag a block to move it.",
-            "Click a block or a door to remove it. Right-click erases with every tool."
+            "Click a block or a door to remove it, or a removed cell to put it back. Right-click erases with every tool.",
+            "Click or drag over empty cells to remove them from the board, and again to put them back. In the game a " +
+            "removed cell is a hole with a wall around it."
         };
 
         private static readonly Color SelectedOutline = new(1f, 1f, 1f, 0.9f);
@@ -98,6 +101,7 @@ namespace ColorBlockJam.LevelEditor
         private bool hasHover;
         private Hit hover;
         private int paintValue;
+        private bool paintHole;
 
         private Rect boardRect;
         private float cellSize;

@@ -14,7 +14,14 @@ namespace ColorBlockJam.LevelEditor
             {
                 for (var y = 0; y < level.Height; y++)
                 {
-                    EditorGUI.DrawRect(Shrink(CellRect(x, y), 1f), CellColor);
+                    if (level.IsHole(new GridPoint(x, y)))
+                    {
+                        DrawHole(new GridPoint(x, y));
+                    }
+                    else
+                    {
+                        EditorGUI.DrawRect(Shrink(CellRect(x, y), 1f), CellColor);
+                    }
                 }
             }
 
@@ -199,6 +206,47 @@ namespace ColorBlockJam.LevelEditor
                     ? new Rect(center.x - length, center.y + offset - 1f, length * 2f, 2f)
                     : new Rect(center.x + offset - 1f, center.y - length, 2f, length * 2f);
                 EditorGUI.DrawRect(rect, color);
+            }
+        }
+
+        private void DrawHole(GridPoint cell)
+        {
+            var rect = CellRect(cell.X, cell.Y);
+            var rim = cellSize * 0.25f;
+            EditorGUI.DrawRect(rect, Background);
+
+            if (level.IsFloor(new GridPoint(cell.X - 1, cell.Y)))
+            {
+                EditorGUI.DrawRect(new Rect(rect.x, rect.y, rim, rect.height), WallColor);
+            }
+
+            if (level.IsFloor(new GridPoint(cell.X + 1, cell.Y)))
+            {
+                EditorGUI.DrawRect(new Rect(rect.xMax - rim, rect.y, rim, rect.height), WallColor);
+            }
+
+            if (level.IsFloor(new GridPoint(cell.X, cell.Y + 1)))
+            {
+                EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, rim), WallColor);
+            }
+
+            if (level.IsFloor(new GridPoint(cell.X, cell.Y - 1)))
+            {
+                EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - rim, rect.width, rim), WallColor);
+            }
+
+            for (var dx = -1; dx <= 1; dx += 2)
+            {
+                for (var dy = -1; dy <= 1; dy += 2)
+                {
+                    if (!level.IsFloor(new GridPoint(cell.X + dx, cell.Y)) && !level.IsFloor(new GridPoint(cell.X, cell.Y + dy)) &&
+                        level.IsFloor(new GridPoint(cell.X + dx, cell.Y + dy)))
+                    {
+                        var x = dx < 0 ? rect.x : rect.xMax - rim;
+                        var y = dy > 0 ? rect.y : rect.yMax - rim;
+                        EditorGUI.DrawRect(new Rect(x, y, rim, rim), WallColor);
+                    }
+                }
             }
         }
 

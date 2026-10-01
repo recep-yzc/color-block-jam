@@ -103,8 +103,10 @@ namespace ColorBlockJam.LevelEditor
                 LevelProblemKind.NoBlocks => "The board has no blocks.",
                 LevelProblemKind.BlockOutsideBoard => $"A {colorName} block is outside the board.",
                 LevelProblemKind.BlocksOverlap => $"A {colorName} block overlaps another block.",
+                LevelProblemKind.BlockOnHole => $"A {colorName} block sits on a removed cell.",
                 LevelProblemKind.DoorOutsideBoard => $"A {colorName} door is off the edge.",
                 LevelProblemKind.DoorsOverlap => $"Two doors overlap ({colorName}).",
+                LevelProblemKind.DoorFacesHole => $"A {colorName} door opens onto a removed cell.",
                 LevelProblemKind.ColorHasNoDoor => $"{colorName} blocks have no {colorName} door to leave through.",
                 LevelProblemKind.BlockFitsNoDoor => $"A {colorName} block fits no {colorName} door it can reach. An arrow " +
                                                     "block reaches only the doors ahead of it along its arrow.",

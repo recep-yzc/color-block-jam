@@ -46,6 +46,42 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void FindsBlocksOnARemovedCell()
+        {
+            var level = new LevelData
+            {
+                width = 4,
+                height = 4,
+                blocks = new[] { new BlockData { color = 0, x = 1, y = 1, cells = new[] { new CellData(0, 0) } } },
+                doors = new[] { new DoorData { side = BoardSide.Top, start = 1, length = 1, color = 0 } },
+                holes = new[] { new CellData(1, 1) }
+            };
+
+            var problems = LevelDiagnostics.Find(level);
+
+            Assert.AreEqual(1, problems.Count);
+            Assert.AreEqual(LevelProblemKind.BlockOnHole, problems[0].Kind);
+        }
+
+        [Test]
+        public void FindsDoorsThatOpenOntoARemovedCell()
+        {
+            var level = new LevelData
+            {
+                width = 4,
+                height = 4,
+                blocks = new[] { new BlockData { color = 0, x = 0, y = 0, cells = new[] { new CellData(0, 0) } } },
+                doors = new[] { new DoorData { side = BoardSide.Bottom, start = 1, length = 1, color = 0 } },
+                holes = new[] { new CellData(1, 0) }
+            };
+
+            var kinds = LevelDiagnostics.Find(level).ConvertAll(problem => problem.Kind);
+
+            Assert.Contains(LevelProblemKind.DoorFacesHole, kinds);
+            Assert.Contains(LevelProblemKind.BlockFitsNoDoor, kinds, "The only door is behind the hole.");
+        }
+
+        [Test]
         public void EveryCatalogLevelIsSoundAndEarnsItsBadge()
         {
             var catalog = LoadCatalog();

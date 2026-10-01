@@ -54,7 +54,10 @@ namespace ColorBlockJam.Gameplay
             {
                 for (var y = 0; y < board.Height; y++)
                 {
-                    ground.Add(Piece(art.GroundTile, new Vector2(x + 0.5f, y + 0.5f), 0f, Quaternion.identity));
+                    if (board.IsFloor(x, y))
+                    {
+                        ground.Add(Piece(art.GroundTile, new Vector2(x + 0.5f, y + 0.5f), 0f, Quaternion.identity));
+                    }
                 }
             }
 
@@ -65,6 +68,7 @@ namespace ColorBlockJam.Gameplay
             BuildSide(board, BoardSide.Left, board.Height, art, walls, doors);
             BuildSide(board, BoardSide.Right, board.Height, art, walls, doors);
             BuildCorners(board, art, walls);
+            BuildHoleRims(board, art, walls);
             AddBoard(ground, walls, art);
 
             foreach (var door in doors)
@@ -180,6 +184,94 @@ namespace ColorBlockJam.Gameplay
             walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(outside, top), Quaternion.Euler(0f, 90f, 0f), 1f));
             walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, top), Quaternion.Euler(0f, 180f, 0f), 1f));
             walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, new Vector2(right, outside), Quaternion.Euler(0f, 270f, 0f), 1f));
+        }
+
+        private void BuildHoleRims(Board board, BoardArt art, List<CombineInstance> walls)
+        {
+            for (var y = 0; y < board.Height; y++)
+            {
+                AddRimRuns(board, art, walls, y, isAlongX: true, facing: -1);
+                AddRimRuns(board, art, walls, y, isAlongX: true, facing: 1);
+            }
+
+            for (var x = 0; x < board.Width; x++)
+            {
+                AddRimRuns(board, art, walls, x, isAlongX: false, facing: -1);
+                AddRimRuns(board, art, walls, x, isAlongX: false, facing: 1);
+            }
+
+            foreach (var hole in board.Holes)
+            {
+                if (!board.IsHole(hole.X, hole.Y))
+                {
+                    continue;
+                }
+
+                for (var dx = -1; dx <= 1; dx += 2)
+                {
+                    for (var dy = -1; dy <= 1; dy += 2)
+                    {
+                        AddRimCorner(board, art, walls, hole, dx, dy);
+                    }
+                }
+            }
+        }
+
+        private void AddRimRuns(Board board, BoardArt art, List<CombineInstance> walls, int line, bool isAlongX, int facing)
+        {
+            var length = isAlongX ? board.Width : board.Height;
+            var turn = isAlongX ? Quaternion.identity : Quaternion.Euler(0f, 90f, 0f);
+            var across = facing < 0 ? line + WallBand : line + 1f - WallBand;
+
+            for (var along = 0; along < length; along++)
+            {
+                if (!FacesFloor(board, line, along, isAlongX, facing))
+                {
+                    continue;
+                }
+
+                var first = along;
+                while (along + 1 < length && FacesFloor(board, line, along + 1, isAlongX, facing))
+                {
+                    along++;
+                }
+
+                var from = first + (IsFloorAt(board, line, first - 1, isAlongX) ? 2f * WallBand : 0f);
+                var to = along + 1 - (IsFloorAt(board, line, along + 1, isAlongX) ? 2f * WallBand : 0f);
+                var middle = (from + to) * 0.5f;
+                var center = isAlongX ? new Vector2(middle, across) : new Vector2(across, middle);
+                var stretch = (to - from) * ArtSpace.CellSize / LengthAlongX(art.Wall, art.WallModelRotation);
+                walls.Add(WallPiece(art, art.Wall, art.WallModelRotation, center, turn, stretch));
+            }
+        }
+
+        private static bool FacesFloor(Board board, int line, int along, bool isAlongX, int facing)
+        {
+            return isAlongX
+                ? board.IsHole(along, line) && board.IsFloor(along, line + facing)
+                : board.IsHole(line, along) && board.IsFloor(line + facing, along);
+        }
+
+        private static bool IsFloorAt(Board board, int line, int along, bool isAlongX)
+        {
+            return isAlongX ? board.IsFloor(along, line) : board.IsFloor(line, along);
+        }
+
+        private void AddRimCorner(Board board, BoardArt art, List<CombineInstance> walls, GridPoint hole, int dx, int dy)
+        {
+            var besideX = board.IsFloor(hole.X + dx, hole.Y);
+            var besideY = board.IsFloor(hole.X, hole.Y + dy);
+            var isConvex = besideX && besideY;
+            var isNotch = !besideX && !besideY && board.IsFloor(hole.X + dx, hole.Y + dy);
+            if (!isConvex && !isNotch)
+            {
+                return;
+            }
+
+            var round = isConvex ? new Vector2Int(dx, dy) : new Vector2Int(-dx, -dy);
+            var angle = round.x < 0 ? (round.y < 0 ? 0f : 90f) : (round.y > 0 ? 180f : 270f);
+            var center = new Vector2(hole.X + (dx < 0 ? WallBand : 1f - WallBand), hole.Y + (dy < 0 ? WallBand : 1f - WallBand));
+            walls.Add(WallPiece(art, art.WallCorner, art.CornerModelRotation, center, Quaternion.Euler(0f, angle, 0f), 1f));
         }
 
         private static Vector2 EdgePoint(Board board, BoardSide side, float along)

@@ -15,5 +15,6 @@ namespace ColorBlockJam.Level
         public LevelDifficulty difficulty;
         public BlockData[] blocks = Array.Empty<BlockData>();
         public DoorData[] doors = Array.Empty<DoorData>();
+        public CellData[] holes = Array.Empty<CellData>();
     }
 }

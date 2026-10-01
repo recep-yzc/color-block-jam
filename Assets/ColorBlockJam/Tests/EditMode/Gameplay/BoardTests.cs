@@ -37,6 +37,20 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void RemovedCellsStopBlocksLikeWalls()
+        {
+            var block = new BoardBlock(0, 3, new GridPoint(0, 0), Single);
+            var door = new BoardDoor(BoardSide.Right, 0, 1, 3);
+            var board = new Board(3, 2, new[] { block }, new[] { door }, new[] { new GridPoint(1, 0) });
+
+            Assert.IsFalse(board.IsFloor(1, 0));
+            Assert.IsFalse(board.CanPlace(block, new GridPoint(1, 0)));
+            Assert.IsTrue(board.CanPlace(block, new GridPoint(2, 0)));
+            Assert.IsFalse(board.CanPassThrough(block, block.Position, Direction.Right), "The hole stands between it and its door.");
+            Assert.IsFalse(board.Clone().CanPlace(block, new GridPoint(1, 0)), "A copy keeps the holes.");
+        }
+
+        [Test]
         public void NoPartOfABlockGoesIntoADoorTheBlockCannotLeaveThrough()
         {
             var shape = new[] { new GridPoint(0, 0), new GridPoint(1, 0), new GridPoint(0, 1) };

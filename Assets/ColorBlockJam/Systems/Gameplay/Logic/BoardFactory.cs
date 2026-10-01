@@ -1,3 +1,4 @@
+using System;
 using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
@@ -26,7 +27,19 @@ namespace ColorBlockJam.Gameplay.Logic
                 doors[i] = new BoardDoor(data.side, data.start, data.length, data.color);
             }
 
-            return new Board(level.width, level.height, blocks, doors);
+            return new Board(level.width, level.height, blocks, doors, HolesOf(level));
+        }
+
+        public static GridPoint[] HolesOf(LevelData level)
+        {
+            var data = level.holes ?? Array.Empty<CellData>();
+            var holes = new GridPoint[data.Length];
+            for (var i = 0; i < holes.Length; i++)
+            {
+                holes[i] = new GridPoint(data[i].x, data[i].y);
+            }
+
+            return holes;
         }
     }
 }

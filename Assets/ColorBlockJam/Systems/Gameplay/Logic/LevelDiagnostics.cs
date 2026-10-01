@@ -19,6 +19,16 @@ namespace ColorBlockJam.Gameplay.Logic
                 owner[i] = -1;
             }
 
+            var holes = BoardFactory.HolesOf(level);
+            var isHole = new bool[owner.Length];
+            foreach (var hole in holes)
+            {
+                if (hole.X >= 0 && hole.Y >= 0 && hole.X < level.width && hole.Y < level.height)
+                {
+                    isHole[hole.Y * level.width + hole.X] = true;
+                }
+            }
+
             for (var b = 0; b < level.blocks.Length; b++)
             {
                 var block = level.blocks[b];
@@ -33,6 +43,12 @@ namespace ColorBlockJam.Gameplay.Logic
                     }
 
                     var index = y * level.width + x;
+                    if (isHole[index])
+                    {
+                        problems.Add(new LevelProblem(LevelProblemKind.BlockOnHole, b, block.color));
+                        break;
+                    }
+
                     if (owner[index] >= 0 && owner[index] != b)
                     {
                         problems.Add(new LevelProblem(LevelProblemKind.BlocksOverlap, b, block.color));
@@ -50,6 +66,10 @@ namespace ColorBlockJam.Gameplay.Logic
                 if (door.start < 0 || door.length < 1 || door.start + door.length > edge)
                 {
                     problems.Add(new LevelProblem(LevelProblemKind.DoorOutsideBoard, color: door.color));
+                }
+                else if (FacesHole(level, door, isHole))
+                {
+                    problems.Add(new LevelProblem(LevelProblemKind.DoorFacesHole, color: door.color));
                 }
 
                 for (var other = 0; other < d; other++)
@@ -82,7 +102,7 @@ namespace ColorBlockJam.Gameplay.Logic
                 }
 
                 if (!CanEverLeave(level.width, level.height, ToShape(block), block.color, level.doors, block.axis,
-                        new GridPoint(block.x, block.y)))
+                        new GridPoint(block.x, block.y), holes))
                 {
                     problems.Add(new LevelProblem(LevelProblemKind.BlockFitsNoDoor, b, block.color));
                 }
@@ -97,7 +117,7 @@ namespace ColorBlockJam.Gameplay.Logic
         }
 
         public static bool CanEverLeave(int width, int height, GridPoint[] shape, int color, IReadOnlyList<DoorData> doors,
-            BlockAxis axis = BlockAxis.Free, GridPoint origin = default)
+            BlockAxis axis = BlockAxis.Free, GridPoint origin = default, GridPoint[] holes = null)
         {
             var probe = new BoardBlock(0, color, origin, shape, axis);
             if (probe.Width > width || probe.Height > height)
@@ -118,7 +138,8 @@ namespace ColorBlockJam.Gameplay.Logic
                     continue;
                 }
 
-                var board = new Board(width, height, new[] { probe }, new[] { new BoardDoor(door.side, door.start, door.length, door.color) });
+                var board = new Board(width, height, new[] { probe }, new[] { new BoardDoor(door.side, door.start, door.length, door.color) },
+                    holes);
                 var isAlongX = door.side is BoardSide.Bottom or BoardSide.Top;
                 var steps = isAlongX ? width - probe.Width : height - probe.Height;
 
@@ -132,7 +153,7 @@ namespace ColorBlockJam.Gameplay.Logic
                         _ => new GridPoint(width - 1 - probe.MaxX, along - probe.MinY)
                     };
 
-                    if (!IsOnLane(axis, position, origin))
+                    if (!IsOnLane(axis, position, origin) || !board.CanPlace(probe, position))
                     {
                         continue;
                     }
@@ -142,6 +163,27 @@ namespace ColorBlockJam.Gameplay.Logic
                     {
                         return true;
                     }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool FacesHole(LevelData level, DoorData door, bool[] isHole)
+        {
+            for (var along = door.start; along < door.start + door.length; along++)
+            {
+                var cell = door.side switch
+                {
+                    BoardSide.Bottom => new GridPoint(along, 0),
+                    BoardSide.Top => new GridPoint(along, level.height - 1),
+                    BoardSide.Left => new GridPoint(0, along),
+                    _ => new GridPoint(level.width - 1, along)
+                };
+
+                if (isHole[cell.Y * level.width + cell.X])
+                {
+                    return true;
                 }
             }
 

@@ -24,7 +24,6 @@ MonoBehaviour:
   exitSpeed: 12
   exitOvershoot: 0.5
   doorOpenSquash: 0.35
-  doorOpenWiden: 1.08
   doorOpenDuration: 0.08
   doorHoldDuration: 0.18
   doorCloseDuration: 0.35

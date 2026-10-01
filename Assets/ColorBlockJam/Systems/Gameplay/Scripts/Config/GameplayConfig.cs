@@ -37,8 +37,6 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0f)] private float exitOvershoot = 0.5f;
         [Tooltip("Blok geçerken kapının basıldığı yükseklik, kendi yüksekliğine oranla.")]
         [SerializeField, Range(0.05f, 1f)] private float doorOpenSquash = 0.35f;
-        [Tooltip("Kapı basılırken genişlediği en, kendi enine oranla.")]
-        [SerializeField, Range(1f, 1.5f)] private float doorOpenWiden = 1.08f;
         [Tooltip("Kapının basılma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float doorOpenDuration = 0.08f;
         [Tooltip("Blok geçsin diye kapının açık kaldığı süre, saniye.")]
@@ -114,7 +112,6 @@ namespace ColorBlockJam.Gameplay
         public float ExitSpeed => exitSpeed;
         public float ExitOvershoot => exitOvershoot;
         public float DoorOpenSquash => doorOpenSquash;
-        public float DoorOpenWiden => doorOpenWiden;
         public float DoorOpenDuration => doorOpenDuration;
         public float DoorHoldDuration => doorHoldDuration;
         public float DoorCloseDuration => doorCloseDuration;

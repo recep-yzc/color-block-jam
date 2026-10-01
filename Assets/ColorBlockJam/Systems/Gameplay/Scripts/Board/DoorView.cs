@@ -45,7 +45,7 @@ namespace ColorBlockJam.Gameplay
 
         private async UniTaskVoid PlayEntryAsync(CancellationToken cancellationToken)
         {
-            var open = new Vector3(config.DoorOpenWiden, config.DoorOpenSquash, config.DoorOpenWiden);
+            var open = new Vector3(1f, config.DoorOpenSquash, 1f);
 
             var isCanceled = await LMotion.Create(transform.localScale, open, config.DoorOpenDuration)
                 .WithEase(Ease.OutQuad)

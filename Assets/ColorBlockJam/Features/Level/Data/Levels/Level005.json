@@ -1,0 +1,92 @@
+{
+    "width": 5,
+    "height": 6,
+    "timeLimit": 60,
+    "difficulty": 0,
+    "blocks": [
+        {
+            "color": 6,
+            "x": 2,
+            "y": 3,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        },
+        {
+            "color": 0,
+            "x": 0,
+            "y": 4,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "x": 1,
+                    "y": 0
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        },
+        {
+            "color": 9,
+            "x": 1,
+            "y": 1,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "x": 1,
+                    "y": 0
+                },
+                {
+                    "x": 1,
+                    "y": 1
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        },
+        {
+            "color": 9,
+            "x": 2,
+            "y": 4,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        }
+    ],
+    "doors": [
+        {
+            "side": 2,
+            "start": 1,
+            "length": 1,
+            "color": 6
+        },
+        {
+            "side": 3,
+            "start": 2,
+            "length": 1,
+            "color": 0
+        },
+        {
+            "side": 2,
+            "start": 4,
+            "length": 2,
+            "color": 9
+        }
+    ]
+}

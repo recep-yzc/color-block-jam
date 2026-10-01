@@ -1,0 +1,109 @@
+{
+    "width": 5,
+    "height": 6,
+    "timeLimit": 70,
+    "difficulty": 0,
+    "blocks": [
+        {
+            "color": 9,
+            "x": 0,
+            "y": 0,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "x": 1,
+                    "y": 0
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        },
+        {
+            "color": 2,
+            "x": 4,
+            "y": 3,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "x": 0,
+                    "y": 1
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        },
+        {
+            "color": 6,
+            "x": 0,
+            "y": 4,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "x": 1,
+                    "y": 0
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        },
+        {
+            "color": 6,
+            "x": 2,
+            "y": 5,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                },
+                {
+                    "x": 1,
+                    "y": 0
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        },
+        {
+            "color": 2,
+            "x": 3,
+            "y": 3,
+            "cells": [
+                {
+                    "x": 0,
+                    "y": 0
+                }
+            ],
+            "axis": 0,
+            "ice": 0
+        }
+    ],
+    "doors": [
+        {
+            "side": 2,
+            "start": 5,
+            "length": 1,
+            "color": 9
+        },
+        {
+            "side": 1,
+            "start": 3,
+            "length": 1,
+            "color": 2
+        },
+        {
+            "side": 3,
+            "start": 2,
+            "length": 2,
+            "color": 6
+        }
+    ]
+}

@@ -6,8 +6,11 @@ namespace Framework.UI.Popups
     {
         [Tooltip("Popup açıkken arkasındaki karartma.")]
         [SerializeField] private PopupBackdrop backdrop;
+        [Tooltip("Katmanın tamamını birlikte saydamlaştıran grup. Popup'ın arkasındaki oyuna bakarken kullanılır.")]
+        [SerializeField] private CanvasGroup group;
 
         public PopupBackdrop Backdrop => backdrop;
+        public CanvasGroup Group => group;
 
         public void BringToFront(Popup popup)
         {

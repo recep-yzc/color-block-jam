@@ -12,8 +12,6 @@ namespace ColorBlockJam.UI.Buttons
 
         public event Action<bool> ValueChanged;
 
-        public bool IsOn => isOn;
-
         private ToggleStateVisual[] Visuals => visuals ??= GetComponentsInChildren<ToggleStateVisual>(true);
 
         protected override void Awake()

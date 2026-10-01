@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using ColorBlockJam.Core.Persistence;
 
-namespace ColorBlockJam.Core.Persistence
+namespace ColorBlockJam.Tests
 {
     public sealed class InMemoryStorage : IKeyValueStorage
     {

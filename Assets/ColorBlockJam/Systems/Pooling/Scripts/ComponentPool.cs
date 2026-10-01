@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 using Object = UnityEngine.Object;
@@ -10,16 +9,13 @@ namespace ColorBlockJam.Pooling
     {
         private readonly T prefab;
         private readonly Transform root;
-        private readonly Func<T, Transform, T> instantiate;
         private readonly ObjectPool<T> pool;
-        private readonly Dictionary<T, IPoolable[]> poolables = new();
 
-        public ComponentPool(T prefab, Transform root, Func<T, Transform, T> instantiate = null, int maxSize = 1000)
+        public ComponentPool(T prefab, Transform root)
         {
             this.prefab = prefab;
             this.root = root;
-            this.instantiate = instantiate ?? ((original, parent) => Object.Instantiate(original, parent));
-            pool = new ObjectPool<T>(Create, OnGet, OnRelease, OnDestroy, collectionCheck: Application.isEditor, maxSize: maxSize);
+            pool = new ObjectPool<T>(Create, OnGet, OnRelease, OnDestroy, collectionCheck: Application.isEditor);
         }
 
         public int CountInactive => pool.CountInactive;
@@ -57,36 +53,24 @@ namespace ColorBlockJam.Pooling
 
         private T Create()
         {
-            var instance = instantiate(prefab, root);
+            var instance = Object.Instantiate(prefab, root);
             instance.gameObject.SetActive(false);
-            poolables.Add(instance, instance.GetComponentsInChildren<IPoolable>(true));
             return instance;
         }
 
-        private void OnGet(T instance)
+        private static void OnGet(T instance)
         {
             instance.gameObject.SetActive(true);
-            foreach (var poolable in poolables[instance])
-            {
-                poolable.OnTakenFromPool();
-            }
         }
 
         private void OnRelease(T instance)
         {
-            foreach (var poolable in poolables[instance])
-            {
-                poolable.OnReturnedToPool();
-            }
-
             instance.gameObject.SetActive(false);
             instance.transform.SetParent(root, false);
         }
 
-        private void OnDestroy(T instance)
+        private static void OnDestroy(T instance)
         {
-            poolables.Remove(instance);
-
             if (instance != null)
             {
                 Object.Destroy(instance.gameObject);

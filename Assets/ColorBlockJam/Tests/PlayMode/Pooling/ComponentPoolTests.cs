@@ -7,15 +7,15 @@ namespace ColorBlockJam.Tests
     public sealed class ComponentPoolTests
     {
         private GameObject root;
-        private PoolableProbe prefab;
-        private ComponentPool<PoolableProbe> pool;
+        private Transform prefab;
+        private ComponentPool<Transform> pool;
 
         [SetUp]
         public void SetUp()
         {
             root = new GameObject("PoolRoot");
-            prefab = new GameObject("Prefab").AddComponent<PoolableProbe>();
-            pool = new ComponentPool<PoolableProbe>(prefab, root.transform);
+            prefab = new GameObject("Prefab").transform;
+            pool = new ComponentPool<Transform>(prefab, root.transform);
         }
 
         [TearDown]
@@ -26,7 +26,7 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
-        public void GetActivatesAndNotifies()
+        public void GetActivatesAndParents()
         {
             var parent = new GameObject("Parent").transform;
             parent.SetParent(root.transform);
@@ -34,19 +34,20 @@ namespace ColorBlockJam.Tests
             var instance = pool.Get(parent);
 
             Assert.IsTrue(instance.gameObject.activeSelf);
-            Assert.AreEqual(parent, instance.transform.parent);
-            Assert.AreEqual(1, instance.TakenCount);
+            Assert.AreEqual(parent, instance.parent);
         }
 
         [Test]
-        public void ReleaseDeactivatesNotifiesAndReuses()
+        public void ReleaseDeactivatesAndReuses()
         {
-            var instance = pool.Get(root.transform);
+            var parent = new GameObject("Parent").transform;
+            parent.SetParent(root.transform);
+            var instance = pool.Get(parent);
 
             pool.Release(instance);
 
             Assert.IsFalse(instance.gameObject.activeSelf);
-            Assert.AreEqual(1, instance.ReturnedCount);
+            Assert.AreEqual(root.transform, instance.parent, "A released instance goes back under the pool root.");
             Assert.AreSame(instance, pool.Get(root.transform));
         }
 

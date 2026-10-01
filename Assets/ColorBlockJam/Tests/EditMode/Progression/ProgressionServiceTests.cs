@@ -1,4 +1,3 @@
-using ColorBlockJam.Core.Persistence;
 using ColorBlockJam.Progression;
 using NUnit.Framework;
 

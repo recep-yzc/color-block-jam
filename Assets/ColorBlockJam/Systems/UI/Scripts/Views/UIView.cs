@@ -19,12 +19,9 @@ namespace ColorBlockJam.UI.Views
         private CanvasGroup canvasGroup;
         private CancellationTokenSource transitionCancellation;
         private Vector3 restScale;
-        private Vector2 restPosition;
         private bool isInitialized;
 
         public event Action Showing;
-        public event Action Shown;
-        public event Action Hiding;
         public event Action Hidden;
 
         public ViewState State { get; private set; }
@@ -62,7 +59,6 @@ namespace ColorBlockJam.UI.Views
 
             State = ViewState.Visible;
             canvasGroup.interactable = true;
-            Shown?.Invoke();
         }
 
         public async UniTask HideAsync(CancellationToken cancellationToken = default)
@@ -76,7 +72,6 @@ namespace ColorBlockJam.UI.Views
             var token = BeginTransition(cancellationToken);
             State = ViewState.Hiding;
             canvasGroup.interactable = false;
-            Hiding?.Invoke();
 
             if (await PlayAsync(hideTransition, show: false, token))
             {
@@ -107,14 +102,12 @@ namespace ColorBlockJam.UI.Views
             canvasGroup = GetComponent<CanvasGroup>();
             content = content != null ? content : (RectTransform)transform;
             restScale = content.localScale;
-            restPosition = content.anchoredPosition;
             State = gameObject.activeSelf ? ViewState.Visible : ViewState.Hidden;
         }
 
         private void ResetToRest()
         {
             content.localScale = restScale;
-            content.anchoredPosition = restPosition;
             canvasGroup.alpha = 1f;
         }
 
@@ -125,7 +118,7 @@ namespace ColorBlockJam.UI.Views
                 return token.IsCancellationRequested;
             }
 
-            var target = new ViewTransitionTarget(content, canvasGroup, restScale, restPosition);
+            var target = new ViewTransitionTarget(content, canvasGroup, restScale);
             var animation = show ? transition.ShowAsync(target, token) : transition.HideAsync(target, token);
             return await animation.SuppressCancellationThrow();
         }

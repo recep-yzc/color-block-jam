@@ -26,14 +26,6 @@ namespace ColorBlockJam.UI.Buttons
                 .BindToLocalEulerAnglesZ(target);
         }
 
-        protected static MotionHandle MoveYTo(RectTransform target, float y, float duration, Ease ease)
-        {
-            return LMotion.Create(target.anchoredPosition.y, y, duration)
-                .WithEase(ease)
-                .WithScheduler(UIMotion.Scheduler)
-                .BindToAnchoredPositionY(target);
-        }
-
         protected static MotionHandle PunchScale(RectTransform target, Vector3 rest, Vector3 strength, float duration, int frequency)
         {
             return LMotion.Punch.Create(rest, strength, duration)
@@ -48,14 +40,6 @@ namespace ColorBlockJam.UI.Buttons
                 .WithFrequency(frequency)
                 .WithScheduler(UIMotion.Scheduler)
                 .BindToLocalEulerAnglesZ(target);
-        }
-
-        protected static MotionHandle PunchY(RectTransform target, float rest, float strength, float duration, int frequency)
-        {
-            return LMotion.Punch.Create(rest, strength, duration)
-                .WithFrequency(frequency)
-                .WithScheduler(UIMotion.Scheduler)
-                .BindToAnchoredPositionY(target);
         }
     }
 }

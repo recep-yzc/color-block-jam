@@ -44,7 +44,7 @@ MonoBehaviour:
   extraTimeSeconds: 20
   extraTimeCost: 100
   cameraPitch: 80
-  boardScreenHeight: 0.55
-  boardScreenWidth: 1
+  boardScreenHeight: 0.6
+  boardScreenWidth: 0.95
   backgroundColor: {r: 0.373131, g: 0.40742767, b: 0.6132076, a: 1}
   blockViewPrefab: {fileID: 6672037950633968810, guid: b2752b3e0982bed489c45138c70f319e, type: 3}

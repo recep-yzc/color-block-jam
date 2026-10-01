@@ -21,9 +21,9 @@ MonoBehaviour:
   - {fileID: -4135818882167075391, guid: 31ef10c786f06b8468f26f18c72f390d, type: 3}
   - {fileID: -1341611790480939518, guid: 31ef10c786f06b8468f26f18c72f390d, type: 3}
   - {fileID: 7264089000736223243, guid: 31ef10c786f06b8468f26f18c72f390d, type: 3}
-  arrowHeight: 1.45
-  arrowColor: {r: 1, g: 0.95, b: 0.88, a: 1}
-  arrowColorBlend: 0.5
+  arrowHeight: 1.3
+  arrowColor: {r: 1, g: 1, b: 1, a: 1}
+  arrowColorBlend: 0.675
   groundTile: {fileID: 9127120572191758296, guid: 4689c7cfc286fda48b8fea2758d103c0, type: 3}
   wall: {fileID: 8733429697405204941, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
   wallCorner: {fileID: 5732635521261682974, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}

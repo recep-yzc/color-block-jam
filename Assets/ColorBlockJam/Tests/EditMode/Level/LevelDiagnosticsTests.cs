@@ -106,7 +106,7 @@ namespace ColorBlockJam.Tests
         public void EveryCatalogLevelIsSoundAndEarnsItsBadge()
         {
             var catalog = LoadCatalog();
-            Assert.GreaterOrEqual(catalog.Count, 100);
+            Assert.GreaterOrEqual(catalog.Count, 50);
 
             for (var number = 1; number <= catalog.Count; number++)
             {
@@ -138,8 +138,24 @@ namespace ColorBlockJam.Tests
         {
             var catalog = LoadCatalog();
 
-            Assert.Less(AverageMoves(catalog, 1, 20), AverageMoves(catalog, 41, 60));
-            Assert.Less(AverageMoves(catalog, 41, 60), AverageMoves(catalog, 81, 100));
+            Assert.Less(AverageMoves(catalog, 1, 15), AverageMoves(catalog, 18, 32));
+            Assert.Less(AverageMoves(catalog, 18, 32), AverageMoves(catalog, 36, 50));
+        }
+
+        [Test]
+        public void ManyLevelsHaveHoles()
+        {
+            var catalog = LoadCatalog();
+            var withHoles = 0;
+            for (var number = 1; number <= catalog.Count; number++)
+            {
+                if (catalog.Load(number).holes.Length > 0)
+                {
+                    withHoles++;
+                }
+            }
+
+            Assert.GreaterOrEqual(withHoles, catalog.Count / 5);
         }
 
         private static double AverageMoves(LevelCatalog catalog, int first, int last)

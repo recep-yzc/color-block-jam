@@ -12,7 +12,7 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod ColorBlockJam.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 73 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 76 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
@@ -68,8 +68,8 @@ The window has three columns:
 
    Right-click erases with every tool. Keys 1–0 pick a color, Delete removes the selected block, and Ctrl+Z / Ctrl+Y undo and redo.
 4. Click a block to select it. **Moves** makes it an arrow block (Horizontal or Vertical), and **Ice** freezes it until that many other blocks have left. The board draws the arrow and the ice count where the game puts them.
-5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps, a block on a removed cell, a door that opens onto one. It then runs the solver in the background. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
-6. **Generate** makes a new solvable level of the chosen difficulty. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. The same seed always gives the same level.
+5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps, a block on a removed cell, a door that opens onto one, a hole smaller than 2×2. It then runs the solver in the background. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
+6. **Generate** makes a new solvable level of the chosen difficulty. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. **Holes** adds up to two holes inside the board. The same seed always gives the same level.
 7. **Save** writes over the level's file. **Save As New Level** adds a file at the end of the catalog. Before saving a level that has problems or has not been checked, the editor warns you.
 8. **▶ Play** starts the gameplay scene with this level, without touching the player's progress.
 
@@ -84,14 +84,14 @@ The window has three columns:
 
 Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog.asset` lists the level files in play order; after the last level, the game starts again from the first.
 
-**The 100 levels that ship with the game**
+**The 50 levels that ship with the game**
 
 - **Difficulty is the number of moves it takes to win**: every block has to be sent out once, plus every block the best solution has to move out of the way first (`LevelRating`). The badge follows from it: up to 8 moves is **Easy**, up to 12 **Medium**, up to 16 **Hard**, and more is **Super Hard**. The level check in the editor suggests the badge the same way, and a test makes sure every level wears the badge its moves earn.
 - **Levels 1–3 are tutorials**, made by hand: one block to send out, then two, then three where one has to go first to clear the way. Each needs only straight moves, ready for a guided hand.
-- **The badges follow a curve with tension and release.** The first 30 go *e e e e e e m e e e h m m m sh e m m m m m m m e m h m m m sh*, then every 15 levels end on a super hard one, hard levels come more often as the game goes on, and an easy level follows each peak.
-- **Each badge also gets harder over the 100 levels**: more moves within its range, more blocks and colors, bigger boards. Arrow blocks join at level 12 and ice at level 22, each on a level where it is the only new thing.
+- **The badges follow a curve with tension and release.** The first 30 go *e e e e e e m e e e h m m m sh e m m m m m m m e m h m m m sh*, then the next 15 end on a super hard one again, hard levels come more often as the game goes on, and an easy level follows each peak.
+- **Each badge also gets harder over the 50 levels**: more moves within its range, more blocks and colors, bigger boards. Arrow blocks join at level 12, ice at level 22 and holes at level 16, each on a level where it is the only new thing. After that, about every third level has a hole of at least 2×2 cells.
 - Level 26 is the level reworked by hand in the editor earlier, now a hard one.
-- Levels 4–100 come from the editor's generator with settings for each level, and each was kept only when every check passed, the in-game solver cleared it within the budget it checks for being stuck, and its moves matched its badge.
+- The other levels come from the editor's generator with settings for each level, and each was kept only when every check passed, the in-game solver cleared it within the budget it checks for being stuck, and its moves matched its badge.
 
 ## Architecture
 
@@ -109,7 +109,7 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 | Pooling | the component pool |
 | Economy | coins and the coin counter |
 | Progression | the current level |
-| Level | the level format, the block palette, and the catalog with the 100 levels |
+| Level | the level format, the block palette, and the catalog with the 50 levels |
 | Gameplay | the rules (`Logic`), the board and its input, the session, the HUD and the popups of a level |
 | Boosters | the booster definitions, the inventory, the bar and the unlock popup |
 | Home | the home screen and its level path |
@@ -198,7 +198,7 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 
 ### Holes
 
-- A level lists the cells taken out of its board. `Board` treats them like walls: no block can be placed on one, slide into one or pass through one. The drag, the solver, the stuck check and the level checks all follow from that without knowing about holes.
+- A level lists the cells taken out of its board. Every hole is at least 2×2 cells, which the level checks enforce. The generator keeps holes off the edges and apart from each other, so no door opens onto one. `Board` treats them like walls: no block can be placed on one, slide into one or pass through one. The drag, the solver, the stuck check and the level checks all follow from that without knowing about holes.
 - `BoardView` lays no ground tile on a hole and builds its rim from the supplied wall and corner models. A wall runs inside the hole along every side that faces the board, a corner piece rounds each outer corner, and another fills the notch where a hole turns inward. The background shows through the middle, as in the original game.
 
 ### Arrow blocks and ice
@@ -257,7 +257,7 @@ Coins, the current level and the settings go through `IKeyValueStorage`, which u
 - While AUTO plays, the timer, the boosters and the restart and pause buttons are off.
 - The solver has a budget. On a very large custom level, Check may answer "no solution found within the budget" instead of a clear yes or no.
 - During an editor ▶ Play, **Continue**, **Retry**, **Restart** and **Home › Play** all return to the tested level until play mode ends.
-- After level 100 the catalog starts again from level 1, while the home screen keeps counting up.
+- After level 50 the catalog starts again from level 1, while the home screen keeps counting up.
 - The supplied `Door_Arrow` mesh is not used; the doors show their direction by where they are.
 
 **Feedback on the supplied assets**

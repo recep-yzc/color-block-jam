@@ -11,15 +11,12 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private TMP_Text rewardLabel;
         [Tooltip("Sonraki seviyeyi açan buton.")]
         [SerializeField] private ActionButton nextButton;
-        [Tooltip("Ana ekrana dönen buton.")]
-        [SerializeField] private ActionButton homeButton;
 
         public ActionButton NextButton => nextButton;
-        public ActionButton HomeButton => homeButton;
 
         public void SetReward(int coins)
         {
-            rewardLabel.SetText("+{0}", coins);
+            rewardLabel.SetText("{0}", coins);
         }
     }
 }

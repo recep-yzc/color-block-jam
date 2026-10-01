@@ -17,13 +17,11 @@ namespace ColorBlockJam.Gameplay
         protected override void OnInitialize()
         {
             View.NextButton.Clicked += flow.PlayNext;
-            View.HomeButton.Clicked += flow.GoHome;
         }
 
         protected override void OnDispose()
         {
             View.NextButton.Clicked -= flow.PlayNext;
-            View.HomeButton.Clicked -= flow.GoHome;
         }
 
         protected override void OnShowing()

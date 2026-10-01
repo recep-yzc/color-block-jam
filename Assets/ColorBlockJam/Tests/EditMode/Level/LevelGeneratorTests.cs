@@ -9,6 +9,7 @@ namespace ColorBlockJam.Tests
         [TestCase(LevelDifficulty.Easy)]
         [TestCase(LevelDifficulty.Medium)]
         [TestCase(LevelDifficulty.Hard)]
+        [TestCase(LevelDifficulty.SuperHard)]
         public void GeneratedLevelsAreSolvableWithinTheirDifficulty(LevelDifficulty difficulty)
         {
             var settings = GeneratorSettings.For(difficulty);
@@ -16,10 +17,12 @@ namespace ColorBlockJam.Tests
             var generated = new LevelGenerator().Generate(difficulty, paletteSize: 10, seed: 42);
 
             Assert.IsNotNull(generated);
-            var solution = new BoardSolver().Solve(BoardFactory.Create(generated.Level), 20000);
+            var solution = new BoardSolver().Solve(BoardFactory.Create(generated.Level), settings.SolveBudget);
             Assert.IsTrue(solution.IsSolved);
             Assert.That(solution.Repositions, Is.InRange(settings.MinRepositions, settings.MaxRepositions));
             Assert.AreEqual(difficulty, generated.Level.difficulty);
+            Assert.AreEqual(difficulty, LevelRating.Rate(LevelRating.MovesToWin(generated.Level.blocks.Length, solution)),
+                "The moves it takes earn the difficulty it was made for.");
         }
 
         [Test]

@@ -4,6 +4,7 @@ namespace ColorBlockJam.Level
     {
         Easy,
         Medium,
-        Hard
+        Hard,
+        SuperHard
     }
 }

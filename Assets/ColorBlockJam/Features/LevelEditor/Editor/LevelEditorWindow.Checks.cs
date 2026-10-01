@@ -90,14 +90,9 @@ namespace ColorBlockJam.LevelEditor
             generateSeed++;
         }
 
-        private static LevelDifficulty SuggestDifficulty(SolveResult solution)
+        private LevelDifficulty SuggestDifficulty(SolveResult solution)
         {
-            return solution.Repositions switch
-            {
-                0 => LevelDifficulty.Easy,
-                1 => LevelDifficulty.Medium,
-                _ => LevelDifficulty.Hard
-            };
+            return LevelRating.Rate(LevelRating.MovesToWin(level.Blocks.Count, solution));
         }
 
         private string Describe(LevelProblem problem)

@@ -55,7 +55,7 @@ namespace ColorBlockJam.LevelEditor
                 : Path.GetDirectoryName(AssetDatabase.GetAssetPath(catalog))!.Replace('\\', '/');
             for (var number = catalog.Count + 1; ; number++)
             {
-                var path = $"{folder}/Level{number:00}.json";
+                var path = $"{folder}/Level{number:000}.json";
                 if (!File.Exists(path))
                 {
                     return path;

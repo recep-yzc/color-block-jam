@@ -29,6 +29,14 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Color timerWarningColor = new(1f, 0.35f, 0.3f);
         [Tooltip("Freeze süreyi tutarken sayacın rengi.")]
         [SerializeField] private Color timerFrozenColor = new(0.6f, 0.88f, 1f);
+        [Tooltip("Kolay seviyelerin zorluk rozeti rengi.")]
+        [SerializeField] private Color easyColor = new(0.55f, 0.9f, 0.45f);
+        [Tooltip("Orta seviyelerin zorluk rozeti rengi.")]
+        [SerializeField] private Color mediumColor = new(1f, 0.8f, 0.3f);
+        [Tooltip("Zor seviyelerin zorluk rozeti rengi.")]
+        [SerializeField] private Color hardColor = new(1f, 0.5f, 0.35f);
+        [Tooltip("Süper zor seviyelerin zorluk rozeti rengi.")]
+        [SerializeField] private Color superHardColor = new(0.85f, 0.45f, 1f);
         [Tooltip("Duraklatma popup'ını açan buton.")]
         [SerializeField] private ActionButton pauseButton;
         [Tooltip("Seviyeyi bulunduğu yerden çözücüye oynatan buton.")]
@@ -53,11 +61,12 @@ namespace ColorBlockJam.Gameplay
 
         public void SetDifficulty(LevelDifficulty difficulty)
         {
-            difficultyLabel.text = difficulty switch
+            (difficultyLabel.text, difficultyLabel.color) = difficulty switch
             {
-                LevelDifficulty.Easy => "Easy",
-                LevelDifficulty.Medium => "Medium",
-                _ => "Hard"
+                LevelDifficulty.Easy => ("Easy", easyColor),
+                LevelDifficulty.Medium => ("Medium", mediumColor),
+                LevelDifficulty.Hard => ("Hard", hardColor),
+                _ => ("Super Hard", superHardColor)
             };
         }
 

@@ -13,12 +13,16 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private readonly BoardSolver solver = new();
 
-        public int SolveBudget { get; } = 5000;
         public int MaxAttempts { get; } = 300;
 
         public GeneratedLevel Generate(LevelDifficulty difficulty, int paletteSize, int seed, Func<int, bool> onAttempt = null)
         {
-            var settings = GeneratorSettings.For(difficulty);
+            return Generate(GeneratorSettings.For(difficulty), difficulty, paletteSize, seed, onAttempt);
+        }
+
+        public GeneratedLevel Generate(GeneratorSettings settings, LevelDifficulty difficulty, int paletteSize, int seed,
+            Func<int, bool> onAttempt = null)
+        {
             var random = new Random(seed);
 
             for (var attempt = 1; attempt <= MaxAttempts; attempt++)
@@ -34,13 +38,15 @@ namespace ColorBlockJam.Gameplay.Logic
                     continue;
                 }
 
-                var result = solver.Solve(BoardFactory.Create(level), SolveBudget);
+                var result = solver.Solve(BoardFactory.Create(level), settings.SolveBudget);
                 if (!result.IsSolved)
                 {
                     continue;
                 }
 
-                if (result.Repositions >= settings.MinRepositions && result.Repositions <= settings.MaxRepositions)
+                var moves = LevelRating.MovesToWin(level.blocks.Length, result);
+                if (result.Repositions >= settings.MinRepositions && result.Repositions <= settings.MaxRepositions &&
+                    moves >= settings.MinMoves && moves <= settings.MaxMoves)
                 {
                     return new GeneratedLevel(level, result);
                 }

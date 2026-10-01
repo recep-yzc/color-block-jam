@@ -206,8 +206,9 @@ namespace ColorBlockJam.LevelEditor
             else if (result.IsSolved)
             {
                 var suggested = SuggestDifficulty(result);
-                EditorGUILayout.HelpBox($"Solvable in {result.Moves.Count} moves. {result.Repositions} block(s) must be moved out of the way first. " +
-                                        $"That plays like {suggested}.", MessageType.Info);
+                var moves = LevelRating.MovesToWin(level.Blocks.Count, result);
+                EditorGUILayout.HelpBox($"Wins in {moves} moves: {level.Blocks.Count} block(s) to send out, and {result.Repositions} " +
+                                        $"to move out of the way first. That plays like {suggested}.", MessageType.Info);
                 if (suggested != level.Difficulty && GUILayout.Button($"Set Difficulty To {suggested}"))
                 {
                     Change(() => level.Difficulty = suggested);

@@ -1,0 +1,22 @@
+{
+    "name": "ColorBlockJam.LevelEditor.Editor",
+    "rootNamespace": "ColorBlockJam.LevelEditor",
+    "references": [
+        "ColorBlockJam.Level",
+        "ColorBlockJam.Level.Data",
+        "ColorBlockJam.Gameplay.Logic",
+        "ColorBlockJam.Gameplay",
+        "ColorBlockJam.Core"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

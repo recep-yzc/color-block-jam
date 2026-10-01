@@ -1,0 +1,21 @@
+{
+    "name": "ColorBlockJam.Navigation",
+    "rootNamespace": "ColorBlockJam.Navigation",
+    "references": [
+        "ColorBlockJam.Core",
+        "ColorBlockJam.UI",
+        "VContainer",
+        "LitMotion",
+        "LitMotion.Extensions",
+        "UnityEngine.UI"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

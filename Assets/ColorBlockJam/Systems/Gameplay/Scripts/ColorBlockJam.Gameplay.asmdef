@@ -1,0 +1,31 @@
+{
+    "name": "ColorBlockJam.Gameplay",
+    "rootNamespace": "ColorBlockJam.Gameplay",
+    "references": [
+        "ColorBlockJam.Core",
+        "ColorBlockJam.UI",
+        "ColorBlockJam.Pooling",
+        "ColorBlockJam.Settings",
+        "ColorBlockJam.Level",
+        "ColorBlockJam.Level.Data",
+        "ColorBlockJam.Gameplay.Logic",
+        "ColorBlockJam.Economy",
+        "ColorBlockJam.Progression",
+        "VContainer",
+        "UniTask",
+        "LitMotion",
+        "LitMotion.Extensions",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

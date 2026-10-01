@@ -1,0 +1,18 @@
+{
+    "name": "ColorBlockJam.Settings",
+    "rootNamespace": "ColorBlockJam.Settings",
+    "references": [
+        "ColorBlockJam.Core",
+        "ColorBlockJam.UI",
+        "VContainer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,6 +1,6 @@
 using ColorBlockJam.Boosters;
+using ColorBlockJam.Core.Persistence;
 using ColorBlockJam.Economy;
-using Framework.Core.Persistence;
 using NUnit.Framework;
 using UnityEngine;
 

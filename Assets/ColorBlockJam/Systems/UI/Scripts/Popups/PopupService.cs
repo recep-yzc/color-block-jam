@@ -1,0 +1,160 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using ColorBlockJam.UI.Views;
+using Cysharp.Threading.Tasks;
+using UnityEngine.InputSystem;
+using VContainer;
+using VContainer.Unity;
+using Object = UnityEngine.Object;
+
+namespace ColorBlockJam.UI.Popups
+{
+    public sealed class PopupService : IPopupService, IInitializable, ITickable, IDisposable
+    {
+        private readonly PopupLayer layer;
+        private readonly PopupCatalog catalog;
+        private readonly LifetimeScope ownerScope;
+        private readonly Dictionary<Type, Popup> instances = new();
+        private readonly List<Popup> openPopups = new();
+
+        private readonly InputAction backAction = new("Back", InputActionType.Button, "<Keyboard>/escape");
+
+        public PopupService(PopupLayer layer, PopupCatalog catalog, IObjectResolver resolver)
+        {
+            this.layer = layer;
+            this.catalog = catalog;
+
+            ownerScope = resolver.ApplicationOrigin as LifetimeScope;
+        }
+
+        public event Action BackPressedWithoutPopup;
+
+        public bool HasOpenPopup => openPopups.Count > 0;
+
+        private Popup TopPopup => openPopups.Count > 0 ? openPopups[openPopups.Count - 1] : null;
+
+        public void Initialize()
+        {
+            layer.Backdrop.Clicked += OnBackdropClicked;
+            layer.Backdrop.HideImmediate();
+            backAction.Enable();
+        }
+
+        public void Dispose()
+        {
+            layer.Backdrop.Clicked -= OnBackdropClicked;
+            backAction.Dispose();
+
+            foreach (var popup in instances.Values)
+            {
+                popup.CloseRequested -= OnCloseRequested;
+            }
+        }
+
+        public void Tick()
+        {
+            if (!backAction.WasPressedThisFrame())
+            {
+                return;
+            }
+
+            if (TopPopup == null)
+            {
+                BackPressedWithoutPopup?.Invoke();
+            }
+            else if (TopPopup.CloseOnBackButton)
+            {
+                TopPopup.RequestClose();
+            }
+        }
+
+        public UniTask ShowAsync<TPopup>(CancellationToken cancellationToken = default) where TPopup : Popup
+        {
+            return ShowAsync(GetOrCreate(typeof(TPopup)), cancellationToken);
+        }
+
+        public UniTask HideAsync<TPopup>(CancellationToken cancellationToken = default) where TPopup : Popup
+        {
+            return instances.TryGetValue(typeof(TPopup), out var popup)
+                ? HideAsync(popup, cancellationToken)
+                : UniTask.CompletedTask;
+        }
+
+        private async UniTask ShowAsync(Popup popup, CancellationToken cancellationToken)
+        {
+            if (openPopups.Contains(popup))
+            {
+                return;
+            }
+
+            openPopups.Add(popup);
+            layer.BringToFront(popup);
+            layer.Backdrop.ShowAsync(cancellationToken).Forget();
+
+            await popup.ShowAsync(cancellationToken);
+        }
+
+        private async UniTask HideAsync(Popup popup, CancellationToken cancellationToken)
+        {
+            if (!openPopups.Remove(popup))
+            {
+                return;
+            }
+
+            if (TopPopup != null)
+            {
+                layer.PlaceBackdropBelow(TopPopup);
+            }
+            else
+            {
+                layer.Backdrop.HideAsync(cancellationToken).Forget();
+            }
+
+            await popup.HideAsync(cancellationToken);
+
+            if (popup.DestroyOnHide && popup.State == ViewState.Hidden)
+            {
+                Destroy(popup);
+            }
+        }
+
+        private Popup GetOrCreate(Type popupType)
+        {
+            if (instances.TryGetValue(popupType, out var popup))
+            {
+                return popup;
+            }
+
+            using (LifetimeScope.EnqueueParent(ownerScope))
+            {
+                popup = Object.Instantiate(catalog.GetPrefab(popupType), layer.transform);
+            }
+
+            popup.HideImmediate();
+            popup.CloseRequested += OnCloseRequested;
+            instances.Add(popupType, popup);
+            return popup;
+        }
+
+        private void Destroy(Popup popup)
+        {
+            instances.Remove(popup.GetType());
+            popup.CloseRequested -= OnCloseRequested;
+            Object.Destroy(popup.gameObject);
+        }
+
+        private void OnCloseRequested(Popup popup)
+        {
+            HideAsync(popup, CancellationToken.None).Forget();
+        }
+
+        private void OnBackdropClicked()
+        {
+            if (TopPopup != null && TopPopup.CloseOnBackdropClick)
+            {
+                TopPopup.RequestClose();
+            }
+        }
+    }
+}

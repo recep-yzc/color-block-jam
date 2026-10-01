@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using ColorBlockJam.Boosters;
-using Framework.UI.Popups;
+using ColorBlockJam.UI.Popups;
 using NUnit.Framework;
 using UnityEditor;
 
@@ -35,7 +35,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheGameplaySceneCanShowTheUnlockPopup()
         {
-            var catalog = AssetDatabase.LoadAssetAtPath<PopupCatalog>("Assets/ColorBlockJam/Features/Gameplay/Data/GameplayPopupCatalog.asset");
+            var catalog = AssetDatabase.LoadAssetAtPath<PopupCatalog>("Assets/ColorBlockJam/Systems/Gameplay/Data/GameplayPopupCatalog.asset");
             Assert.IsNotNull(catalog);
 
             Assert.IsNotNull(catalog.GetPrefab(typeof(BoosterUnlockPopup)));

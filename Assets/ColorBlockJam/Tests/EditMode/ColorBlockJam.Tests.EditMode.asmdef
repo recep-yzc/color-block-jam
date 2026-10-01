@@ -9,8 +9,9 @@
         "ColorBlockJam.Gameplay",
         "ColorBlockJam.Boosters",
         "ColorBlockJam.Progression",
-        "Framework.Core",
-        "Framework.UI",
+        "ColorBlockJam.Settings",
+        "ColorBlockJam.Core",
+        "ColorBlockJam.UI",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

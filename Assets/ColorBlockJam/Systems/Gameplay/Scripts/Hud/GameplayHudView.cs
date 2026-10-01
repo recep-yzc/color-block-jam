@@ -54,12 +54,12 @@ namespace ColorBlockJam.Gameplay
 
         public void SetLevel(int level)
         {
-            levelLabel.SetText("Level {0}", level);
+            levelLabel.SetText("<size=40>Level</size><br>{0}", level);
         }
 
         public void SetTestLevel()
         {
-            levelLabel.text = "Test Level";
+            levelLabel.text = "<size=40>Level</size><br>Test";
         }
 
         public void SetDifficulty(LevelDifficulty difficulty)

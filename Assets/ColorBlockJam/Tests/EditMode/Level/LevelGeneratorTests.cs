@@ -26,6 +26,21 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void GeneratedHolesAreAtLeastTwoByTwoAndKeepTheLevelSound()
+        {
+            var settings = GeneratorSettings.For(LevelDifficulty.Medium);
+            settings.Holes = 2;
+            settings.MaxHoleSize = 3;
+
+            var generated = new LevelGenerator().Generate(settings, LevelDifficulty.Medium, paletteSize: 10, seed: 11);
+
+            Assert.IsNotNull(generated);
+            Assert.GreaterOrEqual(generated.Level.holes.Length, 2 * LevelDiagnostics.MinHoleSize * LevelDiagnostics.MinHoleSize);
+            Assert.IsEmpty(LevelDiagnostics.Find(generated.Level), "Holes are big enough, off the edges and free of blocks.");
+            Assert.IsTrue(new BoardSolver().Solve(BoardFactory.Create(generated.Level), settings.SolveBudget).IsSolved);
+        }
+
+        [Test]
         public void TheSameSeedGivesTheSameLevel()
         {
             var generator = new LevelGenerator();

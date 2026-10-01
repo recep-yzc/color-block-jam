@@ -26,6 +26,9 @@ namespace ColorBlockJam.Gameplay.Logic
 
         public int IceBlocks;
         public int MaxIce;
+
+        public int Holes;
+        public int MaxHoleSize = LevelDiagnostics.MinHoleSize;
         public IReadOnlyList<GridPoint[]>[] ShapePools;
 
         public static GeneratorSettings For(LevelDifficulty difficulty)

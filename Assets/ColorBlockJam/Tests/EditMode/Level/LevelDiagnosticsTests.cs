@@ -54,13 +54,34 @@ namespace ColorBlockJam.Tests
                 height = 4,
                 blocks = new[] { new BlockData { color = 0, x = 1, y = 1, cells = new[] { new CellData(0, 0) } } },
                 doors = new[] { new DoorData { side = BoardSide.Top, start = 1, length = 1, color = 0 } },
-                holes = new[] { new CellData(1, 1) }
+                holes = new[] { new CellData(1, 1), new CellData(2, 1), new CellData(1, 2), new CellData(2, 2) }
             };
 
             var problems = LevelDiagnostics.Find(level);
 
             Assert.AreEqual(1, problems.Count);
             Assert.AreEqual(LevelProblemKind.BlockOnHole, problems[0].Kind);
+        }
+
+        [Test]
+        public void FindsHolesSmallerThanTwoByTwo()
+        {
+            var level = new LevelData
+            {
+                width = 5,
+                height = 5,
+                blocks = new[] { new BlockData { color = 0, x = 0, y = 0, cells = new[] { new CellData(0, 0) } } },
+                doors = new[] { new DoorData { side = BoardSide.Bottom, start = 0, length = 1, color = 0 } },
+                holes = new[] { new CellData(2, 2), new CellData(3, 2) }
+            };
+
+            var problems = LevelDiagnostics.Find(level);
+
+            Assert.AreEqual(1, problems.Count);
+            Assert.AreEqual(LevelProblemKind.HoleTooSmall, problems[0].Kind);
+
+            level.holes = new[] { new CellData(2, 2), new CellData(3, 2), new CellData(2, 3), new CellData(3, 3) };
+            Assert.IsEmpty(LevelDiagnostics.Find(level), "A 2x2 hole is fine.");
         }
 
         [Test]
@@ -72,7 +93,7 @@ namespace ColorBlockJam.Tests
                 height = 4,
                 blocks = new[] { new BlockData { color = 0, x = 0, y = 0, cells = new[] { new CellData(0, 0) } } },
                 doors = new[] { new DoorData { side = BoardSide.Bottom, start = 1, length = 1, color = 0 } },
-                holes = new[] { new CellData(1, 0) }
+                holes = new[] { new CellData(1, 0), new CellData(2, 0), new CellData(1, 1), new CellData(2, 1) }
             };
 
             var kinds = LevelDiagnostics.Find(level).ConvertAll(problem => problem.Kind);

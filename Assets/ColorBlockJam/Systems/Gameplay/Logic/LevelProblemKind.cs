@@ -6,6 +6,7 @@ namespace ColorBlockJam.Gameplay.Logic
         BlockOutsideBoard,
         BlocksOverlap,
         BlockOnHole,
+        HoleTooSmall,
         DoorOutsideBoard,
         DoorsOverlap,
         DoorFacesHole,

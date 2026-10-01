@@ -8,6 +8,7 @@ namespace ColorBlockJam.Gameplay.Logic
     {
         private const int DoorPlacementTries = 30;
         private const int BlockPlacementTries = 400;
+        private const int HolePlacementTries = 30;
 
         private static readonly BoardSide[] Sides = { BoardSide.Bottom, BoardSide.Top, BoardSide.Left, BoardSide.Right };
 
@@ -57,6 +58,12 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private static LevelData TryBuild(GeneratorSettings settings, LevelDifficulty difficulty, int paletteSize, Random random)
         {
+            var holes = PlaceHoles(settings, random);
+            if (holes == null)
+            {
+                return null;
+            }
+
             var colors = PickColors(Math.Min(settings.Colors, paletteSize), paletteSize, random);
             var doors = PlaceDoors(settings, colors, random);
             if (doors == null)
@@ -65,7 +72,7 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             var blockCount = random.Next(settings.MinBlocks, settings.MaxBlocks + 1);
-            var blocks = PlaceBlocks(settings, colors, doors, blockCount, random);
+            var blocks = PlaceBlocks(settings, colors, doors, holes, blockCount, random);
             if (blocks.Count < settings.MinBlocks)
             {
                 return null;
@@ -80,8 +87,64 @@ namespace ColorBlockJam.Gameplay.Logic
                 difficulty = difficulty,
                 timeLimit = RoundUpToFive(settings.BaseSeconds + settings.SecondsPerBlock * blocks.Count),
                 blocks = blocks.ToArray(),
-                doors = doors.ToArray()
+                doors = doors.ToArray(),
+                holes = Array.ConvertAll(holes, hole => new CellData(hole.X, hole.Y))
             };
+        }
+
+        private static GridPoint[] PlaceHoles(GeneratorSettings settings, Random random)
+        {
+            var holes = new List<GridPoint>();
+            for (var hole = 0; hole < settings.Holes; hole++)
+            {
+                var isPlaced = false;
+                for (var tries = 0; tries < HolePlacementTries && !isPlaced; tries++)
+                {
+                    var width = random.Next(LevelDiagnostics.MinHoleSize, Math.Max(LevelDiagnostics.MinHoleSize, settings.MaxHoleSize) + 1);
+                    var height = random.Next(LevelDiagnostics.MinHoleSize, Math.Max(LevelDiagnostics.MinHoleSize, settings.MaxHoleSize) + 1);
+                    if (width + 2 > settings.Width || height + 2 > settings.Height)
+                    {
+                        continue;
+                    }
+
+                    var x = random.Next(1, settings.Width - width);
+                    var y = random.Next(1, settings.Height - height);
+                    if (TouchesHole(holes, x - 1, y - 1, x + width, y + height))
+                    {
+                        continue;
+                    }
+
+                    for (var dx = 0; dx < width; dx++)
+                    {
+                        for (var dy = 0; dy < height; dy++)
+                        {
+                            holes.Add(new GridPoint(x + dx, y + dy));
+                        }
+                    }
+
+                    isPlaced = true;
+                }
+
+                if (!isPlaced)
+                {
+                    return null;
+                }
+            }
+
+            return holes.ToArray();
+        }
+
+        private static bool TouchesHole(List<GridPoint> holes, int minX, int minY, int maxX, int maxY)
+        {
+            foreach (var hole in holes)
+            {
+                if (hole.X >= minX && hole.X <= maxX && hole.Y >= minY && hole.Y <= maxY)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private static int[] PickColors(int count, int paletteSize, Random random)
@@ -141,9 +204,15 @@ namespace ColorBlockJam.Gameplay.Logic
             return false;
         }
 
-        private static List<BlockData> PlaceBlocks(GeneratorSettings settings, int[] colors, List<DoorData> doors, int count, Random random)
+        private static List<BlockData> PlaceBlocks(GeneratorSettings settings, int[] colors, List<DoorData> doors, GridPoint[] holes,
+            int count, Random random)
         {
             var taken = new bool[settings.Width, settings.Height];
+            foreach (var hole in holes)
+            {
+                taken[hole.X, hole.Y] = true;
+            }
+
             var blocks = new List<BlockData>();
 
             for (var tries = 0; tries < BlockPlacementTries && blocks.Count < count; tries++)
@@ -170,7 +239,7 @@ namespace ColorBlockJam.Gameplay.Logic
                     ? random.Next(2) == 0 ? BlockAxis.Horizontal : BlockAxis.Vertical
                     : BlockAxis.Free;
                 if (!IsFree(taken, shape, x, y) ||
-                    !LevelDiagnostics.CanEverLeave(settings.Width, settings.Height, shape, color, doors, axis, new GridPoint(x, y)))
+                    !LevelDiagnostics.CanEverLeave(settings.Width, settings.Height, shape, color, doors, axis, new GridPoint(x, y), holes))
                 {
                     continue;
                 }

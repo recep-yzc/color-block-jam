@@ -271,6 +271,8 @@ namespace ColorBlockJam.LevelEditor
             }
 
             EditorGUILayout.EndHorizontal();
+            generateHoles = EditorGUILayout.IntSlider(new GUIContent("Holes", "Tahtanın içine açılacak delik sayısı. Her delik en az 2x2 hücredir."),
+                generateHoles, 0, 2);
             if (GUILayout.Button("Generate Level") && ConfirmDiscard())
             {
                 Generate();

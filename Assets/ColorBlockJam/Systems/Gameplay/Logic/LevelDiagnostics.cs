@@ -5,6 +5,8 @@ namespace ColorBlockJam.Gameplay.Logic
 {
     public static class LevelDiagnostics
     {
+        public const int MinHoleSize = 2;
+
         public static List<LevelProblem> Find(LevelData level)
         {
             var problems = new List<LevelProblem>();
@@ -26,6 +28,16 @@ namespace ColorBlockJam.Gameplay.Logic
                 if (hole.X >= 0 && hole.Y >= 0 && hole.X < level.width && hole.Y < level.height)
                 {
                     isHole[hole.Y * level.width + hole.X] = true;
+                }
+            }
+
+            foreach (var hole in holes)
+            {
+                if (hole.X >= 0 && hole.Y >= 0 && hole.X < level.width && hole.Y < level.height &&
+                    !IsInLargeEnoughHole(level, isHole, hole))
+                {
+                    problems.Add(new LevelProblem(LevelProblemKind.HoleTooSmall));
+                    break;
                 }
             }
 
@@ -167,6 +179,38 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             return false;
+        }
+
+        private static bool IsInLargeEnoughHole(LevelData level, bool[] isHole, GridPoint cell)
+        {
+            for (var left = cell.X - MinHoleSize + 1; left <= cell.X; left++)
+            {
+                for (var bottom = cell.Y - MinHoleSize + 1; bottom <= cell.Y; bottom++)
+                {
+                    if (IsHoleSquare(level, isHole, left, bottom))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private static bool IsHoleSquare(LevelData level, bool[] isHole, int left, int bottom)
+        {
+            for (var x = left; x < left + MinHoleSize; x++)
+            {
+                for (var y = bottom; y < bottom + MinHoleSize; y++)
+                {
+                    if (x < 0 || y < 0 || x >= level.width || y >= level.height || !isHole[y * level.width + x])
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
         }
 
         private static bool FacesHole(LevelData level, DoorData door, bool[] isHole)

@@ -65,10 +65,13 @@ namespace ColorBlockJam.LevelEditor
         private void Generate()
         {
             var generator = new LevelGenerator();
+            var settings = GeneratorSettings.For(generateDifficulty);
+            settings.Holes = generateHoles;
+            settings.MaxHoleSize = HoleSizeLimit;
             GeneratedLevel generated;
             try
             {
-                generated = generator.Generate(generateDifficulty, palette.Count, generateSeed, attempt =>
+                generated = generator.Generate(settings, generateDifficulty, palette.Count, generateSeed, attempt =>
                     !EditorUtility.DisplayCancelableProgressBar("Level Editor", $"Looking for a {generateDifficulty} level… try {attempt}",
                         attempt / (float)generator.MaxAttempts));
             }
@@ -104,6 +107,7 @@ namespace ColorBlockJam.LevelEditor
                 LevelProblemKind.BlockOutsideBoard => $"A {colorName} block is outside the board.",
                 LevelProblemKind.BlocksOverlap => $"A {colorName} block overlaps another block.",
                 LevelProblemKind.BlockOnHole => $"A {colorName} block sits on a removed cell.",
+                LevelProblemKind.HoleTooSmall => $"Holes must be at least {LevelDiagnostics.MinHoleSize}×{LevelDiagnostics.MinHoleSize} cells.",
                 LevelProblemKind.DoorOutsideBoard => $"A {colorName} door is off the edge.",
                 LevelProblemKind.DoorsOverlap => $"Two doors overlap ({colorName}).",
                 LevelProblemKind.DoorFacesHole => $"A {colorName} door opens onto a removed cell.",

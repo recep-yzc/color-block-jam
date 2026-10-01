@@ -50,6 +50,7 @@ namespace ColorBlockJam.LevelEditor
         private const float InspectorWidth = 280f;
         private const int ValidationBudget = 100000;
         private const int HistoryLimit = 100;
+        private const int HoleSizeLimit = 3;
 
         private static readonly string[] ToolNames = { "Draw", "Stamp", "Door", "Move", "Erase", "Hole" };
         private static readonly string[] ToolHelp =
@@ -80,6 +81,7 @@ namespace ColorBlockJam.LevelEditor
         [SerializeField] private int shapeIndex;
         [SerializeField] private LevelDifficulty generateDifficulty = LevelDifficulty.Medium;
         [SerializeField] private int generateSeed = 1;
+        [SerializeField] private int generateHoles;
 
         private readonly List<string> undoHistory = new();
         private readonly List<string> redoHistory = new();

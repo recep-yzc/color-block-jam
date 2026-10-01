@@ -17,15 +17,11 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private TMP_Text difficultyLabel;
         [Tooltip("Kalan süreyi dakika:saniye olarak gösteren yazı.")]
         [SerializeField] private TMP_Text timerLabel;
-        [Tooltip("Süre uyarı aralığındayken her saniye zıplatılan obje.")]
-        [SerializeField] private RectTransform timerPulseTarget;
-        [Tooltip("Uyarı zıplamasının büyüklüğü, ölçeğe oranla.")]
-        [SerializeField] private float timerPulseStrength = 0.18f;
-        [Tooltip("Bir uyarı zıplamasının süresi, saniye.")]
-        [SerializeField, Min(0.01f)] private float timerPulseDuration = 0.3f;
+        [Tooltip("Süre azalınca sayacın kırmızıdan beyaza ya da beyazdan kırmızıya geçme süresi, saniye.")]
+        [SerializeField, Min(0.01f)] private float timerBlinkDuration = 0.5f;
         [Tooltip("Sayacın normal rengi.")]
         [SerializeField] private Color timerColor = Color.white;
-        [Tooltip("Süre azalınca sayacın rengi.")]
+        [Tooltip("Süre azalınca sayacın yanıp söndüğü renk.")]
         [SerializeField] private Color timerWarningColor = new(1f, 0.35f, 0.3f);
         [Tooltip("Freeze süreyi tutarken sayacın rengi.")]
         [SerializeField] private Color timerFrozenColor = new(0.6f, 0.88f, 1f);
@@ -44,7 +40,7 @@ namespace ColorBlockJam.Gameplay
         [Tooltip("Seviyeyi bulunduğu yerden çözücüye oynatan buton.")]
         [SerializeField] private ActionButton autoPlayButton;
 
-        private MotionHandle pulse;
+        private MotionHandle blink;
         private bool isTimerWarning;
         private bool isTimerFrozen;
 
@@ -78,15 +74,6 @@ namespace ColorBlockJam.Gameplay
             timerLabel.SetText("{0}:{1:00}", seconds / 60, seconds % 60);
             isTimerWarning = isWarning;
             ShowTimerColor();
-
-            if (isWarning && timerPulseTarget != null)
-            {
-                pulse.TryComplete();
-                pulse = LMotion.Punch.Create(Vector3.one, Vector3.one * timerPulseStrength, timerPulseDuration)
-                    .WithScheduler(UIMotion.Scheduler)
-                    .BindToLocalScale(timerPulseTarget)
-                    .AddTo(this);
-            }
         }
 
         public void SetTimerFrozen(bool isFrozen)
@@ -97,7 +84,22 @@ namespace ColorBlockJam.Gameplay
 
         private void ShowTimerColor()
         {
-            timerLabel.color = isTimerFrozen ? timerFrozenColor : isTimerWarning ? timerWarningColor : timerColor;
+            if (isTimerWarning && !isTimerFrozen)
+            {
+                if (!blink.IsActive())
+                {
+                    blink = LMotion.Create(timerWarningColor, timerColor, timerBlinkDuration)
+                        .WithLoops(-1, LoopType.Yoyo)
+                        .WithScheduler(UIMotion.Scheduler)
+                        .BindToColor(timerLabel)
+                        .AddTo(this);
+                }
+
+                return;
+            }
+
+            blink.TryCancel();
+            timerLabel.color = isTimerFrozen ? timerFrozenColor : timerColor;
         }
     }
 }

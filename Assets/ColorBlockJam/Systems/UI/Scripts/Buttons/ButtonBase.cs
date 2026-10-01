@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 namespace ColorBlockJam.UI.Buttons
 {
     [RequireComponent(typeof(RectTransform))]
-    public abstract class ButtonBase : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerClickHandler
+    public abstract class ButtonBase : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         [Tooltip("Kapalıyken buton dokunuşa cevap vermez ve soluk görünür.")]
         [SerializeField] private bool interactable = true;
@@ -69,19 +69,35 @@ namespace ColorBlockJam.UI.Buttons
 
             isPressed = false;
             PlayFeedback(pressed: false);
-        }
 
-        public void OnPointerClick(PointerEventData eventData)
-        {
-            if (eventData.button != PointerEventData.InputButton.Left || !CanInteract())
+            if (eventData.eligibleForClick && !eventData.dragging && CanInteract() && IsOverRestArea(eventData))
             {
-                return;
+                OnClick();
             }
-
-            OnClick();
         }
 
         protected abstract void OnClick();
+
+        private bool IsOverRestArea(PointerEventData eventData)
+        {
+            var rect = (RectTransform)transform;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, eventData.position, eventData.pressEventCamera,
+                    out var point))
+            {
+                return false;
+            }
+
+            if (feedbackTarget == rect)
+            {
+                var scale = rect.localScale;
+                var rest = feedbackRest.RestScale;
+                point = new Vector2(point.x * scale.x / rest.x, point.y * scale.y / rest.y);
+                var angle = Mathf.DeltaAngle(feedbackRest.RestAngle, rect.localEulerAngles.z);
+                point = Quaternion.Euler(0f, 0f, angle) * point;
+            }
+
+            return rect.rect.Contains(point);
+        }
 
         private void ShowInteractable()
         {

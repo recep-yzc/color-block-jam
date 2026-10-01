@@ -37,6 +37,20 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
+        public void NoPartOfABlockGoesIntoADoorTheBlockCannotLeaveThrough()
+        {
+            var shape = new[] { new GridPoint(0, 0), new GridPoint(1, 0), new GridPoint(0, 1) };
+            var block = new BoardBlock(0, 3, new GridPoint(0, 1), shape);
+            var narrow = new Board(3, 3, new[] { block }, new[] { new BoardDoor(BoardSide.Top, 0, 1, 3) });
+
+            Assert.IsTrue(narrow.CanOccupy(block, 0, 1));
+            Assert.IsFalse(narrow.CanOccupy(block, 0, 2), "Its stem would stick into a door its foot can never pass.");
+
+            var wide = new Board(3, 3, new[] { block }, new[] { new BoardDoor(BoardSide.Top, 0, 2, 3) });
+            Assert.IsTrue(wide.CanOccupy(block, 0, 2), "A door as wide as the block lets it in.");
+        }
+
+        [Test]
         public void ShapeMustPassTheDoorWhole()
         {
             var shape = new[] { new GridPoint(1, 0), new GridPoint(0, 1), new GridPoint(1, 1) };

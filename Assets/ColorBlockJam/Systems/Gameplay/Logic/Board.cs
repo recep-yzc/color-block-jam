@@ -73,6 +73,26 @@ namespace ColorBlockJam.Gameplay.Logic
             return DoorBeyond(block, x, y) != null;
         }
 
+        public bool CanOccupy(BoardBlock block, int x, int y)
+        {
+            foreach (var cell in block.Cells)
+            {
+                var cellX = x + cell.X;
+                var cellY = y + cell.Y;
+                if (!IsOpenFor(block, cellX, cellY))
+                {
+                    return false;
+                }
+
+                if (!IsInside(cellX, cellY) && !DoorTakesWhole(block, x, y, DoorBeyond(block, cellX, cellY).Side))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         public BoardDoor DoorBeyond(BoardBlock block, int x, int y)
         {
             BoardSide side;
@@ -84,6 +104,25 @@ namespace ColorBlockJam.Gameplay.Logic
             else if (x >= Width && y >= 0 && y < Height) { side = BoardSide.Right; alongEdge = y; }
             else { return null; }
 
+            return DoorAt(block, side, alongEdge);
+        }
+
+        private bool DoorTakesWhole(BoardBlock block, int x, int y, BoardSide side)
+        {
+            var isAcrossColumns = side is BoardSide.Top or BoardSide.Bottom;
+            foreach (var cell in block.Cells)
+            {
+                if (DoorAt(block, side, isAcrossColumns ? x + cell.X : y + cell.Y) == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private BoardDoor DoorAt(BoardBlock block, BoardSide side, int alongEdge)
+        {
             foreach (var door in doors)
             {
                 if (door.Side == side && door.Color == block.Color && door.Covers(alongEdge))

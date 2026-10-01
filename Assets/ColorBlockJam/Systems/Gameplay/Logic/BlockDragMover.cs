@@ -118,15 +118,7 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private static bool IsObstacle(Board board, BoardBlock block, int x, int y)
         {
-            foreach (var cell in block.Cells)
-            {
-                if (!board.IsOpenFor(block, x + cell.X, y + cell.Y))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return !board.CanOccupy(block, x, y);
         }
 
         private bool Cast(Vector2 origin, Vector2 motion, out float time, out Vector2 normal)

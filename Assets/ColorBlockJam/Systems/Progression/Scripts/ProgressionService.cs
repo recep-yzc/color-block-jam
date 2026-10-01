@@ -1,3 +1,4 @@
+using System;
 using ColorBlockJam.Core.Persistence;
 
 namespace ColorBlockJam.Progression
@@ -19,7 +20,12 @@ namespace ColorBlockJam.Progression
 
         public void CompleteCurrentLevel()
         {
-            CurrentLevel++;
+            SetCurrentLevel(CurrentLevel + 1);
+        }
+
+        public void SetCurrentLevel(int level)
+        {
+            CurrentLevel = Math.Max(FirstLevel, level);
             storage.SetInt(CurrentLevelKey, CurrentLevel);
         }
     }

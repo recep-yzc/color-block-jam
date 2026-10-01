@@ -12,7 +12,7 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod ColorBlockJam.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 76 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 77 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
@@ -33,6 +33,7 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
   - **Restart** starts the level again.
   - **Pause** opens the settings with a **HOME** button that leaves the level; close them to play on. The level also pauses on the Android back button and, on a device, when the app loses focus. In the editor, clicking outside the Game view does not pause it.
   - **AUTO** lets the solver play the level from where you are.
+- In the editor and in development builds, → and ← jump to the next and the previous level, to try levels quickly.
 - Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.
   - **Freeze** (level 2) stops the timer for 10 seconds; the timer turns icy while it holds.
   - **Hammer** (level 3): tap it, then tap any block, frozen or not, to break it.

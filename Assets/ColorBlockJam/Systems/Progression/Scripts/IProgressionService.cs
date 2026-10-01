@@ -5,5 +5,7 @@ namespace ColorBlockJam.Progression
         int CurrentLevel { get; }
 
         void CompleteCurrentLevel();
+
+        void SetCurrentLevel(int level);
     }
 }

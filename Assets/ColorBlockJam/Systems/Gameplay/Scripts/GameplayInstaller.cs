@@ -57,6 +57,7 @@ namespace ColorBlockJam.Gameplay
             builder.RegisterEntryPoint<BlockDragController>().AsSelf();
             builder.RegisterEntryPoint<LevelSession>().AsSelf();
             builder.RegisterEntryPoint<PauseRequester>().AsSelf();
+            builder.RegisterEntryPoint<LevelShortcuts>();
 
             builder.RegisterComponent(hud);
             builder.RegisterEntryPoint<GameplayHudPresenter>();

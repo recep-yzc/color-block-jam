@@ -16,19 +16,19 @@ MonoBehaviour:
   blockEdge: {fileID: 4163668623295024386, guid: 7e7d86a732dc5df47b4ad9a195f8ca36, type: 3}
   blockOuterCorner: {fileID: -3023630919892535758, guid: 7e7d86a732dc5df47b4ad9a195f8ca36, type: 3}
   blockInnerCorner: {fileID: 3222031244701842341, guid: 7e7d86a732dc5df47b4ad9a195f8ca36, type: 3}
-  blockBaseDepth: 0.66
+  blockBaseDepth: 0.5
   arrows:
   - {fileID: -4135818882167075391, guid: 31ef10c786f06b8468f26f18c72f390d, type: 3}
   - {fileID: -1341611790480939518, guid: 31ef10c786f06b8468f26f18c72f390d, type: 3}
   - {fileID: 7264089000736223243, guid: 31ef10c786f06b8468f26f18c72f390d, type: 3}
   arrowHeight: 1.45
   arrowColor: {r: 1, g: 0.95, b: 0.88, a: 1}
-  arrowColorBlend: 0.75
+  arrowColorBlend: 0.5
   groundTile: {fileID: 9127120572191758296, guid: 4689c7cfc286fda48b8fea2758d103c0, type: 3}
   wall: {fileID: 8733429697405204941, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
   wallCorner: {fileID: 5732635521261682974, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
   door: {fileID: -621459505486514712, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
-  wallHeightOffset: -0.8
+  wallHeightOffset: -1
   wallModelRotation: {x: 0, y: 90, z: 180}
   cornerModelRotation: {x: 0, y: 0, z: 180}
   doorModelRotation: {x: 0, y: 0, z: 180}

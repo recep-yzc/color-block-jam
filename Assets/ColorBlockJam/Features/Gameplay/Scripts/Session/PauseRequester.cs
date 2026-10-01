@@ -20,7 +20,10 @@ namespace ColorBlockJam.Gameplay
         public void Start()
         {
             popups.BackPressedWithoutPopup += Request;
-            Application.focusChanged += OnFocusChanged;
+            if (!Application.isEditor)
+            {
+                Application.focusChanged += OnFocusChanged;
+            }
         }
 
         public void Dispose()

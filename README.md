@@ -27,7 +27,7 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
   - **Time's up**: the timer reaches zero.
   - **No moves left**: the board can no longer be cleared.
 - The HUD has these buttons:
-  - **Pause** opens Resume, Restart and Home. The level also pauses when the app loses focus and on the Android back button.
+  - **Pause** opens Resume, Restart and Home. The level also pauses on the Android back button and, on a device, when the app loses focus. In the editor, clicking outside the Game view does not pause it.
   - **AUTO** lets the solver play the level from where you are.
 - Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.
   - **Freeze** (level 2) stops the timer for 10 seconds; the timer turns icy while it holds.

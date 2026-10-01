@@ -29,7 +29,7 @@ Material:
     - _LightSoftness: 0.411
     - _LightThreshold: 0.698
     - _RimWidth: 0
-    - _VertexColorWeight: 0
+    - _VertexColorWeight: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _HighlightColor: {r: 1, g: 0.949, b: 0.8392, a: 0.5}

@@ -27,7 +27,7 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private BoardView boardView;
         [Tooltip("Havuzdan gelen blok patlamalarının altında durduğu obje.")]
         [SerializeField] private Transform effectsRoot;
-        [Tooltip("Seviye, zorluk, süre, duraklatma ve otomatik oynatmanın olduğu üst çubuk.")]
+        [Tooltip("Seviye, zorluk, süre, yeniden başlatma, duraklatma ve otomatik oynatmanın olduğu üst çubuk.")]
         [SerializeField] private GameplayHudView hud;
         [Tooltip("Coin miktarını gösteren sayaç.")]
         [SerializeField] private CoinHudView coinHud;

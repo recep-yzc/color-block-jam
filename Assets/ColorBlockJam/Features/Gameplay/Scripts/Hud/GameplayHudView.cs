@@ -37,7 +37,9 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Color hardColor = new(1f, 0.5f, 0.35f);
         [Tooltip("Süper zor seviyelerin zorluk rozeti rengi.")]
         [SerializeField] private Color superHardColor = new(0.85f, 0.45f, 1f);
-        [Tooltip("Duraklatma popup'ını açan buton.")]
+        [Tooltip("Seviyeyi baştan başlatan buton.")]
+        [SerializeField] private ActionButton restartButton;
+        [Tooltip("Oyunu durdurup ayarlar popup'ını açan buton.")]
         [SerializeField] private ActionButton pauseButton;
         [Tooltip("Seviyeyi bulunduğu yerden çözücüye oynatan buton.")]
         [SerializeField] private ActionButton autoPlayButton;
@@ -46,6 +48,7 @@ namespace ColorBlockJam.Gameplay
         private bool isTimerWarning;
         private bool isTimerFrozen;
 
+        public ActionButton RestartButton => restartButton;
         public ActionButton PauseButton => pauseButton;
         public ActionButton AutoPlayButton => autoPlayButton;
 

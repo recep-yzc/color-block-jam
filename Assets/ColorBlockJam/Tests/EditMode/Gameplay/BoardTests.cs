@@ -115,5 +115,19 @@ namespace ColorBlockJam.Tests
             Assert.AreEqual(0f, timer.Remaining);
             Assert.IsFalse(timer.Tick(1f), "It only reports running out once.");
         }
+
+        [Test]
+        public void AddedTimeLetsARunOutTimerGoOn()
+        {
+            var timer = new LevelTimer(1f);
+            timer.Tick(1f);
+
+            timer.Add(20f);
+
+            Assert.IsFalse(timer.IsExpired);
+            Assert.IsFalse(timer.Tick(5f));
+            Assert.AreEqual(15f, timer.Remaining, 0.0001f);
+            Assert.IsTrue(timer.Tick(15f), "It reports running out again when the added time is used up.");
+        }
     }
 }

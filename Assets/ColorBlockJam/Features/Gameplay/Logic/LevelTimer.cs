@@ -21,6 +21,16 @@ namespace ColorBlockJam.Gameplay.Logic
             FreezeLeft = Math.Max(FreezeLeft, seconds);
         }
 
+        public void Add(float seconds)
+        {
+            if (seconds <= 0f)
+            {
+                throw new ArgumentOutOfRangeException(nameof(seconds), seconds, "Only positive time can be added.");
+            }
+
+            Remaining += seconds;
+        }
+
         public bool Tick(float deltaTime)
         {
             if (IsPaused || IsExpired)

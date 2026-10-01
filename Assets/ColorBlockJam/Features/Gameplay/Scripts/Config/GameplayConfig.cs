@@ -82,6 +82,12 @@ namespace ColorBlockJam.Gameplay
         [Tooltip("Süre bu kadar saniyenin altına inince sayaç uyarı görünümüne geçer.")]
         [SerializeField, Min(0)] private int timerWarningSeconds = 10;
 
+        [Header("Out Of Time")]
+        [Tooltip("Süre bitince coin karşılığında eklenen süre, saniye.")]
+        [SerializeField, Min(1)] private int extraTimeSeconds = 20;
+        [Tooltip("Ek sürenin coin bedeli.")]
+        [SerializeField, Min(1)] private int extraTimeCost = 100;
+
         [Header("Camera")]
         [Tooltip("Kameranın eğim açısı, derece. 90 tam yukarıdan bakar.")]
         [SerializeField, Range(30f, 90f)] private float cameraPitch = 62f;
@@ -126,6 +132,8 @@ namespace ColorBlockJam.Gameplay
         public float AutoPlayCellDuration => autoPlayCellDuration;
         public float AutoPlayPause => autoPlayPause;
         public int TimerWarningSeconds => timerWarningSeconds;
+        public int ExtraTimeSeconds => extraTimeSeconds;
+        public int ExtraTimeCost => extraTimeCost;
         public float CameraPitch => cameraPitch;
         public float BoardScreenHeight => boardScreenHeight;
         public float BoardScreenWidth => boardScreenWidth;

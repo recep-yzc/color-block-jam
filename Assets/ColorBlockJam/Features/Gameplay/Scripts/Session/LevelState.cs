@@ -5,6 +5,7 @@ namespace ColorBlockJam.Gameplay
         Loading,
         Playing,
         AutoPlaying,
+        OutOfTime,
         Won,
         Failed
     }

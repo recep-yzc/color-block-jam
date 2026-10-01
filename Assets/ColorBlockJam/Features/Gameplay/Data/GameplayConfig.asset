@@ -31,11 +31,19 @@ MonoBehaviour:
   burstPrefab: {fileID: 3003805300057978667, guid: a9f507dad8fedde49b1ba50b9c79b030, type: 3}
   burstPrewarm: 4
   resultPopupDelay: 0.6
+  iceBreakDuration: 0.3
+  iceCountPunch: 0.35
+  iceBurstColor: {r: 0.72, g: 0.9, b: 1, a: 1}
+  frozenShakeStrength: 0.08
+  frozenShakeDuration: 0.3
+  smashDuration: 0.2
   stuckSearchBudget: 30000
   autoPlaySearchBudget: 60000
   autoPlayCellDuration: 0.08
   autoPlayPause: 0.12
   timerWarningSeconds: 10
+  extraTimeSeconds: 20
+  extraTimeCost: 100
   cameraPitch: 80
   boardScreenHeight: 0.55
   boardScreenWidth: 1

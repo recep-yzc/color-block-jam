@@ -73,6 +73,25 @@ namespace ColorBlockJam.Gameplay
 
             if (Timer.Tick(Time.deltaTime))
             {
+                RunOutOfTime();
+            }
+        }
+
+        public void AddExtraTime(float seconds)
+        {
+            if (State != LevelState.OutOfTime)
+            {
+                return;
+            }
+
+            Timer.Add(seconds);
+            SetState(LevelState.Playing);
+        }
+
+        public void DeclineExtraTime()
+        {
+            if (State == LevelState.OutOfTime)
+            {
                 Fail(LevelFailReason.TimeUp);
             }
         }
@@ -156,9 +175,20 @@ namespace ColorBlockJam.Gameplay
             results.Win();
         }
 
+        private void RunOutOfTime()
+        {
+            if (State != LevelState.Playing)
+            {
+                return;
+            }
+
+            SetState(LevelState.OutOfTime);
+            results.OfferExtraTime();
+        }
+
         private void Fail(LevelFailReason reason)
         {
-            if (State is not (LevelState.Playing or LevelState.AutoPlaying))
+            if (State is not (LevelState.Playing or LevelState.AutoPlaying or LevelState.OutOfTime))
             {
                 return;
             }

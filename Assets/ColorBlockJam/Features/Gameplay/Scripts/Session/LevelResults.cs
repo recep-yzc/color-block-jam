@@ -43,6 +43,11 @@ namespace ColorBlockJam.Gameplay
             ShowAsync<LevelCompletePopup>().Forget();
         }
 
+        public void OfferExtraTime()
+        {
+            ShowAsync<OutOfTimePopup>().Forget();
+        }
+
         public void Fail(LevelFailReason reason)
         {
             outcome.Fail(reason);

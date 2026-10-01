@@ -1,12 +1,11 @@
 using ColorBlockJam.Core.Persistence;
 using ColorBlockJam.Economy;
-using ColorBlockJam.Progression;
 using NUnit.Framework;
 using UnityEngine;
 
 namespace ColorBlockJam.Tests
 {
-    public sealed class PlayerDataTests
+    public sealed class CoinWalletTests
     {
         [Test]
         public void NewPlayerGetsStartingCoins()
@@ -45,12 +44,6 @@ namespace ColorBlockJam.Tests
             Assert.IsTrue(wallet.TrySpend(40));
             Assert.AreEqual(10, new CoinWallet(storage, config).Coins, "What is left is saved.");
             Object.DestroyImmediate(config);
-        }
-
-        [Test]
-        public void NewPlayerStartsAtLevelOne()
-        {
-            Assert.AreEqual(1, new ProgressionService(new InMemoryStorage()).CurrentLevel);
         }
     }
 }

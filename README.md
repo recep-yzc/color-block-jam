@@ -12,7 +12,7 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod Framework.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 68 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer and its freeze, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 69 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
@@ -22,12 +22,15 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
 - A block leaves the board when you push it into a door of its own color, but only if its whole shape fits through that door. Dropping it right in front of such a door is enough: it goes in by itself.
 - **Arrow blocks** carry a double arrow and move only along it. They can only leave through a door ahead of them.
 - **Frozen blocks** sit in ice showing a number: how many more blocks must leave before the ice breaks. Until then they cannot move, and pulling them only makes them shake.
-- Clear the board before the timer reaches zero. You win coins and move on to the next level.
-- The level fails in two cases:
-  - **Time's up**: the timer reaches zero.
+- Clear the board before the timer reaches zero. **Level Complete** shows the coins you won, and **Continue** opens the next level.
+- When the timer reaches zero, **Out of Time!** offers 20 more seconds for 100 coins (both are set on `GameplayConfig`). **Continue** buys them and the level goes on. With fewer coins the price turns red and the button does nothing. ✕ or the back button gives up.
+- The level fails in two cases, and **Level Failed** offers **Retry** and **Home**:
+  - **Time's up**: the timer reached zero and no time was bought.
   - **No moves left**: the board can no longer be cleared.
+- On **Out of Time!** and **Level Failed**, press and hold anywhere outside the panel to see the board.
 - The HUD has these buttons:
-  - **Pause** opens Resume, Restart and Home. The level also pauses on the Android back button and, on a device, when the app loses focus. In the editor, clicking outside the Game view does not pause it.
+  - **Restart** starts the level again.
+  - **Pause** opens the settings with a **HOME** button that leaves the level; close them to play on. The level also pauses on the Android back button and, on a device, when the app loses focus. In the editor, clicking outside the Game view does not pause it.
   - **AUTO** lets the solver play the level from where you are.
 - Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.
   - **Freeze** (level 2) stops the timer for 10 seconds; the timer turns icy while it holds.
@@ -129,6 +132,8 @@ Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog
   - `ToggleStateVisual`: objects, color, slide.
 - Buttons derive from `ButtonBase` and only decide what a click does. A button that is switched off dims itself.
 - Popups come from a `PopupCatalog`, are created on first open and are given their presenter by `PopupPresenterInstaller<TPopup, TPresenter>`.
+- A popup gains behaviour from another installer, not from a new popup type. In a level, pause shows `GameplaySettingsPopup`: a prefab variant of the home `SettingsPopup` that adds a HOME button and the `HomeButtonInstaller` that sends it home. A `PopupPeekArea` fades the whole popup layer while it is held, so any popup can let the player look behind it.
+- The popups follow the reference screens of the original game, with the supplied sprites. Their 9-slice scale (*Pixels Per Unit Multiplier*) is set so that each frame's corners match the references.
 - *Why:* designers can change feel and layout without code, and the presenters can be tested without a scene.
 
 ### Gameplay layers
@@ -138,9 +143,9 @@ Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog
 | Data | `Features/Level` (`Level.Data` has `noEngineReferences`) | `LevelData` (JSON), `BlockPalette`, `LevelCatalog`. One format for the editor and the game. |
 | Rules | `Features/Gameplay/Logic` (`noEngineReferences`) | `Board`, `BoardBlock`, `BlockDragMover`, `BlockPlacement`, `BoardSolver`, `LevelGenerator`, `LevelDiagnostics`, `LevelTimer`, `BlockMarks` |
 | View and input | `Features/Gameplay/Scripts/Board`, `Input` | `BoardView`, `DoorView`, `BlockView`, `BlockMeshBuilder`, `BlockDragController` (Input System), `BoardCamera`, `BlockBurstEffects` |
-| Flow | `Features/Gameplay/Scripts/Session` | `LevelSession` (timer, win and fail), `LevelBoard` (builds and shows the board), `SolvabilityWatcher`, `LevelResults`, `PauseRequester`, `AutoPlayer`, `LevelFlow`, `LevelProvider` |
+| Flow | `Features/Gameplay/Scripts/Session` | `LevelSession` (timer, extra time, win and fail), `LevelBoard` (builds and shows the board), `SolvabilityWatcher`, `LevelResults`, `PauseRequester`, `AutoPlayer`, `LevelFlow`, `LevelProvider` |
 | Boosters | `Features/Boosters` (its own assembly) | the booster definitions and catalog, `BoosterInventory`, `LevelBoosters`, `BoosterUnlocks`, the bar and the unlock popup |
-| UI | `Features/Gameplay/Scripts/Hud`, `Popups` | HUD and the pause, fail and complete popups |
+| UI | `Features/Gameplay/Scripts/Hud`, `Popups` | HUD, and the out-of-time, fail and complete popups |
 
 *Why:* the rules know nothing about Unity. The game, the level editor, the tests and worker threads all use the same code.
 
@@ -159,7 +164,8 @@ flowchart LR
     Auto[AutoPlayer] -- "a block left" --> Session
     Session -- "door, ice" --> Board
     Session -- "can it still be cleared?" --> Watcher[SolvabilityWatcher]
-    Session -- "win, fail" --> Results[LevelResults]
+    Session -- "win, out of time, fail" --> Results[LevelResults]
+    Offer[OutOfTimePopupPresenter] -- "buy time or give up" --> Session
     Bar[BoosterBarPresenter] --> Boosters
     Unlocks[BoosterUnlocks] -- "claim" --> Inventory
     Hud[GameplayHudPresenter] --> Session
@@ -237,10 +243,10 @@ Coins, the current level and the settings go through `IKeyValueStorage`, which u
 - Lives are a placeholder, as the case allows: failing a level costs nothing.
 - A booster's description is plain text in its asset, so changing, for example, the freeze's seconds means changing its description too.
 - On the levels that ship with the game, **stuck cannot happen**, because they are all proven solvable and solvability never changes during play. To see the stuck popup, make a level in the editor that cannot be solved (for example a block with no door of its color), then press ▶ Play.
-- While AUTO plays, the timer, the boosters and the pause button are off.
+- While AUTO plays, the timer, the boosters and the restart and pause buttons are off.
 - The solver has a budget. On a very large custom level, Check may answer "no solution found within the budget" instead of a clear yes or no.
-- During an editor ▶ Play, **Next**, **Restart** and **Home › Play** all return to the tested level until play mode ends.
-- After level 10 the catalog starts again from level 1, while the home screen keeps counting up.
+- During an editor ▶ Play, **Continue**, **Retry**, **Restart** and **Home › Play** all return to the tested level until play mode ends.
+- After level 100 the catalog starts again from level 1, while the home screen keeps counting up.
 - The supplied `Door_Arrow` mesh is not used; the doors show their direction by where they are.
 
 **Feedback on the supplied assets**
@@ -251,6 +257,7 @@ Coins, the current level and the settings go through `IKeyValueStorage`, which u
 - `WallAndDoor.fbx` references a missing embedded texture, and `corner_4` has an unused blend shape.
 - Booster icons are 1024×1024 and the ice texture 2048×2048, much bigger than their size on screen.
 - Soft shadows and glows make automatic 9-slice borders unreliable, so the borders were set by hand.
+- The reference screens also show a yellow Watch Ad button with an ad icon, a coin pile with light rays and a fail offer bundle. None of these were supplied, so they are left out.
 
 ## LLM tools used
 

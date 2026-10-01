@@ -12,7 +12,7 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod Framework.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 56 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer and its freeze, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 68 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer and its freeze, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
@@ -64,7 +64,7 @@ The window has three columns:
    Right-click erases with every tool. Keys 1–0 pick a color, Delete removes the selected block, and Ctrl+Z / Ctrl+Y undo and redo.
 4. Click a block to select it. **Moves** makes it an arrow block (Horizontal or Vertical), and **Ice** freezes it until that many other blocks have left. The board draws the arrow and the ice count where the game puts them.
 5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps. It then runs the solver in the background. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
-6. **Generate** makes a new solvable level of the chosen difficulty. Medium and hard levels may get arrow blocks, and hard levels one block in ice. The same seed always gives the same level.
+6. **Generate** makes a new solvable level of the chosen difficulty. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. The same seed always gives the same level.
 7. **Save** writes over the level's file. **Save As New Level** adds a file at the end of the catalog. Before saving a level that has problems or has not been checked, the editor warns you.
 8. **▶ Play** starts the gameplay scene with this level, without touching the player's progress.
 
@@ -76,11 +76,16 @@ The window has three columns:
   "doors":  [ { "side": 0, "start": 2, "length": 2, "color": 3 } ] }
 ```
 
-Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog.asset` lists the level files in play order; after the last level, the game starts again from the first. The 10 levels that ship with the game come from the editor's generator and were checked by the solver; level 1 was then reworked by hand in the editor:
+Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog.asset` lists the level files in play order; after the last level, the game starts again from the first.
 
-- levels 1–3: easy,
-- levels 4–6 and 8: medium, with arrow blocks from level 5,
-- levels 7, 9 and 10: hard, with ice from level 7.
+**The 100 levels that ship with the game**
+
+- **Difficulty is the number of moves it takes to win**: every block has to be sent out once, plus every block the best solution has to move out of the way first (`LevelRating`). The badge follows from it: up to 8 moves is **Easy**, up to 12 **Medium**, up to 16 **Hard**, and more is **Super Hard**. The level check in the editor suggests the badge the same way, and a test makes sure every level wears the badge its moves earn.
+- **Levels 1–3 are tutorials**, made by hand: one block to send out, then two, then three where one has to go first to clear the way. Each needs only straight moves, ready for a guided hand.
+- **The badges follow a curve with tension and release.** The first 30 go *e e e e e e m e e e h m m m sh e m m m m m m m e m h m m m sh*, then every 15 levels end on a super hard one, hard levels come more often as the game goes on, and an easy level follows each peak.
+- **Each badge also gets harder over the 100 levels**: more moves within its range, more blocks and colors, bigger boards. Arrow blocks join at level 12 and ice at level 22, each on a level where it is the only new thing.
+- Level 26 is the level reworked by hand in the editor earlier, now a hard one.
+- Levels 4–100 come from the editor's generator with settings for each level, and each was kept only when every check passed, the in-game solver cleared it within the budget it checks for being stuck, and its moves matched its badge.
 
 ## Architecture
 

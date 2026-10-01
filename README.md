@@ -36,9 +36,9 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
 - In the editor and in development builds, → and ← jump to the next and the previous level, to try levels quickly.
 - Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.
   - **Freeze** (level 2) stops the timer for 10 seconds; the timer turns icy while it holds.
-  - **Hammer** (level 3): tap it, then tap any block, frozen or not, to break it.
-  - **Rocket** (level 4): tap it, then tap a block to clear every block in its row.
-  - **Vacuum** (level 6): tap it, then tap a block to remove every block of its color.
+  - **Hammer** (level 4): tap it, then tap any block, frozen or not, to break it.
+  - **Rocket** (level 6): tap it, then tap a block to clear every block in its row.
+  - **Vacuum** (level 8): tap it, then tap a block to remove every block of its color.
 - Each booster comes with a few uses, counted on its badge. With none left, a use is bought with coins (100 to start, 10 for each level), and its price shows instead. A booster that aims at a block is paid only when it hits one, so tapping it again to put it back is free.
 
 ## Level editor

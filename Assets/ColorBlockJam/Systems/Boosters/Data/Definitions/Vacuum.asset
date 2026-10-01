@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Vacuum
   description: Removes every block of the color you tap.
   icon: {fileID: 21300000, guid: 120068e20874b284280bb7fc93bc8afc, type: 3}
-  unlockLevel: 6
+  unlockLevel: 8
   startingCount: 5
   coinCost: 90
   aimHint: Tap a block to remove its color

@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Rocket
   description: Clears every block in the row you tap.
   icon: {fileID: 21300000, guid: de63b3dbca946304bb39b6b6f1f7e619, type: 3}
-  unlockLevel: 4
+  unlockLevel: 6
   startingCount: 5
   coinCost: 70
   aimHint: Tap a block to clear its row

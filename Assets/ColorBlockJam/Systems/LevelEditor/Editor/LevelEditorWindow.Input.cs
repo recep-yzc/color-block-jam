@@ -13,6 +13,10 @@ namespace ColorBlockJam.LevelEditor
             var current = Event.current;
             var id = GUIUtility.GetControlID(FocusType.Passive);
             var hit = HitTest(current.mousePosition, out var hitResult) && area.Contains(current.mousePosition);
+            if (current.type == EventType.MouseDown && area.Contains(current.mousePosition))
+            {
+                GUIUtility.keyboardControl = 0;
+            }
 
             if (current.type is EventType.MouseMove or EventType.MouseDrag)
             {
@@ -235,7 +239,7 @@ namespace ColorBlockJam.LevelEditor
                 Change(() => level.Blocks.RemoveAt(index));
                 current.Use();
             }
-            else if (!command && GUIUtility.keyboardControl == 0 && current.keyCode >= KeyCode.Alpha0 && current.keyCode <= KeyCode.Alpha9)
+            else if (!command && !EditorGUIUtility.editingTextField && current.keyCode >= KeyCode.Alpha0 && current.keyCode <= KeyCode.Alpha9)
             {
                 var index = ((int)current.keyCode - (int)KeyCode.Alpha0 + 9) % 10;
                 if (index < palette.Count)
@@ -245,8 +249,7 @@ namespace ColorBlockJam.LevelEditor
                     Repaint();
                 }
             }
-            else if (!command && GUIUtility.keyboardControl == 0 && current.keyCode is KeyCode.LeftArrow or KeyCode.RightArrow &&
-                     catalog != null)
+            else if (!command && !EditorGUIUtility.editingTextField && current.keyCode is KeyCode.LeftArrow or KeyCode.RightArrow)
             {
                 var next = catalogIndex < 0 ? 0 : catalogIndex + (current.keyCode == KeyCode.RightArrow ? 1 : -1);
                 current.Use();

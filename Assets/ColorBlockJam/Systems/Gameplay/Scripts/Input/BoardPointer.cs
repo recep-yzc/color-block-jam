@@ -9,7 +9,7 @@ namespace ColorBlockJam.Gameplay
 {
     public sealed class BoardPointer : IInitializable, IDisposable
     {
-        private readonly InputAction position = new("Point", InputActionType.Value, "<Pointer>/position");
+        private readonly InputAction position = new("Point", InputActionType.PassThrough, "<Pointer>/position");
         private readonly InputAction press = new("Press", InputActionType.Button, "<Pointer>/press");
         private readonly List<RaycastResult> uiHits = new();
         private PointerEventData uiPointer;

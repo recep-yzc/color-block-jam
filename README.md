@@ -10,7 +10,7 @@ Drag colored blocks around the board and slide each one out through a door of it
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**. Set the Game view to a portrait resolution, such as 1080×1920 or 1080×2400.
 3. To build an APK, use **Tools › Build › Android APK**. It builds the scenes of the build settings (Splash, Main, Gameplay) with the player settings as they are (IL2CPP, ARM64) into `Builds/Android/ColorBlockJam.apk`. The same build runs from the command line:
    ```
-   Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod Framework.Build.AndroidBuild.BuildFromCommandLine
+   Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod ColorBlockJam.Build.AndroidBuild.BuildFromCommandLine
    ```
 4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 69 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks and ice, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
@@ -44,7 +44,7 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
 You can open it in three ways:
 
 - the menu **Color Block Jam › Level Editor**,
-- double-click a level file (`Features/Level/Data/Levels/LevelNN.json`),
+- double-click a level file (`Systems/Level/Data/Levels/LevelNNN.json`),
 - the **Open Level Editor** button on `LevelCatalog.asset`.
 
 The window has three columns:
@@ -92,43 +92,46 @@ Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog
 
 ## Architecture
 
-### Template and consumer
+### One project, one folder per system
 
-- `Assets/Framework` is a reusable template with no game knowledge. It contains:
-  - **Core**: installers, scene loading, key-value storage and startup tasks.
-  - **Boot**: the splash screen with its loading bar.
-  - **UI**: views, presenters, popups, buttons with feedback, and transitions.
-  - **Navigation**: tab pages.
-  - **Settings**: toggles and haptics.
-  - **Pooling**.
-  - **Build**: the Android APK build.
-- `Assets/ColorBlockJam` is the game built on that template. It has App, Art, Features (Economy, Progression, Home, Settings, Level, Gameplay, Boosters, LevelEditor), UI, Rendering, Scenes and Tests.
-- Every folder is an assembly definition. The framework never references the game, and the asmdefs enforce this. *Why:* the template can go into the next project unchanged, and each feature compiles and is tested on its own.
-- The template offers more than this game uses (more transitions, button feedbacks, view events, pool hooks). They are its public surface for the next project, not dead code of this one.
+The whole game is one project in `Assets/ColorBlockJam`. Each system has a folder under `Systems/`, and that folder holds everything the system owns:
 
-### Folder layout
+| System | What it owns |
+|---|---|
+| Core | installers and scopes, scene loading and the scene names, key-value storage, startup tasks |
+| Boot | the root scope and VContainer's settings, the app settings, the splash screen and its loading bar |
+| UI | views and presenters, popups and their layer, buttons with feedback, transitions, the safe area, and the shared widgets (close button, slide switch) |
+| Navigation | the tab bar and its pages |
+| Settings | the settings service, haptics and the settings popup |
+| Pooling | the component pool |
+| Economy | coins and the coin counter |
+| Progression | the current level |
+| Level | the level format, the block palette, and the catalog with the 100 levels |
+| Gameplay | the rules (`Logic`), the board and its input, the session, the HUD and the popups of a level |
+| Boosters | the booster definitions, the inventory, the bar and the unlock popup |
+| Home | the home screen and its level path |
+| LevelEditor | the level editor window |
+| Rendering | the render pipeline and the shaders |
+| Build | the Android APK build |
 
-- `Assets/Framework/<Module>/` is the template: `Runtime`, `Editor`, `Data` for ready-made assets and `Prefabs`, one assembly per module.
-- `Assets/ColorBlockJam/Features/<Feature>/` holds everything one feature owns: `Scripts` with its assembly, `Data` with its assets, `Prefabs`, and `Logic` or `Editor` where it has them. A feature is read, changed or removed in one place.
-- `Assets/ColorBlockJam/App/` is the composition root: the app scope and the installer assets that put the features together.
-- `Assets/ColorBlockJam/UI/` only holds widgets any feature can use, such as the close button and the slide switch.
-- `Art`, `Rendering` and `Scenes` hold the shared art, the shaders and render settings, and the three scenes.
-- `Tests/EditMode/<Feature>/` holds the tests, grouped by what they cover.
+- A system's folder has `Scripts` with its assembly, `Data` with its assets, `Prefabs`, and `Logic` or `Editor` where it has them. The installer asset that registers a system's app-wide services sits in that system's `Data`. A system is read, changed or removed in one place.
+- Every system is an assembly, and references go one way. The general systems (Core, UI, Navigation, Settings, Pooling) know nothing of the game's rules, and `Gameplay.Logic` and `Level.Data` do not reference Unity at all. *Why:* each system compiles and is tested on its own, and the compiler keeps the dependencies honest.
+- `Art` and `Scenes` hold the shared art and the three scenes. `Tests/EditMode/<System>/` and `Tests/PlayMode/<System>/` hold the tests, grouped by the system they cover.
 - Every type has a file named after it. The code has no comments: names carry the meaning, every inspector setting explains itself in a tooltip (in Turkish), and this README holds the design.
 
 ### Composition with VContainer
 
-- The **App scope** (`App/AppScope.prefab`, the root scope) runs `ScriptableInstaller` assets for app-wide services: storage, scene loading, settings, economy and progression.
+- The **root scope** (`Systems/Boot/Prefabs/AppScope.prefab`) runs the `ScriptableInstaller` assets of the systems with app-wide services: storage and scene loading (Core), the app settings (Boot), the settings, the economy, the progression and the booster inventory.
 - Each **scene scope** runs `MonoInstaller` components for that scene's services.
 - Each **popup** has its own child scope. It is created with the popup and disposed with it.
-- *Why:* modules are added or removed in the Inspector, there are no singletons or static state, and a scene's objects live exactly as long as the scene.
+- *Why:* systems are added or removed in the Inspector, there are no singletons or static state, and a scene's objects live exactly as long as the scene.
 
 ### UI
 
 - The UI uses **MVP**. A passive `UIView` shows data and raises events; a plain C# `ViewPresenter<TView>` holds the logic.
 - How things look is a **strategy asset**:
-  - `ViewTransition`: fade, scale, slide,
-  - `ButtonFeedback`: scale, punch, jelly, wiggle, spin, tilt, bounce, heartbeat, pop,
+  - `ViewTransition`: fade, scale,
+  - `ButtonFeedback`: scale, punch, jelly, wiggle, tilt, heartbeat, pop,
   - `ToggleStateVisual`: objects, color, slide.
 - Buttons derive from `ButtonBase` and only decide what a click does. A button that is switched off dims itself.
 - Popups come from a `PopupCatalog`, are created on first open and are given their presenter by `PopupPresenterInstaller<TPopup, TPresenter>`.
@@ -140,12 +143,12 @@ Colors are indexes into `BlockPalette.asset`, which has 10 colors. `LevelCatalog
 
 | Layer | Where | What |
 |---|---|---|
-| Data | `Features/Level` (`Level.Data` has `noEngineReferences`) | `LevelData` (JSON), `BlockPalette`, `LevelCatalog`. One format for the editor and the game. |
-| Rules | `Features/Gameplay/Logic` (`noEngineReferences`) | `Board`, `BoardBlock`, `BlockDragMover`, `BlockPlacement`, `BoardSolver`, `LevelGenerator`, `LevelDiagnostics`, `LevelTimer`, `BlockMarks` |
-| View and input | `Features/Gameplay/Scripts/Board`, `Input` | `BoardView`, `DoorView`, `BlockView`, `BlockMeshBuilder`, `BlockDragController` (Input System), `BoardCamera`, `BlockBurstEffects` |
-| Flow | `Features/Gameplay/Scripts/Session` | `LevelSession` (timer, extra time, win and fail), `LevelBoard` (builds and shows the board), `SolvabilityWatcher`, `LevelResults`, `PauseRequester`, `AutoPlayer`, `LevelFlow`, `LevelProvider` |
-| Boosters | `Features/Boosters` (its own assembly) | the booster definitions and catalog, `BoosterInventory`, `LevelBoosters`, `BoosterUnlocks`, the bar and the unlock popup |
-| UI | `Features/Gameplay/Scripts/Hud`, `Popups` | HUD, and the out-of-time, fail and complete popups |
+| Data | `Systems/Level` (`Level.Data` has `noEngineReferences`) | `LevelData` (JSON), `BlockPalette`, `LevelCatalog`. One format for the editor and the game. |
+| Rules | `Systems/Gameplay/Logic` (`noEngineReferences`) | `Board`, `BoardBlock`, `BlockDragMover`, `BlockPlacement`, `BoardSolver`, `LevelGenerator`, `LevelDiagnostics`, `LevelTimer`, `BlockMarks` |
+| View and input | `Systems/Gameplay/Scripts/Board`, `Input` | `BoardView`, `DoorView`, `BlockView`, `BlockMeshBuilder`, `BlockDragController` (Input System), `BoardCamera`, `BlockBurstEffects` |
+| Flow | `Systems/Gameplay/Scripts/Session` | `LevelSession` (timer, extra time, win and fail), `LevelBoard` (builds and shows the board), `SolvabilityWatcher`, `LevelResults`, `PauseRequester`, `AutoPlayer`, `LevelFlow`, `LevelProvider` |
+| Boosters | `Systems/Boosters` (its own assembly) | the booster definitions and catalog, `BoosterInventory`, `LevelBoosters`, `BoosterUnlocks`, the bar and the unlock popup |
+| UI | `Systems/Gameplay/Scripts/Hud`, `Popups` | HUD, and the out-of-time, fail and complete popups |
 
 *Why:* the rules know nothing about Unity. The game, the level editor, the tests and worker threads all use the same code.
 
@@ -201,7 +204,7 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 
 - **Each booster is an asset.** A `BoosterDefinition` holds its id, name, description, icon, unlock level, starting count and coin price, and creates its own effect. `BoosterCatalog` lists the boosters in bar order.
 - **Effects are small classes.** An `InstantBoosterEffect` runs at once; the freeze holds `LevelTimer` while the level goes on. An `AimedBoosterEffect` waits for the player to pick a block: the hammer breaks it, the rocket clears its row, the vacuum its color. The blocks they take come from `BoardTargets`, in the rules.
-- **No booster has input code, and the gameplay code does not know boosters exist.** While one aims, the drag controller hands the pressed block and cell to the `BlockPressRouter`, and `LevelBoosters` is on it. Without the feature, the gameplay scene runs just the same.
+- **No booster has input code, and the gameplay code does not know boosters exist.** While one aims, the drag controller hands the pressed block and cell to the `BlockPressRouter`, and `LevelBoosters` is on it. Without the Boosters system, the gameplay scene runs just the same.
 - **The player's boosters are saved** by `BoosterInventory`, registered for the whole app. A use takes an owned booster first and buys one with coins only when none are left; an aimed booster is paid only when it hits.
 - **Unlocking.** At the start of a level, `BoosterUnlocks` finds the boosters the level has reached but the player has not claimed, so an old save catches up too, and shows `BoosterUnlockPopup` for each. The booster opens on **Claim**: the popup closes and the button rises into the bar with `ScaleUpTransition`. Locked boosters are not shown, and levels tried from the editor unlock nothing.
 - **Adding a booster** takes a definition class that returns its effect, the effect class, an asset made from the definition's *Create* menu, and an entry in `BoosterCatalog`. The bar, the inventory, the unlock popup and the catalog test pick it up from there.
@@ -224,13 +227,13 @@ The generator places random doors and blocks for a difficulty, turns some blocks
 - The board mesh never moves and is marked static. It is already a single mesh, so it is not static batched: that would only duplicate it in memory. Doors and blocks move, so they stay dynamic.
 - There are no allocations in the drag loop, and a test checks it. The timer text uses `SetText` with arguments and only changes once a second.
 - The block bursts come from a pool and take the block's color.
-- The held block's outline is only its outer rim, drawn on top of everything. Two tiny unlit shaders (`Rendering/Shaders`) do it, with no lighting, textures or keywords: one marks the block's silhouette in the stencil buffer, the other draws the mesh pushed out along its normals only outside that mark, ignoring depth. They are added as extra materials only while the block is held, and the push follows normals averaged at build time, so hard edges do not split the rim.
+- The held block's outline is only its outer rim, drawn on top of everything. Two tiny unlit shaders (`Systems/Rendering/Shaders`) do it, with no lighting, textures or keywords: one marks the block's silhouette in the stencil buffer, the other draws the mesh pushed out along its normals only outside that mark, ignoring depth. They are added as extra materials only while the block is held, and the push follows normals averaged at build time, so hard edges do not split the rim.
 - The solver runs off the main thread.
 - UI graphics have raycast target, maskable, rich text, kerning and extra padding turned off wherever they are not needed. UI sprites under `Art/UI/Atlas` share one sprite atlas; the large backgrounds under `Art/UI/NoAtlas` stay out of it, so they do not waste atlas space. The thin tab separator (`bg_home_line`) stays in the atlas because it is drawn between tab icons. The ice texture is capped at 512 pixels.
 
 ### Look
 
-Everything in the gameplay scene uses one toon shader (`Rendering/Shaders/Toon.shader`), except the ice. Light falls in two soft bands, so shadow sides take a tinted color instead of going dark, and a small glint and a soft rim make surfaces read like candy. It uses only the main light and its shadows, no textures, and one material buffer for all its passes, which keeps it cheap on mobile and friendly to the SRP Batcher. The block colors are sweet tones with no white (Cherry, Tangerine, Lemon, Lime, Mint, Aqua, Sky, Grape, Bubblegum, Cocoa), on lavender walls, a periwinkle ground and background, and a plum outline for the held block.
+Everything in the gameplay scene uses one toon shader (`Systems/Rendering/Shaders/Toon.shader`), except the ice. Light falls in two soft bands, so shadow sides take a tinted color instead of going dark, and a small glint and a soft rim make surfaces read like candy. It uses only the main light and its shadows, no textures, and one material buffer for all its passes, which keeps it cheap on mobile and friendly to the SRP Batcher. The block colors are sweet tones with no white (Cherry, Tangerine, Lemon, Lime, Mint, Aqua, Sky, Grape, Bubblegum, Cocoa), on lavender walls, a periwinkle ground and background, and a plum outline for the held block.
 
 ### Persistence
 

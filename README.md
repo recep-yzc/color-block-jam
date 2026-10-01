@@ -66,7 +66,7 @@ The window has three columns:
    - **Erase**: click a block, a door or a removed cell.
    - **Hole**: click or drag over empty cells to take them out of the board, and again to put them back. In the game a removed cell is a hole with a wall around it.
 
-   Right-click erases with every tool. Keys 1–0 pick a color, Delete removes the selected block, and Ctrl+Z / Ctrl+Y undo and redo.
+   Right-click erases with every tool. Keys 1–0 pick a color, ← → open the previous and next level of the catalog, Delete removes the selected block, and Ctrl+Z / Ctrl+Y undo and redo.
 4. Click a block to select it. **Moves** makes it an arrow block (Horizontal or Vertical), and **Ice** freezes it until that many other blocks have left. The board draws the arrow and the ice count where the game puts them.
 5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps, a block on a removed cell, a door that opens onto one, a hole smaller than 2×2. It then runs the solver in the background. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
 6. **Generate** makes a new solvable level of the chosen difficulty. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. **Holes** adds up to two holes inside the board. The same seed always gives the same level.

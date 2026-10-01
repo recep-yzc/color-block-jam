@@ -245,6 +245,17 @@ namespace ColorBlockJam.LevelEditor
                     Repaint();
                 }
             }
+            else if (!command && GUIUtility.keyboardControl == 0 && current.keyCode is KeyCode.LeftArrow or KeyCode.RightArrow &&
+                     catalog != null)
+            {
+                var next = catalogIndex < 0 ? 0 : catalogIndex + (current.keyCode == KeyCode.RightArrow ? 1 : -1);
+                current.Use();
+                if (next >= 0 && next < catalog.Count)
+                {
+                    Load(catalog, next);
+                    Repaint();
+                }
+            }
         }
 
         private bool HitTest(Vector2 mouse, out Hit hit)

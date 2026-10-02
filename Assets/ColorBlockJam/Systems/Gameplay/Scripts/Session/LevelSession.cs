@@ -172,7 +172,7 @@ namespace ColorBlockJam.Gameplay
             }
 
             SetState(LevelState.Won);
-            results.Win();
+            results.Win(Level.difficulty);
         }
 
         private void RunOutOfTime()

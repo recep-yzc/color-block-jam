@@ -3,6 +3,7 @@
     "rootNamespace": "ColorBlockJam.Economy",
     "references": [
         "ColorBlockJam.Core",
+        "ColorBlockJam.Level.Data",
         "ColorBlockJam.UI",
         "VContainer",
         "Unity.TextMeshPro"

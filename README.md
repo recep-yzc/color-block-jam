@@ -39,7 +39,7 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
   - **Hammer** (level 4): tap it, then tap any block, frozen or not, to break it.
   - **Rocket** (level 6): tap it, then tap a block to clear every block in its row.
   - **Vacuum** (level 8): tap it, then tap a block to remove every block of its color.
-- Each booster comes with a few uses, counted on its badge. With none left, a use is bought with coins (100 to start, 10 for each level), and its price shows instead. A booster that aims at a block is paid only when it hits one, so tapping it again to put it back is free.
+- Each booster comes with a few uses, counted on its badge. With none left, a use is bought with coins (100 to start, and 10, 20, 30 or 50 for each level by its badge, set on `EconomyConfig`), and its price shows instead. A booster that aims at a block is paid only when it hits one, so tapping it again to put it back is free.
 
 ## Level editor
 

@@ -13,3 +13,7 @@ MonoBehaviour:
   m_Name: EconomyConfig
   m_EditorClassIdentifier: 
   startingCoins: 100
+  easyReward: 10
+  mediumReward: 20
+  hardReward: 30
+  superHardReward: 50

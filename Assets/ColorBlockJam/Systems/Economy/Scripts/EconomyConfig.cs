@@ -1,3 +1,4 @@
+using ColorBlockJam.Level;
 using UnityEngine;
 
 namespace ColorBlockJam.Economy
@@ -8,10 +9,27 @@ namespace ColorBlockJam.Economy
         [Tooltip("Yeni bir oyuncunun başladığı coin miktarı.")]
         [SerializeField, Min(0)] private int startingCoins = 100;
 
-        [Tooltip("Bir seviyeyi bitirince kazanılan coin.")]
-        [SerializeField, Min(1)] private int levelCompleteReward = 10;
+        [Header("Level Rewards")]
+        [Tooltip("Kolay bir seviyeyi bitirince kazanılan coin.")]
+        [SerializeField, Min(1)] private int easyReward = 10;
+        [Tooltip("Orta bir seviyeyi bitirince kazanılan coin.")]
+        [SerializeField, Min(1)] private int mediumReward = 20;
+        [Tooltip("Zor bir seviyeyi bitirince kazanılan coin.")]
+        [SerializeField, Min(1)] private int hardReward = 30;
+        [Tooltip("Süper zor bir seviyeyi bitirince kazanılan coin.")]
+        [SerializeField, Min(1)] private int superHardReward = 50;
 
         public int StartingCoins => startingCoins;
-        public int LevelCompleteReward => levelCompleteReward;
+
+        public int RewardFor(LevelDifficulty difficulty)
+        {
+            return difficulty switch
+            {
+                LevelDifficulty.Easy => easyReward,
+                LevelDifficulty.Medium => mediumReward,
+                LevelDifficulty.Hard => hardReward,
+                _ => superHardReward
+            };
+        }
     }
 }

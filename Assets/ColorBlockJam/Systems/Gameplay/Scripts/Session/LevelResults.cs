@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using ColorBlockJam.Economy;
+using ColorBlockJam.Level;
 using ColorBlockJam.Progression;
 using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
@@ -30,14 +31,14 @@ namespace ColorBlockJam.Gameplay
             this.config = config;
         }
 
-        public void Win()
+        public void Win(LevelDifficulty difficulty)
         {
             if (!levels.IsEditorTest)
             {
                 progression.CompleteCurrentLevel();
             }
 
-            var reward = economy.LevelCompleteReward;
+            var reward = economy.RewardFor(difficulty);
             wallet.Add(reward);
             ShowWinAsync(reward).Forget();
         }

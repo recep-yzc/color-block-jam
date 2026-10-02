@@ -15,12 +15,7 @@ namespace ColorBlockJam.Boosters
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(catalog);
-            builder.Register<BoosterContext>(Lifetime.Singleton);
-            builder.RegisterEntryPoint<LevelBoosters>().AsSelf();
-            builder.RegisterEntryPoint<BoosterUnlocks>().AsSelf();
-
             builder.RegisterComponent(bar);
-            builder.RegisterEntryPoint<BoosterBarPresenter>();
         }
     }
 }

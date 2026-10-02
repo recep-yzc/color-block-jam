@@ -20,6 +20,14 @@ namespace ColorBlockJam.Boosters
             return button;
         }
 
+        public void RemoveButton(BoosterButtonView button)
+        {
+            if (button != null)
+            {
+                Destroy(button.gameObject);
+            }
+        }
+
         public void ShowAimHint(string hint)
         {
             aimHint.text = hint;

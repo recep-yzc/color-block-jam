@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class LevelBoard
+    public sealed class LevelBoard : IDisposable
     {
         private readonly BoardView boardView;
         private readonly BoardArt art;
@@ -84,6 +84,21 @@ namespace ColorBlockJam.Gameplay
             var view = views[block.Id];
             view.SmashAsync(view.destroyCancellationToken).Forget();
             BlockSmashed?.Invoke(block);
+        }
+
+        public void Dispose()
+        {
+            foreach (var view in views)
+            {
+                if (view != null)
+                {
+                    view.Removed -= OnBlockRemoved;
+                    Object.Destroy(view.gameObject);
+                }
+            }
+
+            views.Clear();
+            boardView.Clear();
         }
 
         private void OnBlockRemoved(BlockView view)

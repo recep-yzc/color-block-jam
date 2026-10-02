@@ -57,7 +57,10 @@ namespace ColorBlockJam.Boosters
             for (var i = 0; i < buttons.Count; i++)
             {
                 buttons[i].Button.Clicked -= presses[i];
+                View.RemoveButton(buttons[i]);
             }
+
+            View.HideAimHint();
 
             inventory.Changed -= OnInventoryChanged;
             wallet.CoinsChanged -= OnCoinsChanged;

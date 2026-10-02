@@ -35,6 +35,7 @@ namespace ColorBlockJam.Gameplay
             }
 
             View.SetDifficulty(session.Level.difficulty);
+            View.SetTimerFrozen(false);
             View.RestartButton.Clicked += flow.Restart;
             View.PauseButton.Clicked += OnPauseClicked;
             View.AutoPlayButton.Clicked += OnAutoPlayClicked;

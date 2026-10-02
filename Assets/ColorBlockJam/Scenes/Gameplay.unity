@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 24687277}
   - component: {fileID: 24687275}
   - component: {fileID: 24687279}
+  - component: {fileID: 24687280}
   m_Layer: 0
   m_Name: SceneScope
   m_TagString: Untagged
@@ -208,6 +209,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   catalog: {fileID: 11400000, guid: 945dab0dfdd61574496948e3080be2b6, type: 2}
   bar: {fileID: 1858046849}
+--- !u!114 &24687280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24687274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6950558f11a0aaf4cb64ef2aeb9b1f1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  levelInstallers:
+  - {fileID: 11400000, guid: 9e4ac80bd19d8424ea6aaaef96041cc1, type: 2}
+  - {fileID: 11400000, guid: 9906b72a8ecc9004295262cdf3ae5c41, type: 2}
 --- !u!1 &113448718
 GameObject:
   m_ObjectHideFlags: 0

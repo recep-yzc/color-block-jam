@@ -127,6 +127,7 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 
 - The **root scope** (`Systems/Boot/Prefabs/AppScope.prefab`) runs the `ScriptableInstaller` assets of the systems with app-wide services: storage and scene loading (Core), the app settings (Boot), the settings, the economy, the progression, the booster inventory and the windows.
 - Each **scene scope** runs `MonoInstaller` components for that scene's services.
+- In the gameplay scene, **each level has its own child scope**. The scene scope keeps what outlives a level: the camera, the board view, the burst pool, input, the HUD and bar views, the level flow. `LevelRunner` builds a child scope for the level from the `LevelInstaller` and `LevelBoostersInstaller` assets that `LevelScopeInstaller` lists: the session, the board, the solver watch, the results, the drag, pause, the HUD presenter and the boosters. Restart and Next dispose that scope and build a new one, without loading the scene again. Disposing the scope cleans up everything the level made: block views, the board mesh, bar buttons and every pending search, timer or window.
 - *Why:* systems are added or removed in the Inspector, there are no singletons or static state, and a scene's objects live exactly as long as the scene.
 
 ### UI

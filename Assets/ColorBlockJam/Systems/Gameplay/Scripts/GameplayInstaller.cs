@@ -44,22 +44,13 @@ namespace ColorBlockJam.Gameplay
             builder.Register<LevelProvider>(Lifetime.Singleton).As<ILevelProvider>();
             builder.Register<LevelFlow>(Lifetime.Singleton).As<ILevelFlow>();
             builder.Register<BoardSolver>(Lifetime.Singleton);
-            builder.Register<AutoPlayer>(Lifetime.Singleton);
-            builder.Register<LevelBoard>(Lifetime.Singleton);
-            builder.Register<SolvabilityWatcher>(Lifetime.Singleton);
-            builder.Register<LevelResults>(Lifetime.Singleton);
             builder.Register<BoardCamera>(Lifetime.Singleton);
             builder.Register(_ => new BlockBurstEffects(config.BurstPrefab, effectsRoot, config.BurstPrewarm), Lifetime.Singleton);
-            builder.Register<BlockPressRouter>(Lifetime.Singleton);
 
             builder.RegisterEntryPoint<BoardPointer>().AsSelf();
-            builder.RegisterEntryPoint<BlockDragController>().AsSelf();
-            builder.RegisterEntryPoint<LevelSession>().AsSelf();
-            builder.RegisterEntryPoint<PauseRequester>().AsSelf();
             builder.RegisterEntryPoint<LevelShortcuts>();
 
             builder.RegisterComponent(hud);
-            builder.RegisterEntryPoint<GameplayHudPresenter>();
             builder.RegisterCoinHud(coinHud);
         }
     }

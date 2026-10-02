@@ -122,6 +122,26 @@ namespace ColorBlockJam.Gameplay
             return true;
         }
 
+        public void Clear()
+        {
+            foreach (var mesh in builtMeshes)
+            {
+                Destroy(mesh);
+            }
+
+            builtMeshes.Clear();
+            doorViews.Clear();
+            if (staticParts != null)
+            {
+                Destroy(staticParts.gameObject);
+            }
+
+            if (doorParts != null)
+            {
+                Destroy(doorParts.gameObject);
+            }
+        }
+
         private void OnDestroy()
         {
             foreach (var mesh in builtMeshes)

@@ -1,6 +1,7 @@
 using System;
+using System.Threading;
 using ColorBlockJam.Settings;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer.Unity;
@@ -10,17 +11,20 @@ namespace ColorBlockJam.Gameplay
     public sealed class PauseRequester : IStartable, IDisposable
     {
         private readonly LevelSession session;
-        private readonly IPopupService popups;
+        private readonly IWindows windows;
+        private readonly ILevelFlow flow;
+        private readonly CancellationTokenSource lifetime = new();
 
-        public PauseRequester(LevelSession session, IPopupService popups)
+        public PauseRequester(LevelSession session, IWindows windows, ILevelFlow flow)
         {
             this.session = session;
-            this.popups = popups;
+            this.windows = windows;
+            this.flow = flow;
         }
 
         public void Start()
         {
-            popups.BackPressedWithoutPopup += Request;
+            windows.BackPressedWithoutWindow += Request;
             if (!Application.isEditor)
             {
                 Application.focusChanged += OnFocusChanged;
@@ -29,15 +33,26 @@ namespace ColorBlockJam.Gameplay
 
         public void Dispose()
         {
-            popups.BackPressedWithoutPopup -= Request;
+            windows.BackPressedWithoutWindow -= Request;
             Application.focusChanged -= OnFocusChanged;
+            lifetime.Cancel();
+            lifetime.Dispose();
         }
 
         public void Request()
         {
-            if (session.State == LevelState.Playing && !popups.HasOpenPopup)
+            if (session.State == LevelState.Playing && !windows.HasOpenWindow)
             {
-                popups.ShowAsync<SettingsPopup>().Forget();
+                PauseAsync().Forget();
+            }
+        }
+
+        private async UniTaskVoid PauseAsync()
+        {
+            var (isCanceled, choice) = await windows.Get<PauseMenuPresenter>().ShowAsync(lifetime.Token).SuppressCancellationThrow();
+            if (!isCanceled && choice == SettingsChoice.Home)
+            {
+                flow.GoHome();
             }
         }
 

@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using ColorBlockJam.Economy;
 using ColorBlockJam.Progression;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
@@ -13,20 +13,20 @@ namespace ColorBlockJam.Gameplay
         private readonly IProgressionService progression;
         private readonly ICoinWallet wallet;
         private readonly EconomyConfig economy;
-        private readonly LevelOutcome outcome;
-        private readonly IPopupService popups;
+        private readonly IWindows windows;
+        private readonly ILevelFlow flow;
         private readonly GameplayConfig config;
         private readonly CancellationTokenSource lifetime = new();
 
         public LevelResults(ILevelProvider levels, IProgressionService progression, ICoinWallet wallet, EconomyConfig economy,
-            LevelOutcome outcome, IPopupService popups, GameplayConfig config)
+            IWindows windows, ILevelFlow flow, GameplayConfig config)
         {
             this.levels = levels;
             this.progression = progression;
             this.wallet = wallet;
             this.economy = economy;
-            this.outcome = outcome;
-            this.popups = popups;
+            this.windows = windows;
+            this.flow = flow;
             this.config = config;
         }
 
@@ -39,19 +39,21 @@ namespace ColorBlockJam.Gameplay
 
             var reward = economy.LevelCompleteReward;
             wallet.Add(reward);
-            outcome.Win(reward);
-            ShowAsync<LevelCompletePopup>().Forget();
-        }
-
-        public void OfferExtraTime()
-        {
-            ShowAsync<OutOfTimePopup>().Forget();
+            ShowWinAsync(reward).Forget();
         }
 
         public void Fail(LevelFailReason reason)
         {
-            outcome.Fail(reason);
-            ShowAsync<LevelFailPopup>().Forget();
+            ShowFailAsync(reason).Forget();
+        }
+
+        public async UniTask<int> OfferExtraTimeAsync(CancellationToken cancellationToken)
+        {
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, lifetime.Token);
+            await WaitBeforeResultAsync(linked.Token);
+            var offer = new ExtraTimeOffer(config.ExtraTimeSeconds, config.ExtraTimeCost);
+            var isBought = await windows.Get<OutOfTimePopupPresenter>().ShowAsync(offer, linked.Token);
+            return isBought ? offer.Seconds : 0;
         }
 
         public void Dispose()
@@ -60,14 +62,50 @@ namespace ColorBlockJam.Gameplay
             lifetime.Dispose();
         }
 
-        private async UniTaskVoid ShowAsync<TPopup>() where TPopup : Popup
+        private async UniTaskVoid ShowWinAsync(int reward)
         {
-            var isCanceled = await UniTask.Delay(TimeSpan.FromSeconds(config.ResultPopupDelay), cancellationToken: lifetime.Token)
-                .SuppressCancellationThrow();
-            if (!isCanceled)
+            var token = lifetime.Token;
+            var (isCanceled, isNext) = await ShowWinWindowAsync(reward, token).SuppressCancellationThrow();
+            if (!isCanceled && isNext)
             {
-                popups.ShowAsync<TPopup>(lifetime.Token).Forget();
+                flow.PlayNext();
             }
+        }
+
+        private async UniTask<bool> ShowWinWindowAsync(int reward, CancellationToken token)
+        {
+            await WaitBeforeResultAsync(token);
+            return await windows.Get<LevelCompletePopupPresenter>().ShowAsync(reward, token);
+        }
+
+        private async UniTaskVoid ShowFailAsync(LevelFailReason reason)
+        {
+            var token = lifetime.Token;
+            var (isCanceled, choice) = await ShowFailWindowAsync(reason, token).SuppressCancellationThrow();
+            if (isCanceled)
+            {
+                return;
+            }
+
+            if (choice == LevelFailChoice.Home)
+            {
+                flow.GoHome();
+            }
+            else
+            {
+                flow.Restart();
+            }
+        }
+
+        private async UniTask<LevelFailChoice> ShowFailWindowAsync(LevelFailReason reason, CancellationToken token)
+        {
+            await WaitBeforeResultAsync(token);
+            return await windows.Get<LevelFailPopupPresenter>().ShowAsync(reason, token);
+        }
+
+        private UniTask WaitBeforeResultAsync(CancellationToken token)
+        {
+            return UniTask.Delay(TimeSpan.FromSeconds(config.ResultPopupDelay), cancellationToken: token);
         }
     }
 }

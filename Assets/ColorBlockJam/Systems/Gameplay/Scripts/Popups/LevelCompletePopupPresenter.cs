@@ -1,32 +1,37 @@
-using ColorBlockJam.UI.Views;
+using System.Threading;
+using ColorBlockJam.UI.Windows;
+using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class LevelCompletePopupPresenter : ViewPresenter<LevelCompletePopup>
+    public sealed class LevelCompletePopupPresenter : WindowPresenter<LevelCompletePopup>
     {
-        private readonly ILevelFlow flow;
-        private readonly LevelOutcome outcome;
+        private int reward;
 
-        public LevelCompletePopupPresenter(LevelCompletePopup popup, ILevelFlow flow, LevelOutcome outcome)
-            : base(popup)
+        public UniTask<bool> ShowAsync(int coins, CancellationToken cancellationToken = default)
         {
-            this.flow = flow;
-            this.outcome = outcome;
+            reward = coins;
+            return OpenAsync(false, cancellationToken);
         }
 
-        protected override void OnInitialize()
+        protected override void OnViewCreated()
         {
-            View.NextButton.Clicked += flow.PlayNext;
+            View.NextButton.Clicked += OnNextClicked;
         }
 
-        protected override void OnDispose()
+        protected override void OnViewDestroyed()
         {
-            View.NextButton.Clicked -= flow.PlayNext;
+            View.NextButton.Clicked -= OnNextClicked;
         }
 
         protected override void OnShowing()
         {
-            View.SetReward(outcome.Reward);
+            View.SetReward(reward);
+        }
+
+        private void OnNextClicked()
+        {
+            Finish(true);
         }
     }
 }

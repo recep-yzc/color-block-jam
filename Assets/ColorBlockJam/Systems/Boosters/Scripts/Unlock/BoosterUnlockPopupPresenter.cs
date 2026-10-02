@@ -1,30 +1,37 @@
-using ColorBlockJam.UI.Views;
+using System.Threading;
+using ColorBlockJam.UI.Windows;
+using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Boosters
 {
-    public sealed class BoosterUnlockPopupPresenter : ViewPresenter<BoosterUnlockPopup>
+    public sealed class BoosterUnlockPopupPresenter : WindowPresenter<BoosterUnlockPopup>
     {
-        private readonly BoosterUnlocks unlocks;
+        private BoosterDefinition booster;
 
-        public BoosterUnlockPopupPresenter(BoosterUnlockPopup popup, BoosterUnlocks unlocks)
-            : base(popup)
+        public UniTask<bool> ShowAsync(BoosterDefinition unlocked, CancellationToken cancellationToken = default)
         {
-            this.unlocks = unlocks;
+            booster = unlocked;
+            return OpenAsync(false, cancellationToken);
         }
 
-        protected override void OnInitialize()
+        protected override void OnViewCreated()
         {
-            View.ClaimButton.Clicked += unlocks.Claim;
+            View.ClaimButton.Clicked += OnClaimClicked;
         }
 
-        protected override void OnDispose()
+        protected override void OnViewDestroyed()
         {
-            View.ClaimButton.Clicked -= unlocks.Claim;
+            View.ClaimButton.Clicked -= OnClaimClicked;
         }
 
         protected override void OnShowing()
         {
-            View.SetBooster(unlocks.Current);
+            View.SetBooster(booster);
+        }
+
+        private void OnClaimClicked()
+        {
+            Finish(true);
         }
     }
 }

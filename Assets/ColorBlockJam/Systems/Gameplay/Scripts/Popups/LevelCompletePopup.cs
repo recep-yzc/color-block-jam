@@ -1,11 +1,11 @@
 using ColorBlockJam.UI.Buttons;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using TMPro;
 using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class LevelCompletePopup : Popup
+    public sealed class LevelCompletePopup : WindowView
     {
         [Tooltip("Kazanılan coin'i gösteren yazı.")]
         [SerializeField] private TMP_Text rewardLabel;

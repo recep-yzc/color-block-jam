@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer.Unity;
@@ -17,12 +17,12 @@ namespace ColorBlockJam.Gameplay
         private readonly AutoPlayer autoPlayer;
         private readonly SolvabilityWatcher solvability;
         private readonly LevelResults results;
-        private readonly IPopupService popups;
+        private readonly IWindows windows;
         private readonly CancellationTokenSource lifetime = new();
         private bool hasPlayerMoved;
 
         public LevelSession(ILevelProvider levels, LevelBoard levelBoard, BlockDragController drag, AutoPlayer autoPlayer,
-            SolvabilityWatcher solvability, LevelResults results, IPopupService popups)
+            SolvabilityWatcher solvability, LevelResults results, IWindows windows)
         {
             this.levels = levels;
             this.levelBoard = levelBoard;
@@ -30,7 +30,7 @@ namespace ColorBlockJam.Gameplay
             this.autoPlayer = autoPlayer;
             this.solvability = solvability;
             this.results = results;
-            this.popups = popups;
+            this.windows = windows;
 
             Level = levels.Load();
             Timer = new LevelTimer(Level.timeLimit);
@@ -67,7 +67,7 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            var isHeld = popups.HasOpenPopup;
+            var isHeld = windows.HasOpenWindow;
             drag.IsEnabled = State == LevelState.Playing && !isHeld;
             Timer.IsPaused = State != LevelState.Playing || isHeld;
 
@@ -77,7 +77,7 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        public void AddExtraTime(float seconds)
+        private void AddExtraTime(float seconds)
         {
             if (State != LevelState.OutOfTime)
             {
@@ -88,7 +88,7 @@ namespace ColorBlockJam.Gameplay
             SetState(LevelState.Playing);
         }
 
-        public void DeclineExtraTime()
+        private void DeclineExtraTime()
         {
             if (State == LevelState.OutOfTime)
             {
@@ -183,7 +183,25 @@ namespace ColorBlockJam.Gameplay
             }
 
             SetState(LevelState.OutOfTime);
-            results.OfferExtraTime();
+            OfferExtraTimeAsync().Forget();
+        }
+
+        private async UniTaskVoid OfferExtraTimeAsync()
+        {
+            var (isCanceled, seconds) = await results.OfferExtraTimeAsync(lifetime.Token).SuppressCancellationThrow();
+            if (isCanceled)
+            {
+                return;
+            }
+
+            if (seconds > 0)
+            {
+                AddExtraTime(seconds);
+            }
+            else
+            {
+                DeclineExtraTime();
+            }
         }
 
         private void Fail(LevelFailReason reason)

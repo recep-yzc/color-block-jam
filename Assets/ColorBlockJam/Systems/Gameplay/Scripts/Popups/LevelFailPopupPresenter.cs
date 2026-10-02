@@ -1,34 +1,44 @@
-using ColorBlockJam.UI.Views;
+using System.Threading;
+using ColorBlockJam.UI.Windows;
+using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class LevelFailPopupPresenter : ViewPresenter<LevelFailPopup>
+    public sealed class LevelFailPopupPresenter : WindowPresenter<LevelFailPopup>
     {
-        private readonly ILevelFlow flow;
-        private readonly LevelOutcome outcome;
+        private LevelFailReason reason;
 
-        public LevelFailPopupPresenter(LevelFailPopup popup, ILevelFlow flow, LevelOutcome outcome)
-            : base(popup)
+        public UniTask<LevelFailChoice> ShowAsync(LevelFailReason failReason, CancellationToken cancellationToken = default)
         {
-            this.flow = flow;
-            this.outcome = outcome;
+            reason = failReason;
+            return OpenAsync(LevelFailChoice.Retry, cancellationToken);
         }
 
-        protected override void OnInitialize()
+        protected override void OnViewCreated()
         {
-            View.RestartButton.Clicked += flow.Restart;
-            View.HomeButton.Clicked += flow.GoHome;
+            View.RestartButton.Clicked += OnRetryClicked;
+            View.HomeButton.Clicked += OnHomeClicked;
         }
 
-        protected override void OnDispose()
+        protected override void OnViewDestroyed()
         {
-            View.RestartButton.Clicked -= flow.Restart;
-            View.HomeButton.Clicked -= flow.GoHome;
+            View.RestartButton.Clicked -= OnRetryClicked;
+            View.HomeButton.Clicked -= OnHomeClicked;
         }
 
         protected override void OnShowing()
         {
-            View.SetReason(outcome.FailReason);
+            View.SetReason(reason);
+        }
+
+        private void OnRetryClicked()
+        {
+            Finish(LevelFailChoice.Retry);
+        }
+
+        private void OnHomeClicked()
+        {
+            Finish(LevelFailChoice.Home);
         }
     }
 }

@@ -782,8 +782,6 @@ GameObject:
   - component: {fileID: 4722797134007527008}
   - component: {fileID: 1660034637756833348}
   - component: {fileID: 2755670295799958089}
-  - component: {fileID: 8148871672158035652}
-  - component: {fileID: 3246436105438915930}
   m_Layer: 5
   m_Name: LevelCompletePopup
   m_TagString: Untagged
@@ -836,39 +834,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   content: {fileID: 4727606285680063691}
-  showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  closeOnBackdropClick: 0
-  closeOnBackButton: 0
-  destroyOnHide: 0
   rewardLabel: {fileID: 2179173798016184885}
   nextButton: {fileID: 6234764314570454443}
---- !u!114 &8148871672158035652
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9217979525269651415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e64fad24db076ba478194488e6bf34e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  assetInstallers: []
---- !u!114 &3246436105438915930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9217979525269651415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4da4ab2a6287b7240980b8190beebf30, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

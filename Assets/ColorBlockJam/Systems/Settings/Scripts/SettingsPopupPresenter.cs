@@ -1,32 +1,48 @@
-using ColorBlockJam.UI.Views;
+using System.Threading;
+using ColorBlockJam.UI.Windows;
+using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Settings
 {
-    public sealed class SettingsPopupPresenter : ViewPresenter<SettingsPopup>
+    public class SettingsPopupPresenter : WindowPresenter<SettingsPopup>
     {
         private readonly ISettingsService settings;
         private readonly IHapticService haptics;
 
-        public SettingsPopupPresenter(SettingsPopup popup, ISettingsService settings, IHapticService haptics)
-            : base(popup)
+        public SettingsPopupPresenter(ISettingsService settings, IHapticService haptics)
         {
             this.settings = settings;
             this.haptics = haptics;
         }
 
-        protected override void OnInitialize()
+        public UniTask<SettingsChoice> ShowAsync(CancellationToken cancellationToken = default)
+        {
+            return OpenAsync(SettingsChoice.Close, cancellationToken);
+        }
+
+        protected override void OnViewCreated()
         {
             foreach (var toggle in View.Toggles)
             {
                 toggle.Changed += OnToggleChanged;
             }
+
+            if (View.HomeButton != null)
+            {
+                View.HomeButton.Clicked += OnHomeClicked;
+            }
         }
 
-        protected override void OnDispose()
+        protected override void OnViewDestroyed()
         {
             foreach (var toggle in View.Toggles)
             {
                 toggle.Changed -= OnToggleChanged;
+            }
+
+            if (View.HomeButton != null)
+            {
+                View.HomeButton.Clicked -= OnHomeClicked;
             }
         }
 
@@ -36,6 +52,11 @@ namespace ColorBlockJam.Settings
             {
                 toggle.Show(settings.IsEnabled(toggle.Setting));
             }
+        }
+
+        private void OnHomeClicked()
+        {
+            Finish(SettingsChoice.Home);
         }
 
         private void OnToggleChanged(SettingKind setting, bool isOn)

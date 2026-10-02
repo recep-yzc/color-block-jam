@@ -1,11 +1,11 @@
 using ColorBlockJam.UI.Buttons;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using TMPro;
 using UnityEngine;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class OutOfTimePopup : Popup
+    public sealed class OutOfTimePopup : WindowView
     {
         [Tooltip("Eklenecek süreyi saatin üstünde gösteren yazı.")]
         [SerializeField] private TMP_Text secondsLabel;

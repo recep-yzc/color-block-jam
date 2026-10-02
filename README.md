@@ -12,7 +12,7 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod ColorBlockJam.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 77 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 78 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
@@ -104,7 +104,7 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 |---|---|
 | Core | installers and scopes, scene loading and the scene names, key-value storage, startup tasks |
 | Boot | the root scope and VContainer's settings, the app settings, the splash screen and its loading bar |
-| UI | views and presenters, popups and their layer, buttons with feedback, transitions, the safe area, and the shared widgets (close button, slide switch) |
+| UI | views and presenters, the window catalog, service and layer, buttons with feedback, transitions, the safe area, and the shared widgets (close button, slide switch) |
 | Navigation | the tab bar and its pages |
 | Settings | the settings service, haptics and the settings popup |
 | Pooling | the component pool |
@@ -125,9 +125,8 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 
 ### Composition with VContainer
 
-- The **root scope** (`Systems/Boot/Prefabs/AppScope.prefab`) runs the `ScriptableInstaller` assets of the systems with app-wide services: storage and scene loading (Core), the app settings (Boot), the settings, the economy, the progression and the booster inventory.
+- The **root scope** (`Systems/Boot/Prefabs/AppScope.prefab`) runs the `ScriptableInstaller` assets of the systems with app-wide services: storage and scene loading (Core), the app settings (Boot), the settings, the economy, the progression, the booster inventory and the windows.
 - Each **scene scope** runs `MonoInstaller` components for that scene's services.
-- Each **popup** has its own child scope. It is created with the popup and disposed with it.
 - *Why:* systems are added or removed in the Inspector, there are no singletons or static state, and a scene's objects live exactly as long as the scene.
 
 ### UI
@@ -138,8 +137,9 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
   - `ButtonFeedback`: scale, punch, jelly, wiggle, tilt, heartbeat, pop,
   - `ToggleStateVisual`: objects, color, slide.
 - Buttons derive from `ButtonBase` and only decide what a click does. A button that is switched off dims itself.
-- Popups come from a `PopupCatalog`, are created on first open and are given their presenter by `PopupPresenterInstaller<TPopup, TPresenter>`.
-- A popup gains behaviour from another installer, not from a new popup type. In a level, pause shows `GameplaySettingsPopup`: a prefab variant of the home `SettingsPopup` that adds a HOME button and the `HomeButtonInstaller` that sends it home. A `PopupPeekArea` fades the whole popup layer while it is held, so any popup can let the player look behind it.
+- **Windows** (the popups) live in the root scope, in one `WindowLayer` that stays across scenes. `WindowCatalog` lists them: for each, a presenter picked from a list, the prefab it shows, and how it behaves (dims the background, closes on a backdrop tap, on the back button or when the scene changes, is destroyed when hidden, its show and hide transitions). The prefab only holds its view's references and settings of its own, such as a message format or colors.
+- A window works like a function. `windows.Get<OutOfTimePopupPresenter>().ShowAsync(offer)` shows it with its data and returns the player's choice: whether time was bought, Retry or Home, Home from the pause menu. The code that opened it acts on the answer, so presenters depend only on app services (the wallet, the settings) and know nothing of a level. A window closed by a scene change cancels its pending call, so the old scene's code never runs on.
+- In a level, pause shows `GameplaySettingsPopup`, a prefab variant of the home `SettingsPopup` with a HOME button, through `PauseMenuPresenter`. A `WindowPeekArea` fades the whole window layer while it is held, so any window can let the player look behind it.
 - The popups follow the reference screens of the original game, with the supplied sprites. Their 9-slice scale (*Pixels Per Unit Multiplier*) is set so that each frame's corners match the references.
 - *Why:* designers can change feel and layout without code, and the presenters can be tested without a scene.
 
@@ -172,7 +172,7 @@ flowchart LR
     Session -- "door, ice" --> Board
     Session -- "can it still be cleared?" --> Watcher[SolvabilityWatcher]
     Session -- "win, out of time, fail" --> Results[LevelResults]
-    Offer[OutOfTimePopupPresenter] -- "buy time or give up" --> Session
+    Results -- "show and wait for the choice" --> Windows[(IWindows)]
     Bar[BoosterBarPresenter] --> Boosters
     Unlocks[BoosterUnlocks] -- "claim" --> Inventory
     Hud[GameplayHudPresenter] --> Session

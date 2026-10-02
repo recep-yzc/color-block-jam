@@ -43,7 +43,6 @@ namespace ColorBlockJam.Gameplay
 
             builder.Register<LevelProvider>(Lifetime.Singleton).As<ILevelProvider>();
             builder.Register<LevelFlow>(Lifetime.Singleton).As<ILevelFlow>();
-            builder.Register<LevelOutcome>(Lifetime.Singleton);
             builder.Register<BoardSolver>(Lifetime.Singleton);
             builder.Register<AutoPlayer>(Lifetime.Singleton);
             builder.Register<LevelBoard>(Lifetime.Singleton);

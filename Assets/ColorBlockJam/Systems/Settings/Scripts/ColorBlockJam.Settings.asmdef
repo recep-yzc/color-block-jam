@@ -4,7 +4,8 @@
     "references": [
         "ColorBlockJam.Core",
         "ColorBlockJam.UI",
-        "VContainer"
+        "VContainer",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -1,26 +1,26 @@
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using UnityEngine;
 
 namespace ColorBlockJam.UI.Buttons
 {
     public sealed class CloseButton : ButtonBase
     {
-        private Popup popup;
+        private WindowView window;
 
         protected override void Awake()
         {
             base.Awake();
-            popup = GetComponentInParent<Popup>(true);
+            window = GetComponentInParent<WindowView>(true);
 
-            if (popup == null)
+            if (window == null)
             {
-                Debug.LogError($"{name} is not under a {nameof(Popup)}.", this);
+                Debug.LogError($"{name} is not under a {nameof(WindowView)}.", this);
             }
         }
 
         protected override void OnClick()
         {
-            popup.RequestClose();
+            window.RequestClose();
         }
     }
 }

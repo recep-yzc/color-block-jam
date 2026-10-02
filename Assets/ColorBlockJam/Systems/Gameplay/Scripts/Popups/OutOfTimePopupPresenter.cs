@@ -1,30 +1,33 @@
+using System.Threading;
 using ColorBlockJam.Economy;
-using ColorBlockJam.UI.Views;
+using ColorBlockJam.UI.Windows;
+using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class OutOfTimePopupPresenter : ViewPresenter<OutOfTimePopup>
+    public sealed class OutOfTimePopupPresenter : WindowPresenter<OutOfTimePopup>
     {
-        private readonly LevelSession session;
         private readonly ICoinWallet wallet;
-        private readonly GameplayConfig config;
-        private bool hasBoughtTime;
+        private ExtraTimeOffer offer;
 
-        public OutOfTimePopupPresenter(OutOfTimePopup popup, LevelSession session, ICoinWallet wallet, GameplayConfig config)
-            : base(popup)
+        public OutOfTimePopupPresenter(ICoinWallet wallet)
         {
-            this.session = session;
             this.wallet = wallet;
-            this.config = config;
         }
 
-        protected override void OnInitialize()
+        public UniTask<bool> ShowAsync(ExtraTimeOffer extraTime, CancellationToken cancellationToken = default)
+        {
+            offer = extraTime;
+            return OpenAsync(false, cancellationToken);
+        }
+
+        protected override void OnViewCreated()
         {
             View.ContinueButton.Clicked += OnContinueClicked;
             wallet.CoinsChanged += OnCoinsChanged;
         }
 
-        protected override void OnDispose()
+        protected override void OnViewDestroyed()
         {
             View.ContinueButton.Clicked -= OnContinueClicked;
             wallet.CoinsChanged -= OnCoinsChanged;
@@ -32,33 +35,20 @@ namespace ColorBlockJam.Gameplay
 
         protected override void OnShowing()
         {
-            hasBoughtTime = false;
             ShowOffer();
-        }
-
-        protected override void OnHidden()
-        {
-            if (!hasBoughtTime)
-            {
-                session.DeclineExtraTime();
-            }
         }
 
         private void OnContinueClicked()
         {
-            if (hasBoughtTime || !wallet.TrySpend(config.ExtraTimeCost))
+            if (wallet.TrySpend(offer.Cost))
             {
-                return;
+                Finish(true);
             }
-
-            hasBoughtTime = true;
-            session.AddExtraTime(config.ExtraTimeSeconds);
-            View.RequestClose();
         }
 
         private void OnCoinsChanged(int coins)
         {
-            if (View.IsVisible)
+            if (IsOpen)
             {
                 ShowOffer();
             }
@@ -66,7 +56,7 @@ namespace ColorBlockJam.Gameplay
 
         private void ShowOffer()
         {
-            View.SetOffer(config.ExtraTimeSeconds, config.ExtraTimeCost, wallet.Coins >= config.ExtraTimeCost);
+            View.SetOffer(offer.Seconds, offer.Cost, wallet.Coins >= offer.Cost);
         }
     }
 }

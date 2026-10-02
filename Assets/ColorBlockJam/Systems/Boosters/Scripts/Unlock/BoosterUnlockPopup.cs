@@ -1,12 +1,12 @@
 using ColorBlockJam.UI.Buttons;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ColorBlockJam.Boosters
 {
-    public sealed class BoosterUnlockPopup : Popup
+    public sealed class BoosterUnlockPopup : WindowView
     {
         [Tooltip("Açılan booster'ın ikonu.")]
         [SerializeField] private Image icon;

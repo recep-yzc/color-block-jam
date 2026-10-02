@@ -1198,8 +1198,6 @@ GameObject:
   - component: {fileID: 160035043559734529}
   - component: {fileID: 2436684845294055526}
   - component: {fileID: 3445978249918314491}
-  - component: {fileID: 6148100942212365495}
-  - component: {fileID: 2608024543045197395}
   m_Layer: 5
   m_Name: OutOfTimePopup
   m_TagString: Untagged
@@ -1254,11 +1252,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   content: {fileID: 6567640479975931781}
-  showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  closeOnBackdropClick: 0
-  closeOnBackButton: 1
-  destroyOnHide: 0
   secondsLabel: {fileID: 4395433742500511002}
   messageLabel: {fileID: 6803785427464071467}
   messageFormat: Get {0} seconds to keep playing!
@@ -1266,35 +1259,6 @@ MonoBehaviour:
   affordableColor: {r: 1, g: 1, b: 1, a: 1}
   unaffordableColor: {r: 1, g: 0.16, b: 0.16, a: 1}
   continueButton: {fileID: 101168473239785256}
---- !u!114 &6148100942212365495
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7579367102099933143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e64fad24db076ba478194488e6bf34e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  assetInstallers: []
---- !u!114 &2608024543045197395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7579367102099933143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa22a2d05e9e68146921c99eaa9916f4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &9068698201295774564
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,8 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using ColorBlockJam.Gameplay;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
 using VContainer.Unity;
 
@@ -13,33 +12,23 @@ namespace ColorBlockJam.Boosters
         private readonly BoosterCatalog catalog;
         private readonly ILevelProvider levels;
         private readonly IBoosterInventory inventory;
-        private readonly IPopupService popups;
-        private readonly Queue<BoosterDefinition> pending = new();
+        private readonly IWindows windows;
         private readonly CancellationTokenSource lifetime = new();
 
-        public BoosterUnlocks(BoosterCatalog catalog, ILevelProvider levels, IBoosterInventory inventory, IPopupService popups)
+        public BoosterUnlocks(BoosterCatalog catalog, ILevelProvider levels, IBoosterInventory inventory, IWindows windows)
         {
             this.catalog = catalog;
             this.levels = levels;
             this.inventory = inventory;
-            this.popups = popups;
+            this.windows = windows;
         }
-
-        public BoosterDefinition Current { get; private set; }
 
         public void Start()
         {
-            if (levels.IsEditorTest)
+            if (!levels.IsEditorTest)
             {
-                return;
+                PresentAsync().Forget();
             }
-
-            foreach (var booster in BoosterUnlockRules.Pending(catalog.Boosters, levels.LevelNumber, inventory))
-            {
-                pending.Enqueue(booster);
-            }
-
-            ShowNext();
         }
 
         public void Dispose()
@@ -48,38 +37,19 @@ namespace ColorBlockJam.Boosters
             lifetime.Dispose();
         }
 
-        public void Claim()
+        private async UniTaskVoid PresentAsync()
         {
-            var booster = Current;
-            if (booster == null)
+            var token = lifetime.Token;
+            foreach (var booster in BoosterUnlockRules.Pending(catalog.Boosters, levels.LevelNumber, inventory))
             {
-                return;
+                var (isCanceled, _) = await windows.Get<BoosterUnlockPopupPresenter>().ShowAsync(booster, token).SuppressCancellationThrow();
+                if (isCanceled)
+                {
+                    return;
+                }
+
+                inventory.Unlock(booster);
             }
-
-            Current = null;
-            ClaimAsync(booster).Forget();
-        }
-
-        private async UniTaskVoid ClaimAsync(BoosterDefinition booster)
-        {
-            if (await popups.HideAsync<BoosterUnlockPopup>(lifetime.Token).SuppressCancellationThrow())
-            {
-                return;
-            }
-
-            inventory.Unlock(booster);
-            ShowNext();
-        }
-
-        private void ShowNext()
-        {
-            if (pending.Count == 0)
-            {
-                return;
-            }
-
-            Current = pending.Dequeue();
-            popups.ShowAsync<BoosterUnlockPopup>(lifetime.Token).Forget();
         }
     }
 }

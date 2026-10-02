@@ -1,12 +1,12 @@
 using ColorBlockJam.UI.Buttons;
-using ColorBlockJam.UI.Popups;
+using ColorBlockJam.UI.Windows;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class LevelFailPopup : Popup
+    public sealed class LevelFailPopup : WindowView
     {
         [Tooltip("Seviyenin neden kaybedildiğini gösteren yazı.")]
         [SerializeField] private TMP_Text reasonLabel;

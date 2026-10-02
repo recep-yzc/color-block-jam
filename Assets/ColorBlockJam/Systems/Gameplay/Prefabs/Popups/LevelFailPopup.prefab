@@ -429,8 +429,6 @@ GameObject:
   - component: {fileID: 6153617607698183415}
   - component: {fileID: 8296693308393288700}
   - component: {fileID: 6085398487317462043}
-  - component: {fileID: 6682114475523473486}
-  - component: {fileID: 559936188758663032}
   m_Layer: 5
   m_Name: LevelFailPopup
   m_TagString: Untagged
@@ -485,11 +483,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   content: {fileID: 4185049454271457740}
-  showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  closeOnBackdropClick: 0
-  closeOnBackButton: 0
-  destroyOnHide: 0
   reasonLabel: {fileID: 5032176947181129792}
   reasonIcon: {fileID: 171312875487425640}
   timeUpText: Time's up!
@@ -498,35 +491,6 @@ MonoBehaviour:
   stuckIcon: {fileID: 21300000, guid: a7b0fe5ac1872624da4a6fdaac21e5fa, type: 3}
   restartButton: {fileID: 1186771970495789177}
   homeButton: {fileID: 2706499072360101789}
---- !u!114 &6682114475523473486
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1189135957810873965}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e64fad24db076ba478194488e6bf34e6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  parentReference:
-    TypeName: 
-  autoRun: 1
-  autoInjectGameObjects: []
-  assetInstallers: []
---- !u!114 &559936188758663032
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1189135957810873965}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f771a4c3079b2b343857f7df22192ec8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1467614542239000553
 GameObject:
   m_ObjectHideFlags: 0

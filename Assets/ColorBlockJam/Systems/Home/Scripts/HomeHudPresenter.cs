@@ -1,18 +1,18 @@
 using ColorBlockJam.Settings;
-using ColorBlockJam.UI.Popups;
 using ColorBlockJam.UI.Views;
+using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Home
 {
     public sealed class HomeHudPresenter : ViewPresenter<HomeHudView>
     {
-        private readonly IPopupService popups;
+        private readonly IWindows windows;
 
-        public HomeHudPresenter(HomeHudView view, IPopupService popups)
+        public HomeHudPresenter(HomeHudView view, IWindows windows)
             : base(view)
         {
-            this.popups = popups;
+            this.windows = windows;
         }
 
         protected override void OnInitialize()
@@ -27,7 +27,7 @@ namespace ColorBlockJam.Home
 
         private void OnSettingsClicked()
         {
-            popups.ShowAsync<SettingsPopup>().Forget();
+            windows.Get<SettingsPopupPresenter>().ShowAsync().Forget();
         }
     }
 }

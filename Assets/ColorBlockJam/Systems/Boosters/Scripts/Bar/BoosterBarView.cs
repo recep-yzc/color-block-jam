@@ -36,7 +36,10 @@ namespace ColorBlockJam.Boosters
 
         public void HideAimHint()
         {
-            aimHint.gameObject.SetActive(false);
+            if (aimHint != null)
+            {
+                aimHint.gameObject.SetActive(false);
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ Drag colored blocks around the board and slide each one out through a door of it
    ```
    Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod ColorBlockJam.Build.AndroidBuild.BuildFromCommandLine
    ```
-4. To run the tests, open *Window › General › Test Runner › EditMode*. There are 78 tests. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner*. There are 78 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
@@ -247,7 +247,7 @@ Everything in the gameplay scene uses one toon shader (`Systems/Rendering/Shader
 
 ### Persistence
 
-Coins, the current level and the settings go through `IKeyValueStorage`, which uses PlayerPrefs.
+Coins, the current level, the settings and the player's boosters go through `IKeyValueStorage`, which uses PlayerPrefs.
 
 ## Known issues and limits
 
@@ -278,4 +278,4 @@ Coins, the current level and the settings go through `IKeyValueStorage`, which u
 
 ## Work time
 
-Going by the commit history, about 13 hours in three evening sessions, from 28 Sep 2026 20:10 to 1 Oct 2026 01:30.
+Going by the commit history, about 18 hours in five evening sessions, from 28 Sep 2026 20:10 to 2 Oct 2026 20:50.

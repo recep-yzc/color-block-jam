@@ -31,7 +31,7 @@ Material:
     - _RimWidth: 0
     - _VertexColorWeight: 0
     m_Colors:
-    - _BaseColor: {r: 0.7608, g: 0.6902, b: 1, a: 1}
+    - _BaseColor: {r: 0.28969383, g: 0.3198881, b: 0.3962264, a: 1}
     - _HighlightColor: {r: 1, g: 0.949, b: 0.8392, a: 0.2}
     - _RimColor: {r: 1, g: 0.8784, b: 0.9569, a: 0.2}
     - _ShadowColor: {r: 0.5569, g: 0.498, b: 0.8784, a: 1}

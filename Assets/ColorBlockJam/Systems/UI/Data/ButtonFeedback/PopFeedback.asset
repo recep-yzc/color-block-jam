@@ -9,10 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f601c9c7feb635d4bb157b59a46e0850, type: 3}
+  m_Script: {fileID: 11500000, guid: 3f3fffe196424bd4289ce1c69b16a3c4, type: 3}
   m_Name: PopFeedback
   m_EditorClassIdentifier: 
   pressedScale: 1.08
   pressDuration: 0.1
+  pressEase: 5
   releaseDuration: 0.45
   releaseEase: 23

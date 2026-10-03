@@ -16,9 +16,8 @@ namespace ColorBlockJam.Gameplay
 
         private readonly BoardSolver solver;
         private readonly GameplayConfig config;
-        private readonly CancellationTokenSource lifetime = new();
         private Answer answer;
-        private bool isSearching;
+        private CancellationTokenSource search;
 
         public SolvabilityWatcher(BoardSolver solver, GameplayConfig config)
         {
@@ -32,27 +31,43 @@ namespace ColorBlockJam.Gameplay
 
         public void Check(Board board)
         {
-            if (answer == Answer.Unknown && !isSearching)
+            if (answer == Answer.Unknown && search == null)
             {
                 SearchAsync(board.Clone()).Forget();
             }
         }
 
+        public void Recheck(Board board)
+        {
+            if (answer == Answer.Solvable)
+            {
+                return;
+            }
+
+            CancelSearch();
+            answer = Answer.Unknown;
+            Check(board);
+        }
+
         public void Dispose()
         {
-            lifetime.Cancel();
-            lifetime.Dispose();
+            CancelSearch();
         }
 
         private async UniTaskVoid SearchAsync(Board snapshot)
         {
-            isSearching = true;
-            var token = lifetime.Token;
+            var source = new CancellationTokenSource();
+            search = source;
+            var token = source.Token;
             var (isCanceled, result) = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.StuckSearchBudget, token),
                 cancellationToken: token).SuppressCancellationThrow();
-            isSearching = false;
+            if (search == source)
+            {
+                search = null;
+            }
 
-            if (isCanceled)
+            source.Dispose();
+            if (isCanceled || token.IsCancellationRequested)
             {
                 return;
             }
@@ -62,6 +77,17 @@ namespace ColorBlockJam.Gameplay
             {
                 FoundUnsolvable?.Invoke();
             }
+        }
+
+        private void CancelSearch()
+        {
+            if (search == null)
+            {
+                return;
+            }
+
+            search.Cancel();
+            search = null;
         }
     }
 }

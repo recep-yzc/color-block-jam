@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using ColorBlockJam.Gameplay.Logic;
 using Cysharp.Threading.Tasks;
@@ -10,16 +9,18 @@ namespace ColorBlockJam.Gameplay
     {
         private readonly BoardSolver solver;
         private readonly GameplayConfig config;
+        private readonly LevelBoard levelBoard;
 
-        public AutoPlayer(BoardSolver solver, GameplayConfig config)
+        public AutoPlayer(BoardSolver solver, GameplayConfig config, LevelBoard levelBoard)
         {
             this.solver = solver;
             this.config = config;
+            this.levelBoard = levelBoard;
         }
 
-        public async UniTask<bool> PlayAsync(Board board, IReadOnlyList<BlockView> views, Action<BoardBlock, BoardDoor> onLeft,
-            CancellationToken cancellationToken)
+        public async UniTask<bool> PlayAsync(CancellationToken cancellationToken)
         {
+            var board = levelBoard.Board;
             var snapshot = board.Clone();
             var result = await UniTask.RunOnThreadPool(() => solver.Solve(snapshot, config.AutoPlaySearchBudget, cancellationToken),
                 cancellationToken: cancellationToken);
@@ -32,32 +33,19 @@ namespace ColorBlockJam.Gameplay
             foreach (var move in result.Moves)
             {
                 var block = board.Blocks[move.BlockId];
-                var view = views[move.BlockId];
-
                 if (move.Exits)
                 {
-                    Leave(board, block, view, move, onLeft, cancellationToken);
+                    levelBoard.LeaveFrom(block, move.Target, move.Direction);
                 }
                 else
                 {
-                    await view.SlideAsync(move.Target, cancellationToken);
-                    board.Move(block, move.Target);
+                    await levelBoard.SlideAsync(block, move.Target, cancellationToken);
                 }
 
                 await UniTask.Delay(pause, cancellationToken: cancellationToken);
             }
 
             return true;
-        }
-
-        private static void Leave(Board board, BoardBlock block, BlockView view, SolverMove move,
-            Action<BoardBlock, BoardDoor> onLeft, CancellationToken cancellationToken)
-        {
-            var door = BlockPlacement.ExitDoor(board, block, move.Target, move.Direction);
-            var steps = BlockPlacement.StepsToLeave(board, block, move.Target, move.Direction);
-            board.Clear(block);
-            view.LeaveFromAsync(move.Target, move.Direction, steps, cancellationToken).Forget();
-            onLeft(block, door);
         }
     }
 }

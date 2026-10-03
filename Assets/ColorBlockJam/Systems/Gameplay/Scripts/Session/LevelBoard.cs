@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
 using ColorBlockJam.Settings;
@@ -31,7 +32,9 @@ namespace ColorBlockJam.Gameplay
             this.haptics = haptics;
         }
 
-        public event Action<BoardBlock> BlockSmashed;
+        public event Action BlockLeft;
+
+        public event Action BlocksSmashed;
 
         public Board Board { get; private set; }
 
@@ -54,35 +57,42 @@ namespace ColorBlockJam.Gameplay
             boardCamera.Frame(boardView.WorldBounds);
         }
 
-        public void ShowBlockCleared(BoardDoor door)
+        public void LeaveFrom(BoardBlock block, GridPoint cell, Direction direction)
         {
-            if (door != null)
-            {
-                boardView.PlayDoorEntry(door);
-            }
-
-            foreach (var view in views)
-            {
-                if (!view.IsFrozen || view.Block.IsCleared)
-                {
-                    continue;
-                }
-
-                var left = Board.IceLeft(view.Block);
-                view.ShowIce(left);
-                if (left == 0)
-                {
-                    bursts.Play(view.Center, config.IceBurstColor);
-                }
-            }
+            var door = BlockPlacement.ExitDoor(Board, block, cell, direction);
+            var steps = BlockPlacement.StepsToLeave(Board, block, cell, direction);
+            Board.Clear(block);
+            var view = views[block.Id];
+            view.LeaveFromAsync(cell, direction, steps, view.destroyCancellationToken).Forget();
+            ShowLeft(door);
         }
 
-        public void Smash(BoardBlock block)
+        public void Exit(BoardBlock block, BoardDoor door, float depth)
         {
             Board.Clear(block);
             var view = views[block.Id];
-            view.SmashAsync(view.destroyCancellationToken).Forget();
-            BlockSmashed?.Invoke(block);
+            var distance = BlockPlacement.LengthThroughDoor(block, door.Side) - depth;
+            view.ExitAsync(door.ExitDirection, distance, view.destroyCancellationToken).Forget();
+            ShowLeft(door);
+        }
+
+        public async UniTask SlideAsync(BoardBlock block, GridPoint cell, CancellationToken cancellationToken)
+        {
+            await views[block.Id].SlideAsync(cell, cancellationToken);
+            Board.Move(block, cell);
+        }
+
+        public void Smash(IReadOnlyList<BoardBlock> blocks)
+        {
+            foreach (var block in blocks)
+            {
+                Board.Clear(block);
+                var view = views[block.Id];
+                view.SmashAsync(view.destroyCancellationToken).Forget();
+            }
+
+            ShowIce();
+            BlocksSmashed?.Invoke();
         }
 
         public void Dispose()
@@ -98,6 +108,35 @@ namespace ColorBlockJam.Gameplay
 
             views.Clear();
             boardView.Clear();
+        }
+
+        private void ShowLeft(BoardDoor door)
+        {
+            if (door != null)
+            {
+                boardView.PlayDoorEntry(door);
+            }
+
+            ShowIce();
+            BlockLeft?.Invoke();
+        }
+
+        private void ShowIce()
+        {
+            foreach (var view in views)
+            {
+                if (!view.IsFrozen || view.Block.IsCleared)
+                {
+                    continue;
+                }
+
+                var left = Board.IceLeft(view.Block);
+                view.ShowIce(left);
+                if (left == 0)
+                {
+                    bursts.Play(view.Center, config.IceBurstColor);
+                }
+            }
         }
 
         private void OnBlockRemoved(BlockView view)

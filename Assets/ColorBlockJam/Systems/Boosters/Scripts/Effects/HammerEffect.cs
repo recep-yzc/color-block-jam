@@ -14,7 +14,7 @@ namespace ColorBlockJam.Boosters
 
         public override void Apply(BoardBlock block, GridPoint cell)
         {
-            board.Smash(block);
+            board.Smash(new[] { block });
         }
     }
 }

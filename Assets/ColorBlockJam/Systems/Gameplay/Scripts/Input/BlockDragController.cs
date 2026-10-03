@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using ColorBlockJam.Gameplay.Logic;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 using VContainer.Unity;
 using NVector2 = System.Numerics.Vector2;
@@ -18,42 +16,36 @@ namespace ColorBlockJam.Gameplay
         private readonly GameplayConfig config;
         private readonly BlockPressRouter pressRouter;
         private readonly BlockDragMover mover;
+        private readonly LevelBoard levelBoard;
 
-        private Board board;
-        private IReadOnlyList<BlockView> views;
         private BlockView dragged;
         private NVector2 position;
         private NVector2 target;
         private NVector2 grabOffset;
 
         public BlockDragController(BoardPointer pointer, BoardView boardView, Camera viewCamera, GameplayConfig config,
-            BlockPressRouter pressRouter)
+            BlockPressRouter pressRouter, LevelBoard levelBoard)
         {
             this.pointer = pointer;
             this.boardView = boardView;
             this.viewCamera = viewCamera;
             this.config = config;
             this.pressRouter = pressRouter;
+            this.levelBoard = levelBoard;
             mover = new BlockDragMover(config.CornerRounding);
         }
 
-        public event Action<BoardBlock> BlockMoved;
-
-        public event Action<BoardBlock, BoardDoor> BlockLeft;
+        public event Action BlockMoved;
 
         public bool IsEnabled { get; set; }
 
         private float PickHeight => config.CellSize * ArtSpace.BlockHalfHeight;
 
-        public void Attach(Board targetBoard, IReadOnlyList<BlockView> blockViews)
-        {
-            board = targetBoard;
-            views = blockViews;
-        }
+        private Board Board => levelBoard.Board;
 
         public void Tick()
         {
-            if (board == null)
+            if (Board == null)
             {
                 return;
             }
@@ -85,19 +77,19 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            var block = BlockPicker.Pick(board, cell, config.PickPadding, out var pressed);
+            var block = BlockPicker.Pick(Board, cell, config.PickPadding, out var pressed);
             if (block == null || pressRouter.TryPick(block, pressed))
             {
                 return;
             }
 
-            if (board.IsFrozen(block))
+            if (Board.IsFrozen(block))
             {
-                views[block.Id].PlayFrozenShake();
+                levelBoard.Views[block.Id].PlayFrozenShake();
                 return;
             }
 
-            dragged = views[block.Id];
+            dragged = levelBoard.Views[block.Id];
             position = new NVector2(block.Position.X, block.Position.Y);
             target = position;
             grabOffset = cell - position;
@@ -118,12 +110,12 @@ namespace ColorBlockJam.Gameplay
             {
                 var deltaTime = Time.deltaTime;
                 var step = MathF.Min(distance * (1f - MathF.Exp(-config.FollowSharpness * deltaTime)), config.MaxDragSpeed * deltaTime);
-                position = mover.Move(board, block, position, position + toTarget * (step / distance));
+                position = mover.Move(Board, block, position, position + toTarget * (step / distance));
             }
 
-            var depth = BlockPlacement.DepthThroughDoor(board, block, position, out var door);
+            var depth = BlockPlacement.DepthThroughDoor(Board, block, position, out var door);
             if (door != null && depth >= config.ExitDepth &&
-                board.CanPassThrough(block, BlockPlacement.EdgePosition(board, block, position, door.Side), door.ExitDirection))
+                Board.CanPassThrough(block, BlockPlacement.EdgePosition(Board, block, position, door.Side), door.ExitDirection))
             {
                 Leave(door, depth);
                 return;
@@ -137,38 +129,30 @@ namespace ColorBlockJam.Gameplay
             var block = dragged.Block;
             var view = dragged;
             var start = block.Position;
-            var cell = BlockPlacement.Snap(board, block, position);
+            var cell = BlockPlacement.Snap(Board, block, position);
 
-            board.Move(block, cell);
+            Board.Move(block, cell);
             dragged = null;
 
-            var door = canEnterDoor ? BlockPlacement.DoorToEnter(board, block, cell) : null;
+            var door = canEnterDoor ? BlockPlacement.DoorToEnter(Board, block, cell) : null;
             if (door != null)
             {
-                var steps = BlockPlacement.StepsToLeave(board, block, cell, door.ExitDirection);
-                board.Clear(block);
-                view.LeaveFromAsync(cell, door.ExitDirection, steps, view.destroyCancellationToken).Forget();
-                BlockLeft?.Invoke(block, door);
+                levelBoard.LeaveFrom(block, cell, door.ExitDirection);
                 return;
             }
 
             view.Settle(cell);
             if (cell != start)
             {
-                BlockMoved?.Invoke(block);
+                BlockMoved?.Invoke();
             }
         }
 
         private void Leave(BoardDoor door, float depth)
         {
             var block = dragged.Block;
-            var view = dragged;
             dragged = null;
-
-            board.Clear(block);
-            var distance = BlockPlacement.LengthThroughDoor(block, door.Side) - depth;
-            view.ExitAsync(door.ExitDirection, distance, view.destroyCancellationToken).Forget();
-            BlockLeft?.Invoke(block, door);
+            levelBoard.Exit(block, door, depth);
         }
 
         private bool TryGetPointerCell(out NVector2 cell)

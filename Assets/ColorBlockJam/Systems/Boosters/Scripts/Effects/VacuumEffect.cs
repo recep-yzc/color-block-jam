@@ -14,10 +14,7 @@ namespace ColorBlockJam.Boosters
 
         public override void Apply(BoardBlock block, GridPoint cell)
         {
-            foreach (var target in BoardTargets.OfColor(board.Board, block.Color))
-            {
-                board.Smash(target);
-            }
+            board.Smash(BoardTargets.OfColor(board.Board, block.Color));
         }
     }
 }

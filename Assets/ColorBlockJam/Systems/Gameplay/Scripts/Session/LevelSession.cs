@@ -50,10 +50,9 @@ namespace ColorBlockJam.Gameplay
         public void Start()
         {
             levelBoard.Build(Level);
-            drag.Attach(Board, levelBoard.Views);
             drag.BlockMoved += OnBlockMoved;
-            drag.BlockLeft += OnBlockCleared;
-            levelBoard.BlockSmashed += OnBlockSmashed;
+            levelBoard.BlockLeft += OnBlockLeft;
+            levelBoard.BlocksSmashed += OnBlocksSmashed;
             solvability.FoundUnsolvable += FailIfStuck;
 
             SetState(LevelState.Playing);
@@ -82,8 +81,8 @@ namespace ColorBlockJam.Gameplay
             lifetime.Cancel();
             lifetime.Dispose();
             drag.BlockMoved -= OnBlockMoved;
-            drag.BlockLeft -= OnBlockCleared;
-            levelBoard.BlockSmashed -= OnBlockSmashed;
+            levelBoard.BlockLeft -= OnBlockLeft;
+            levelBoard.BlocksSmashed -= OnBlocksSmashed;
             solvability.FoundUnsolvable -= FailIfStuck;
         }
 
@@ -100,8 +99,7 @@ namespace ColorBlockJam.Gameplay
 
         private async UniTaskVoid AutoPlayAsync()
         {
-            var (isCanceled, isSolved) = await autoPlayer.PlayAsync(Board, levelBoard.Views, OnBlockCleared, lifetime.Token)
-                .SuppressCancellationThrow();
+            var (isCanceled, isSolved) = await autoPlayer.PlayAsync(lifetime.Token).SuppressCancellationThrow();
             if (isCanceled || isSolved)
             {
                 return;
@@ -112,15 +110,14 @@ namespace ColorBlockJam.Gameplay
             FailIfStuck();
         }
 
-        private void OnBlockMoved(BoardBlock block)
+        private void OnBlockMoved()
         {
             hasPlayerMoved = true;
             FailIfStuck();
         }
 
-        private void OnBlockCleared(BoardBlock block, BoardDoor door)
+        private void OnBlockLeft()
         {
-            levelBoard.ShowBlockCleared(door);
             hasPlayerMoved = true;
             if (Board.IsCleared)
             {
@@ -132,9 +129,17 @@ namespace ColorBlockJam.Gameplay
             FailIfStuck();
         }
 
-        private void OnBlockSmashed(BoardBlock block)
+        private void OnBlocksSmashed()
         {
-            OnBlockCleared(block, null);
+            hasPlayerMoved = true;
+            if (Board.IsCleared)
+            {
+                Win();
+                return;
+            }
+
+            solvability.Recheck(Board);
+            FailIfStuck();
         }
 
         private void FailIfStuck()

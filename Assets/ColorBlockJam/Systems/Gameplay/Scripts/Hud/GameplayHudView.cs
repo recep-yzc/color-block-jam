@@ -13,6 +13,8 @@ namespace ColorBlockJam.Gameplay
     {
         [Tooltip("Seviye numarasını gösteren yazı.")]
         [SerializeField] private TMP_Text levelLabel;
+        [Tooltip("Seviye yazısının biçimi. {0} seviye numarasının ya da test seviyesinde 'Test' yazısının yeridir.")]
+        [SerializeField] private string levelFormat = "<size=40>Level</size><br>{0}";
         [Tooltip("Seviyenin zorluğunu gösteren yazı.")]
         [SerializeField] private TMP_Text difficultyLabel;
         [Tooltip("Kalan süreyi dakika:saniye olarak gösteren yazı.")]
@@ -25,14 +27,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Color timerWarningColor = new(1f, 0.35f, 0.3f);
         [Tooltip("Freeze süreyi tutarken sayacın rengi.")]
         [SerializeField] private Color timerFrozenColor = new(0.6f, 0.88f, 1f);
-        [Tooltip("Kolay seviyelerin zorluk rozeti rengi.")]
-        [SerializeField] private Color easyColor = new(0.55f, 0.9f, 0.45f);
-        [Tooltip("Orta seviyelerin zorluk rozeti rengi.")]
-        [SerializeField] private Color mediumColor = new(1f, 0.8f, 0.3f);
-        [Tooltip("Zor seviyelerin zorluk rozeti rengi.")]
-        [SerializeField] private Color hardColor = new(1f, 0.5f, 0.35f);
-        [Tooltip("Süper zor seviyelerin zorluk rozeti rengi.")]
-        [SerializeField] private Color superHardColor = new(0.85f, 0.45f, 1f);
+        [Tooltip("Her zorluk için rozette yazan ad ve rozetin rengi. Listede olmayan bir zorluk adıyla gösterilir.")]
+        [SerializeField] private DifficultyBadge[] difficultyBadges = { };
         [Tooltip("Seviyeyi baştan başlatan buton.")]
         [SerializeField] private ActionButton restartButton;
         [Tooltip("Oyunu durdurup ayarlar popup'ını açan buton.")]
@@ -56,23 +52,27 @@ namespace ColorBlockJam.Gameplay
 
         public void SetLevel(int level)
         {
-            levelLabel.SetText("<size=40>Level</size><br>{0}", level);
+            levelLabel.SetText(levelFormat, level);
         }
 
         public void SetTestLevel()
         {
-            levelLabel.text = "<size=40>Level</size><br>Test";
+            levelLabel.text = levelFormat.Replace("{0}", "Test");
         }
 
         public void SetDifficulty(LevelDifficulty difficulty)
         {
-            (difficultyLabel.text, difficultyLabel.color) = difficulty switch
+            foreach (var badge in difficultyBadges)
             {
-                LevelDifficulty.Easy => ("Easy", easyColor),
-                LevelDifficulty.Medium => ("Medium", mediumColor),
-                LevelDifficulty.Hard => ("Hard", hardColor),
-                _ => ("Super Hard", superHardColor)
-            };
+                if (badge.difficulty == difficulty)
+                {
+                    difficultyLabel.text = badge.label;
+                    difficultyLabel.color = badge.color;
+                    return;
+                }
+            }
+
+            difficultyLabel.text = difficulty.ToString();
         }
 
         public void SetTime(int seconds, bool isWarning)

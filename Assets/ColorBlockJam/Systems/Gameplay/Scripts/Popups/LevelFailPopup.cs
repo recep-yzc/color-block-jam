@@ -12,14 +12,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private TMP_Text reasonLabel;
         [Tooltip("Seviyenin neden kaybedildiğini gösteren ikon.")]
         [SerializeField] private Image reasonIcon;
-        [Tooltip("Süre bitince gösterilen yazı.")]
-        [SerializeField] private string timeUpText = "Time's up!";
-        [Tooltip("Süre bitince gösterilen ikon.")]
-        [SerializeField] private Sprite timeUpIcon;
-        [Tooltip("Yapılacak hamle kalmayınca gösterilen yazı.")]
-        [SerializeField] private string stuckText = "No moves left!";
-        [Tooltip("Yapılacak hamle kalmayınca gösterilen ikon.")]
-        [SerializeField] private Sprite stuckIcon;
+        [Tooltip("Her kaybetme nedeni için gösterilen yazı ve ikon.")]
+        [SerializeField] private FailReasonDisplay[] reasons = { };
         [Tooltip("Seviyeyi baştan başlatan buton.")]
         [SerializeField] private ActionButton restartButton;
         [Tooltip("Ana ekrana dönen buton.")]
@@ -30,9 +24,17 @@ namespace ColorBlockJam.Gameplay
 
         public void SetReason(LevelFailReason reason)
         {
-            var isTimeUp = reason == LevelFailReason.TimeUp;
-            reasonLabel.text = isTimeUp ? timeUpText : stuckText;
-            reasonIcon.sprite = isTimeUp ? timeUpIcon : stuckIcon;
+            foreach (var display in reasons)
+            {
+                if (display.reason == reason)
+                {
+                    reasonLabel.text = display.text;
+                    reasonIcon.sprite = display.icon;
+                    return;
+                }
+            }
+
+            reasonLabel.text = reason.ToString();
         }
     }
 }

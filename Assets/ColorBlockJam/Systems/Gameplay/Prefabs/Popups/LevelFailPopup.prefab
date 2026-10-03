@@ -485,10 +485,13 @@ MonoBehaviour:
   content: {fileID: 4185049454271457740}
   reasonLabel: {fileID: 5032176947181129792}
   reasonIcon: {fileID: 171312875487425640}
-  timeUpText: Time's up!
-  timeUpIcon: {fileID: 21300000, guid: 76eccdcf1cb1efb4d804b3f73ae67109, type: 3}
-  stuckText: No moves left!
-  stuckIcon: {fileID: 21300000, guid: a7b0fe5ac1872624da4a6fdaac21e5fa, type: 3}
+  reasons:
+  - reason: 0
+    text: Time's up!
+    icon: {fileID: 21300000, guid: 76eccdcf1cb1efb4d804b3f73ae67109, type: 3}
+  - reason: 1
+    text: No moves left!
+    icon: {fileID: 21300000, guid: a7b0fe5ac1872624da4a6fdaac21e5fa, type: 3}
   restartButton: {fileID: 1186771970495789177}
   homeButton: {fileID: 2706499072360101789}
 --- !u!1 &1467614542239000553

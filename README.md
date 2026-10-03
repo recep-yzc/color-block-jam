@@ -9,7 +9,7 @@ Drag colored blocks around the board and slide each one out through a door of it
 1. Open the project with **Unity 2022.3.62f2**. Packages resolve from `Packages/manifest.json`: URP 14, Input System, UniTask, LitMotion, VContainer and TextMesh Pro.
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**. Set the Game view to a portrait resolution, such as 1080×1920 or 1080×2400.
 3. To build an APK, switch to Android in *File › Build Settings* and press **Build**. The build settings already list the scenes (Splash, Main, Gameplay), and the player settings use IL2CPP and ARM64.
-4. To run the tests, open *Window › General › Test Runner*. There are 93 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, which obstacles a level introduces, the generator and its cancelling, and checks that every level, booster, obstacle and window that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner*. There are 96 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, which obstacles a level introduces, the generator, its cancelling and its presets, and checks that every level, booster, obstacle and window that ships is sound (the pause menu's HOME button included), that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster, and `obstacles.<id>.seen` for each obstacle.
 
@@ -30,7 +30,7 @@ To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear A
 - The HUD has these buttons:
   - **Restart** starts the level again.
   - **Pause** opens the settings with a **HOME** button that leaves the level; close them to play on. The level also pauses on the Android back button and, on a device, when the app loses focus. In the editor, clicking outside the Game view does not pause it.
-  - **AUTO** lets the solver play the level from where you are.
+  - **AUTO** lets the solver play the level from where you are. A level AUTO wins counts as completed but pays no coins.
 - In the editor and in development builds, → and ← jump to the next and the previous level, to try levels quickly.
 - The first level that has arrow blocks, ice or holes opens with a popup that introduces each of them; **Continue** starts the level. An obstacle is introduced only once.
 - Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.
@@ -71,7 +71,7 @@ The window has three columns:
 5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps, a block on a removed cell, a door that opens onto one, a hole smaller than 2×2. It then runs the solver in the background, with the same budget as the game's stuck check, and starts over when you edit the level. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
 6. **Generate** makes a new solvable level of the chosen difficulty, with the settings of that difficulty in `GeneratorPresets.asset` (board size, colors, block counts, how many blocks must move out of the way, time, arrow and ice share, shapes); **Edit Presets** opens it. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. **Holes** adds up to two holes inside the board. The same seed always gives the same level, and the search can be cancelled. A generated level is a new level: **Save As New Level** keeps it, and the level that was open stays as it was.
 7. **Save** writes over the file of the level you opened, even if the catalog was reordered since. **Save As New Level** adds a file at the end of the catalog. Before saving a level that has problems or has not been checked, the editor warns you, and closing the window with unsaved changes asks to save them.
-8. **▶ Play** starts the gameplay scene with this level, without touching the player's progress or coins.
+8. **▶ Play** starts the gameplay scene with this level on a throwaway copy of the save: coins, boosters and progress change as in the game during the test, and are dropped when play mode ends.
 
 **Format.** The editor and the game read the same JSON file (`LevelData`). `axis` is 0 free, 1 horizontal, 2 vertical; `ice` is how many blocks must leave first; `holes` are the removed cells:
 
@@ -221,6 +221,7 @@ Every object the board builds has a parent whose pivot is where it stands on the
 - **Each obstacle is an asset.** An `ObstacleDefinition` holds its id, its name, its description and an optional icon, and each kind of obstacle is a small subclass that says whether a level has it (`ArrowBlockObstacle`, `IceObstacle`, `HoleObstacle`). `ObstacleCatalog` lists them in the order their popups show. A new obstacle takes a subclass, an asset and a catalog entry.
 - **The level decides, not a level number.** At the start of a level, `ObstacleIntros` asks `ObstacleRules` which obstacles the level's data has and which of them the player has not seen (`SeenObstacles`, saved), and shows `ObstacleIntroPopup` for each. An obstacle counts as seen once **Continue** closes its popup.
 - **One queue for the popups of a level's start.** `LevelIntros` runs every `ILevelIntro` of the level scope one after another, the booster unlocks first and then the obstacles, so two of them never open on top of each other, and levels tried from the editor show none. A new kind of level-start popup only registers another `ILevelIntro`.
+- **The level opens first.** When an intro has something to show, the popups wait `introDelay` (on `GameplayConfig`, 0.8 s) so the board and the HUD settle on screen; until the last popup closes the timer holds and blocks cannot be picked up.
 - The booster unlock and obstacle popups share one view and prefab in UI, `ShowcasePopup` (an icon, a name, a description and one button), and one presenter base, `ShowcasePopupPresenter`. `BoosterUnlockPopup` and `ObstacleIntroPopup` are prefab variants that change only the title and the button text. No obstacle icons were supplied, so the icon is hidden until one is set on the asset.
 
 ### Boosters
@@ -264,7 +265,7 @@ Everything in the gameplay scene uses one toon shader (`Systems/Rendering/Shader
 
 ### Persistence
 
-Coins, the current level, the settings, the player's boosters and the obstacles seen go through `IKeyValueStorage`, which uses PlayerPrefs and saves them to disk when the app loses focus or quits.
+Coins, the current level, the settings, the player's boosters and the obstacles seen go through `IKeyValueStorage`, which uses PlayerPrefs and saves them to disk when the app loses focus or quits. During an editor test play the root scope registers `SandboxStorage` instead: it reads the save but keeps every write in memory.
 
 ## Known issues and limits
 
@@ -273,8 +274,7 @@ Coins, the current level, the settings, the player's boosters and the obstacles 
 - Lives are a placeholder, as the case allows: failing a level costs nothing.
 - A booster's description is plain text in its asset, so changing, for example, the freeze's seconds means changing its description too.
 - On the levels that ship with the game, **stuck cannot happen**, because they are all proven solvable and solvability never changes during play. To see the stuck popup, make a level in the editor that cannot be solved (for example a block with no door of its color), then press ▶ Play.
-- While AUTO plays, the timer, the boosters and the restart and pause buttons are off. A level won by AUTO pays its reward like any other; AUTO is a demo of the solver.
-- An editor ▶ Play does not save progress or coins, but a booster used during it still uses the player's saved stock.
+- While AUTO plays, the timer, the boosters and the restart and pause buttons are off.
 - The solver has a budget. On a very large custom level, Check may answer "no solution found within the budget" instead of a clear yes or no.
 - During an editor ▶ Play, **Continue**, **Retry**, **Restart** and **Home › Play** all return to the tested level until play mode ends.
 - After level 50 the catalog starts again from level 1, while the home screen keeps counting up.
@@ -295,4 +295,4 @@ Coins, the current level, the settings, the player's boosters and the obstacles 
 
 ## Work time
 
-Going by the commit history, about 20 hours in six evening sessions, from 28 Sep 2026 20:10 to 4 Oct 2026 00:45.
+Going by the commit history, about 21 hours in six evening sessions, from 28 Sep 2026 20:10 to 4 Oct 2026 01:30.

@@ -44,7 +44,7 @@ namespace ColorBlockJam.Gameplay
             cellSize = config.CellSize;
             artScale = cellSize / ArtSpace.CellSize;
 
-            staticParts = new GameObject("Board Parts") { isStatic = true }.transform;
+            staticParts = new GameObject("Board Parts").transform;
             staticParts.SetParent(transform, false);
             doorParts = new GameObject("Doors").transform;
             doorParts.SetParent(transform, false);
@@ -467,7 +467,7 @@ namespace ColorBlockJam.Gameplay
         private MeshRenderer AddRenderer(Transform parent, string partName, Mesh mesh, params Material[] materials)
         {
             builtMeshes.Add(mesh);
-            var part = new GameObject(partName) { isStatic = parent.gameObject.isStatic };
+            var part = new GameObject(partName);
             part.transform.SetParent(parent, false);
             part.AddComponent<MeshFilter>().sharedMesh = mesh;
             var meshRenderer = part.AddComponent<MeshRenderer>();

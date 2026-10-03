@@ -77,25 +77,6 @@ namespace ColorBlockJam.Gameplay
             }
         }
 
-        private void AddExtraTime(float seconds)
-        {
-            if (State != LevelState.OutOfTime)
-            {
-                return;
-            }
-
-            Timer.Add(seconds);
-            SetState(LevelState.Playing);
-        }
-
-        private void DeclineExtraTime()
-        {
-            if (State == LevelState.OutOfTime)
-            {
-                Fail(LevelFailReason.TimeUp);
-            }
-        }
-
         public void Dispose()
         {
             lifetime.Cancel();
@@ -201,6 +182,25 @@ namespace ColorBlockJam.Gameplay
             else
             {
                 DeclineExtraTime();
+            }
+        }
+
+        private void AddExtraTime(float seconds)
+        {
+            if (State != LevelState.OutOfTime)
+            {
+                return;
+            }
+
+            Timer.Add(seconds);
+            SetState(LevelState.Playing);
+        }
+
+        private void DeclineExtraTime()
+        {
+            if (State == LevelState.OutOfTime)
+            {
+                Fail(LevelFailReason.TimeUp);
             }
         }
 

@@ -5,11 +5,6 @@ namespace ColorBlockJam.Gameplay
 {
     internal static class MeshTint
     {
-        public static void Paint(Mesh mesh, Color color)
-        {
-            Paint(mesh, color, mesh.vertexCount, color);
-        }
-
         public static void Paint(Mesh mesh, Color color, int count, Color restColor)
         {
             var colors = new Color[mesh.vertexCount];

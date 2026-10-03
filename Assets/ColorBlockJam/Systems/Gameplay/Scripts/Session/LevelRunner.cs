@@ -11,9 +11,9 @@ namespace ColorBlockJam.Gameplay
         private LifetimeScope level;
         private bool isRestartPending;
 
-        public LevelRunner(IObjectResolver resolver, IInstaller levelInstaller)
+        public LevelRunner(LifetimeScope owner, IInstaller levelInstaller)
         {
-            owner = (LifetimeScope)resolver.ApplicationOrigin;
+            this.owner = owner;
             this.levelInstaller = levelInstaller;
         }
 

@@ -12,23 +12,25 @@ namespace ColorBlockJam.Gameplay
 
         public static Quaternion TurnToDiagonal(int signX, int signY)
         {
-            float angle;
-            if (signX > 0 && signY > 0) angle = 0f;
-            else if (signX < 0 && signY > 0) angle = 90f;
-            else if (signX < 0) angle = 180f;
-            else angle = 270f;
-
+            var angle = (signX, signY) switch
+            {
+                ( > 0, > 0) => 0f,
+                ( < 0, > 0) => 90f,
+                ( < 0, _) => 180f,
+                _ => 270f
+            };
             return Quaternion.Euler(0f, -angle, 0f);
         }
 
         public static Quaternion TurnToSide(int signX, int signY)
         {
-            float angle;
-            if (signY > 0) angle = 0f;
-            else if (signX < 0) angle = 90f;
-            else if (signY < 0) angle = 180f;
-            else angle = 270f;
-
+            var angle = (signX, signY) switch
+            {
+                (_, > 0) => 0f,
+                ( < 0, _) => 90f,
+                (_, < 0) => 180f,
+                _ => 270f
+            };
             return Quaternion.Euler(0f, -angle, 0f);
         }
     }

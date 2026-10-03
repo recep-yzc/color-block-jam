@@ -27,7 +27,6 @@ namespace ColorBlockJam.Gameplay
         private BoardView boardView;
         private GameplayConfig config;
         private Mesh mesh;
-        private MeshRenderer meshRenderer;
         private BlockIceView ice;
 
         private Material[] restMaterials;
@@ -58,12 +57,11 @@ namespace ColorBlockJam.Gameplay
             config = gameplayConfig;
             mesh = BlockMeshBuilder.Build(block, art, color);
             body.GetComponent<MeshFilter>().sharedMesh = mesh;
-            meshRenderer = body;
             restMaterials = new[] { art.BlockMaterial };
             heldMaterials = art.BlockOutlineMaskMaterial != null && art.BlockOutlineMaterial != null
                 ? new[] { art.BlockMaterial, art.BlockOutlineMaskMaterial, art.BlockOutlineMaterial }
                 : restMaterials;
-            meshRenderer.sharedMaterials = restMaterials;
+            body.sharedMaterials = restMaterials;
             transform.localScale = Vector3.one * RestScale;
             middle = new Vector2(block.MinX + block.MaxX + 1, block.MinY + block.MaxY + 1) * 0.5f;
             cellPosition = new Vector2(block.Position.X, block.Position.Y);
@@ -81,7 +79,7 @@ namespace ColorBlockJam.Gameplay
         public void BeginDrag()
         {
             moveMotion.TryCancel();
-            meshRenderer.sharedMaterials = heldMaterials;
+            body.sharedMaterials = heldMaterials;
             AnimateLift(config.LiftHeight);
         }
 
@@ -92,7 +90,7 @@ namespace ColorBlockJam.Gameplay
 
         public void Settle(GridPoint cell)
         {
-            meshRenderer.sharedMaterials = restMaterials;
+            body.sharedMaterials = restMaterials;
             AnimateLift(0f);
             moveMotion.TryCancel();
             moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration)
@@ -115,7 +113,7 @@ namespace ColorBlockJam.Gameplay
 
         public async UniTask LeaveFromAsync(GridPoint cell, Direction direction, float stepsToLeave, CancellationToken cancellationToken)
         {
-            meshRenderer.sharedMaterials = restMaterials;
+            body.sharedMaterials = restMaterials;
             moveMotion.TryCancel();
             moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration * LineUpShare)
                 .WithEase(Ease.OutQuad)
@@ -130,7 +128,7 @@ namespace ColorBlockJam.Gameplay
         {
             var distance = stepsToLeave + config.ExitOvershoot;
             moveMotion.TryCancel();
-            meshRenderer.sharedMaterials = restMaterials;
+            body.sharedMaterials = restMaterials;
             AnimateLift(0f);
 
             var offset = direction.ToOffset();

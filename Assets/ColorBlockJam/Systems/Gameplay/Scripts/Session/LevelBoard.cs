@@ -4,7 +4,6 @@ using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
 using ColorBlockJam.Settings;
 using Cysharp.Threading.Tasks;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace ColorBlockJam.Gameplay

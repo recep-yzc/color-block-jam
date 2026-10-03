@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
@@ -36,15 +37,15 @@ namespace ColorBlockJam.LevelEditor
 
             switch (current.GetTypeForControl(id))
             {
-                case EventType.MouseDown when hit:
+                case EventType.MouseDown when hit && GUIUtility.hotControl == 0:
                     if (current.button == 1)
                     {
                         Erase(hitResult);
                     }
                     else if (current.button == 0)
                     {
-                        PointerDown(hitResult);
                         GUIUtility.hotControl = id;
+                        PointerDown(hitResult);
                     }
 
                     current.Use();
@@ -87,8 +88,10 @@ namespace ColorBlockJam.LevelEditor
                     }
 
                     RecordUndo();
+                    undoControl = GUIUtility.hotControl;
                     drawing = new EditableBlock(color);
                     drawing.Cells.Add(hit.Cell);
+                    lastDrawCell = hit.Cell;
                     level.Blocks.Add(drawing);
                     Select(level.Blocks.Count - 1);
                     OnLevelChanged();
@@ -137,12 +140,7 @@ namespace ColorBlockJam.LevelEditor
             switch (tool)
             {
                 case Tool.Draw when drawing != null && hit.IsCell:
-                    if (level.BlockAt(hit.Cell) < 0 && !level.IsHole(hit.Cell) && IsNextTo(drawing.Cells, hit.Cell))
-                    {
-                        drawing.Cells.Add(hit.Cell);
-                        OnLevelChanged();
-                    }
-
+                    DrawTowards(hit.Cell);
                     break;
 
                 case Tool.Door when hit.IsSlot:
@@ -220,6 +218,11 @@ namespace ColorBlockJam.LevelEditor
                 return;
             }
 
+            if (GUIUtility.hotControl != 0)
+            {
+                return;
+            }
+
             var command = current.control || current.command;
             if (command && current.keyCode == KeyCode.Z)
             {
@@ -251,7 +254,13 @@ namespace ColorBlockJam.LevelEditor
             }
             else if (!command && !EditorGUIUtility.editingTextField && current.keyCode is KeyCode.LeftArrow or KeyCode.RightArrow)
             {
-                var next = catalogIndex < 0 ? 0 : catalogIndex + (current.keyCode == KeyCode.RightArrow ? 1 : -1);
+                var step = current.keyCode == KeyCode.RightArrow ? 1 : -1;
+                var next = catalogIndex < 0 ? 0 : catalogIndex + step;
+                while (next >= 0 && next < catalog.Count && catalog.Levels[next] == null)
+                {
+                    next += step;
+                }
+
                 current.Use();
                 if (next >= 0 && next < catalog.Count)
                 {
@@ -316,6 +325,32 @@ namespace ColorBlockJam.LevelEditor
             }
 
             return false;
+        }
+
+        private void DrawTowards(GridPoint target)
+        {
+            var isChanged = false;
+            while (lastDrawCell != target)
+            {
+                var delta = target - lastDrawCell;
+                var step = Math.Abs(delta.X) >= Math.Abs(delta.Y)
+                    ? new GridPoint(Math.Sign(delta.X), 0)
+                    : new GridPoint(0, Math.Sign(delta.Y));
+                var cell = lastDrawCell + step;
+                if (level.BlockAt(cell) >= 0 || level.IsHole(cell) || !IsNextTo(drawing.Cells, cell))
+                {
+                    break;
+                }
+
+                drawing.Cells.Add(cell);
+                lastDrawCell = cell;
+                isChanged = true;
+            }
+
+            if (isChanged)
+            {
+                OnLevelChanged();
+            }
         }
 
         private static bool IsNextTo(List<GridPoint> cells, GridPoint cell)

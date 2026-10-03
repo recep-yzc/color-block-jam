@@ -1,3 +1,4 @@
+using ColorBlockJam.Gameplay.Logic;
 using LitMotion;
 using UnityEngine;
 
@@ -83,7 +84,7 @@ namespace ColorBlockJam.Gameplay
 
         [Header("Solver")]
         [Tooltip("Tahtanın hâlâ temizlenebilir olup olmadığını anlamak için aranan en fazla durum sayısı.")]
-        [SerializeField, Min(100)] private int stuckSearchBudget = 30000;
+        [SerializeField, Min(100)] private int stuckSearchBudget = BoardSolver.DefaultBudget;
         [Tooltip("Otomatik oynatmanın çözümü bulmak için aradığı en fazla durum sayısı.")]
         [SerializeField, Min(100)] private int autoPlaySearchBudget = 60000;
         [Tooltip("Otomatik oynatmada bloğun bir hücre kayma süresi, saniye.")]

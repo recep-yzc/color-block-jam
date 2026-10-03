@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
@@ -49,21 +51,22 @@ namespace ColorBlockJam.LevelEditor
 
         private const float SidebarWidth = 200f;
         private const float InspectorWidth = 280f;
-        private const int ValidationBudget = 100000;
         private const int HistoryLimit = 100;
         private const int HoleSizeLimit = 3;
 
-        private static readonly string[] ToolNames = { "Draw", "Stamp", "Door", "Move", "Erase", "Hole" };
-        private static readonly string[] ToolHelp =
+        private static readonly (Tool Tool, string Name, string Help)[] Tools =
         {
-            "Drag over empty cells to draw one block of the chosen color. Click a block to select it.",
-            "Click a cell to place the chosen shape in the chosen color.",
-            "Click or drag along the walls to place doors of the chosen color. A block leaves through a door of its own color.",
-            "Drag a block to move it.",
-            "Click a block or a door to remove it, or a removed cell to put it back. Right-click erases with every tool.",
-            "Click or drag over empty cells to remove them from the board, and again to put them back. In the game a " +
-            "removed cell is a hole with a wall around it."
+            (Tool.Draw, "Draw", "Drag over empty cells to draw one block of the chosen color. Click a block to select it."),
+            (Tool.Stamp, "Stamp", "Click a cell to place the chosen shape in the chosen color."),
+            (Tool.Door, "Door", "Click or drag along the walls to place doors of the chosen color. A block leaves through a door of its own color."),
+            (Tool.Move, "Move", "Drag a block to move it."),
+            (Tool.Erase, "Erase", "Click a block or a door to remove it, or a removed cell to put it back. Right-click erases with every tool."),
+            (Tool.Hole, "Hole", "Click or drag over empty cells to remove them from the board, and again to put them back. In the game a " +
+                                "removed cell is a hole with a wall around it.")
         };
+
+        private static readonly string[] ToolNames = Array.ConvertAll(Tools, entry => entry.Name);
+        private static readonly BoardSide[] Sides = (BoardSide[])Enum.GetValues(typeof(BoardSide));
 
         private static readonly Color SelectedOutline = new(1f, 1f, 1f, 0.9f);
         private static readonly Color ProblemOutline = new(1f, 0.25f, 0.25f, 1f);
@@ -74,18 +77,31 @@ namespace ColorBlockJam.LevelEditor
         private static readonly Color IceTint = new(0.8f, 0.93f, 1f, 0.55f);
         private static readonly Color IceCountColor = new(0.1f, 0.24f, 0.45f);
 
+        [Tooltip("Düzenlenen seviye, JSON olarak. Pencere yeniden yüklenince buradan geri gelir.")]
         [SerializeField] private string levelJson;
+        [Tooltip("Açık seviyenin dosyası. Save buraya yazar; katalog sırası değişse de doğru dosyaya yazılır.")]
+        [SerializeField] private TextAsset levelAsset;
+        [Tooltip("Açık seviyenin katalogdaki sırası. Yeni bir seviyede -1.")]
         [SerializeField] private int catalogIndex = -1;
+        [Tooltip("Seviyede kaydedilmemiş değişiklik olup olmadığı.")]
         [SerializeField] private bool isDirty;
+        [Tooltip("Seçili araç.")]
         [SerializeField] private Tool tool;
+        [Tooltip("Seçili renk, paletteki sırası.")]
         [SerializeField] private int color;
+        [Tooltip("Stamp aracının seçili şekli.")]
         [SerializeField] private int shapeIndex;
+        [Tooltip("Generate'in üreteceği zorluk.")]
         [SerializeField] private LevelDifficulty generateDifficulty = LevelDifficulty.Medium;
+        [Tooltip("Generate'in seed'i. Aynı seed aynı seviyeyi üretir.")]
         [SerializeField] private int generateSeed = 1;
+        [Tooltip("Generate'in tahtaya açacağı delik sayısı.")]
         [SerializeField] private int generateHoles;
+        [Tooltip("Geri alınabilecek önceki hâller, JSON olarak.")]
+        [SerializeField] private List<string> undoHistory = new();
+        [Tooltip("Yinelenebilecek hâller, JSON olarak.")]
+        [SerializeField] private List<string> redoHistory = new();
 
-        private readonly List<string> undoHistory = new();
-        private readonly List<string> redoHistory = new();
         private readonly List<string> levelSummaries = new();
         private LevelCatalog catalog;
         private BlockPalette palette;
@@ -94,10 +110,13 @@ namespace ColorBlockJam.LevelEditor
         private List<LevelProblem> problems = new();
 
         private readonly HashSet<int> problemBlocks = new();
+        private readonly HashSet<int> usedColors = new();
+        private int colorCount;
         private GUIStyle iceCountStyle;
         private int selectedBlock = -1;
 
         private EditableBlock drawing;
+        private GridPoint lastDrawCell;
         private int movingBlock = -1;
         private GridPoint moveGrab;
         private GridPoint moveOffset;
@@ -110,7 +129,10 @@ namespace ColorBlockJam.LevelEditor
         private float cellSize;
 
         private int revision;
+        private int undoControl;
         private Task<SolveResult> validation;
+        private CancellationTokenSource validationCancel;
+        private string validationError;
         private int validationRevision;
         private SolveResult result;
         private int resultRevision = -1;
@@ -132,42 +154,101 @@ namespace ColorBlockJam.LevelEditor
             return window;
         }
 
+        private bool IsDirty
+        {
+            get => isDirty;
+            set
+            {
+                isDirty = value;
+                hasUnsavedChanges = value;
+            }
+        }
+
         public void Load(LevelCatalog source, int index)
         {
-            if (!ConfirmDiscard())
+            if (index < 0 || index >= source.Count || source.Levels[index] == null || !ConfirmDiscard())
             {
                 return;
             }
 
             catalog = source;
+            levelAsset = source.Levels[index];
             catalogIndex = index;
-            SetLevel(EditableLevel.From(LevelSerializer.FromJson(source.Levels[index].text)), dirty: false);
+            SetLevel(EditableLevel.From(LevelSerializer.FromJson(levelAsset.text)), dirty: false);
             ResetHistory();
+        }
+
+        public override void SaveChanges()
+        {
+            if (Save(asNew: catalogIndex < 0))
+            {
+                base.SaveChanges();
+            }
         }
 
         private void OnEnable()
         {
             wantsMouseMove = true;
+            saveChangesMessage = "The level has unsaved changes. Save them?";
             shapes = new List<GridPoint[]>();
             shapes.AddRange(BlockShapes.Small);
             shapes.AddRange(BlockShapes.Long);
             shapes.AddRange(BlockShapes.Complex);
-            catalog = FindAsset<LevelCatalog>();
-            palette = FindAsset<BlockPalette>();
+            shapeIndex = Mathf.Clamp(shapeIndex, 0, shapes.Count - 1);
+            FindAssets();
 
             var restored = string.IsNullOrEmpty(levelJson) ? null : LevelSerializer.FromJson(levelJson);
             level = restored != null ? EditableLevel.From(restored) : NewLevel();
-            if (restored == null && catalog != null && catalog.Count > 0)
+            if (restored == null && catalog != null)
             {
-                catalogIndex = 0;
-                level = EditableLevel.From(LevelSerializer.FromJson(catalog.Levels[0].text));
+                var first = FirstLevelIndex();
+                if (first >= 0)
+                {
+                    levelAsset = catalog.Levels[first];
+                    level = EditableLevel.From(LevelSerializer.FromJson(levelAsset.text));
+                }
             }
 
             var wasDirty = isDirty && restored != null;
             OnLevelChanged();
-            isDirty = wasDirty;
+            IsDirty = wasDirty;
             isLayoutStale = false;
+            SyncCatalog();
+            UnityEditor.Undo.undoRedoPerformed += SyncCatalog;
+        }
+
+        private void OnDisable()
+        {
+            UnityEditor.Undo.undoRedoPerformed -= SyncCatalog;
+            CancelValidation();
+        }
+
+        private void OnFocus()
+        {
+            SyncCatalog();
+        }
+
+        private void OnProjectChange()
+        {
+            SyncCatalog();
+        }
+
+        private void FindAssets()
+        {
+            catalog = catalog != null ? catalog : FindAsset<LevelCatalog>();
+            palette = palette != null ? palette : FindAsset<BlockPalette>();
+            if (palette != null)
+            {
+                color = Mathf.Clamp(color, 0, Mathf.Max(0, palette.Count - 1));
+            }
+        }
+
+        private void SyncCatalog()
+        {
+            FindAssets();
+            catalogIndex = catalog != null && levelAsset != null ? IndexOfLevel(levelAsset) : -1;
             RefreshSummaries();
+            Repaint();
         }
 
         private void Update()
@@ -177,7 +258,12 @@ namespace ColorBlockJam.LevelEditor
                 return;
             }
 
-            if (validation.IsCompletedSuccessfully && validationRevision == revision)
+            if (validation.IsFaulted)
+            {
+                validationError = validation.Exception?.GetBaseException().Message;
+                Debug.LogException(validation.Exception);
+            }
+            else if (validation.IsCompletedSuccessfully && validationRevision == revision)
             {
                 result = validation.Result;
                 resultRevision = revision;
@@ -191,8 +277,18 @@ namespace ColorBlockJam.LevelEditor
         {
             if (palette == null || catalog == null)
             {
+                SyncCatalog();
+            }
+
+            if (palette == null || catalog == null)
+            {
                 EditorGUILayout.HelpBox("A BlockPalette and a LevelCatalog asset are needed. Create them from Assets > Create > Color Block Jam > Level.", MessageType.Error);
                 return;
+            }
+
+            if (GUIUtility.hotControl == 0)
+            {
+                undoControl = 0;
             }
 
             HandleShortcuts();
@@ -203,7 +299,6 @@ namespace ColorBlockJam.LevelEditor
             DrawSidebar();
             ExitIfLayoutStale();
             DrawBoardArea();
-            ExitIfLayoutStale();
             DrawInspector();
             EditorGUILayout.EndHorizontal();
             DrawStatusBar();
@@ -227,11 +322,12 @@ namespace ColorBlockJam.LevelEditor
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
             var title = catalogIndex >= 0 && catalogIndex < catalog.Count ? $"Level {catalogIndex + 1}  ({catalog.Levels[catalogIndex].name})" : "New level";
-            GUILayout.Label(isDirty ? title + "  *" : title, EditorStyles.boldLabel);
+            GUILayout.Label(IsDirty ? title + "  *" : title, EditorStyles.boldLabel);
             GUILayout.FlexibleSpace();
 
             if (GUILayout.Button(new GUIContent("New", "Boş bir seviye başlatır."), EditorStyles.toolbarButton) && ConfirmDiscard())
             {
+                levelAsset = null;
                 catalogIndex = -1;
                 SetLevel(NewLevel(), dirty: false);
                 ResetHistory();
@@ -273,9 +369,13 @@ namespace ColorBlockJam.LevelEditor
                 StartValidation();
             }
 
-            if (GUILayout.Button(new GUIContent("▶ Play", "Bu seviyeyi oyun sahnesinde oynatır."), EditorStyles.toolbarButton))
+            using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))
             {
-                LevelTestPlay.Play(level.ToData());
+                if (GUILayout.Button(new GUIContent("▶ Play", "Bu seviyeyi oyun sahnesinde oynatır. Oyun çalışırken kapalıdır."),
+                        EditorStyles.toolbarButton))
+                {
+                    LevelTestPlay.Play(level.ToData());
+                }
             }
 
             EditorGUILayout.EndHorizontal();
@@ -292,9 +392,12 @@ namespace ColorBlockJam.LevelEditor
                 var style = isCurrent ? EditorStyles.miniButtonMid : EditorStyles.miniButton;
                 var previous = GUI.backgroundColor;
                 GUI.backgroundColor = isCurrent ? new Color(0.55f, 0.8f, 1f) : previous;
-                if (GUILayout.Button(i < levelSummaries.Count ? levelSummaries[i] : $"{i + 1}", style, GUILayout.Height(24f)) && !isCurrent)
+                using (new EditorGUI.DisabledScope(catalog.Levels[i] == null))
                 {
-                    Load(catalog, i);
+                    if (GUILayout.Button(i < levelSummaries.Count ? levelSummaries[i] : $"{i + 1}", style, GUILayout.Height(24f)) && !isCurrent)
+                    {
+                        Load(catalog, i);
+                    }
                 }
 
                 GUI.backgroundColor = previous;
@@ -353,16 +456,11 @@ namespace ColorBlockJam.LevelEditor
         private void DrawStatusBar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-            var colors = new HashSet<int>();
-            foreach (var block in level.Blocks)
-            {
-                colors.Add(block.Color);
-            }
-
             var where = !hasHover ? "" : hover.IsCell ? $"Cell {hover.Cell.X}, {hover.Cell.Y}" : $"{hover.Side} wall, slot {hover.Slot}";
-            GUILayout.Label($"{level.Width} × {level.Height}   {level.Blocks.Count} blocks   {colors.Count} colors   {where}", EditorStyles.miniLabel);
+            GUILayout.Label($"{level.Width} × {level.Height}   {level.Blocks.Count} blocks   {colorCount} colors   {where}", EditorStyles.miniLabel);
             GUILayout.FlexibleSpace();
-            GUILayout.Label("Right-click erases · 1–0 pick a color · Delete removes the selected block", EditorStyles.miniLabel);
+            GUILayout.Label("Right-click erases · 1–0 pick a color · Delete removes the selected block · ← → previous / next level · Ctrl+Z / Ctrl+Y undo / redo",
+                EditorStyles.miniLabel);
             EditorGUILayout.EndHorizontal();
         }
     }

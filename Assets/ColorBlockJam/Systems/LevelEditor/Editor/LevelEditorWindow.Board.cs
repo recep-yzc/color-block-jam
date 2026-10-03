@@ -25,13 +25,13 @@ namespace ColorBlockJam.LevelEditor
                 }
             }
 
-            foreach (BoardSide side in System.Enum.GetValues(typeof(BoardSide)))
+            foreach (var side in Sides)
             {
                 for (var slot = 0; slot < level.SlotCount(side); slot++)
                 {
                     var bar = SlotBar(side, slot);
                     var doorColor = level.GetDoor(side, slot);
-                    EditorGUI.DrawRect(bar, doorColor == EditableLevel.NoDoor ? WallColor : palette.GetColor(doorColor));
+                    EditorGUI.DrawRect(bar, doorColor == EditableLevel.NoDoor ? WallColor : ColorOf(doorColor));
                     if (doorColor != EditableLevel.NoDoor)
                     {
                         DrawArrow(bar, side);
@@ -51,7 +51,7 @@ namespace ColorBlockJam.LevelEditor
                             cells.Add(block.Position + cell);
                         }
 
-                        DrawBlock(cells, palette.GetColor(block.Color), 1f, outline: null, block.Axis, preview.IceLeft(block));
+                        DrawBlock(cells, ColorOf(block.Color), 1f, outline: null, block.Axis, preview.IceLeft(block));
                     }
                 }
 
@@ -67,7 +67,7 @@ namespace ColorBlockJam.LevelEditor
 
                 var block = level.Blocks[i];
                 var outline = i == selectedBlock ? SelectedOutline : problemBlocks.Contains(i) ? ProblemOutline : (Color?)null;
-                DrawBlock(block.Cells, palette.GetColor(block.Color), 1f, outline, block.Axis, block.Ice);
+                DrawBlock(block.Cells, ColorOf(block.Color), 1f, outline, block.Axis, block.Ice);
             }
 
             DrawGhost();
@@ -86,7 +86,7 @@ namespace ColorBlockJam.LevelEditor
                 var block = level.Blocks[movingBlock];
                 var moved = Offset(block.Cells, moveOffset);
                 var fits = level.Fits(moved, movingBlock);
-                DrawBlock(moved, fits ? palette.GetColor(block.Color) : Color.red, fits ? 0.85f : 0.6f, SelectedOutline, block.Axis, block.Ice);
+                DrawBlock(moved, fits ? ColorOf(block.Color) : Color.red, fits ? 0.85f : 0.6f, SelectedOutline, block.Axis, block.Ice);
                 return;
             }
 
@@ -94,7 +94,7 @@ namespace ColorBlockJam.LevelEditor
             {
                 var cells = Offset(shapes[shapeIndex], hover.Cell);
                 var fits = level.Fits(cells);
-                DrawBlock(cells, fits ? palette.GetColor(color) : Color.red, 0.5f, outline: null);
+                DrawBlock(cells, fits ? ColorOf(color) : Color.red, 0.5f, outline: null);
             }
         }
 
@@ -130,6 +130,11 @@ namespace ColorBlockJam.LevelEditor
                     if (up) EditorGUI.DrawRect(new Rect(inner.x, inner.y, inner.width, 2f), line);
                     if (down) EditorGUI.DrawRect(new Rect(inner.x, inner.yMax - 2f, inner.width, 2f), line);
                 }
+            }
+
+            if (axis == BlockAxis.Free && ice <= 0)
+            {
+                return;
             }
 
             var span = ToArray(cells);

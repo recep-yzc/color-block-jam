@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using ColorBlockJam.Level;
 using ColorBlockJam.LevelEditor.Authoring;
 using UnityEditor;
+using UnityEngine;
 
 namespace ColorBlockJam.LevelEditor
 {
@@ -9,7 +10,13 @@ namespace ColorBlockJam.LevelEditor
     {
         private void Change(System.Action edit)
         {
-            RecordUndo();
+            var control = GUIUtility.hotControl;
+            if (control == 0 || control != undoControl)
+            {
+                RecordUndo();
+            }
+
+            undoControl = control;
             edit();
             OnLevelChanged();
         }
@@ -25,13 +32,21 @@ namespace ColorBlockJam.LevelEditor
 
         private void OnLevelChanged()
         {
-            isDirty = true;
+            IsDirty = true;
             isLayoutStale = true;
             revision++;
             StopPreview();
+            CancelValidation();
             var data = level.ToData();
             levelJson = LevelSerializer.ToJson(data);
             problems = LevelDiagnostics.Find(data);
+            usedColors.Clear();
+            foreach (var block in level.Blocks)
+            {
+                usedColors.Add(block.Color);
+            }
+
+            colorCount = usedColors.Count;
             problemBlocks.Clear();
             foreach (var problem in problems)
             {
@@ -54,12 +69,12 @@ namespace ColorBlockJam.LevelEditor
             selectedBlock = -1;
             result = null;
             OnLevelChanged();
-            isDirty = dirty;
+            IsDirty = dirty;
         }
 
         private void RecordUndo()
         {
-            undoHistory.Add(LevelSerializer.ToJson(level.ToData()));
+            undoHistory.Add(levelJson);
             if (undoHistory.Count > HistoryLimit)
             {
                 undoHistory.RemoveAt(0);
@@ -75,7 +90,7 @@ namespace ColorBlockJam.LevelEditor
                 return;
             }
 
-            redoHistory.Add(LevelSerializer.ToJson(level.ToData()));
+            redoHistory.Add(levelJson);
             level = EditableLevel.From(LevelSerializer.FromJson(Pop(undoHistory)));
             OnLevelChanged();
         }
@@ -87,7 +102,7 @@ namespace ColorBlockJam.LevelEditor
                 return;
             }
 
-            undoHistory.Add(LevelSerializer.ToJson(level.ToData()));
+            undoHistory.Add(levelJson);
             level = EditableLevel.From(LevelSerializer.FromJson(Pop(redoHistory)));
             OnLevelChanged();
         }
@@ -107,7 +122,7 @@ namespace ColorBlockJam.LevelEditor
 
         private bool ConfirmDiscard()
         {
-            return !isDirty || EditorUtility.DisplayDialog("Level Editor", "The level has unsaved changes. Discard them?", "Discard", "Keep Editing");
+            return !IsDirty || EditorUtility.DisplayDialog("Level Editor", "The level has unsaved changes. Discard them?", "Discard", "Keep Editing");
         }
     }
 }

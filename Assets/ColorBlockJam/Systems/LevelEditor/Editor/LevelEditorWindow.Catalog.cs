@@ -1,57 +1,51 @@
+using System;
 using System.IO;
 using ColorBlockJam.Level;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace ColorBlockJam.LevelEditor
 {
     internal sealed partial class LevelEditorWindow
     {
-        private void Save(bool asNew)
+        private bool Save(bool asNew)
         {
-            var data = level.ToData();
             var isChecked = result != null && resultRevision == revision && result.IsSolved;
             if ((problems.Count > 0 || !isChecked) && !EditorUtility.DisplayDialog("Level Editor",
                     problems.Count > 0 ? "The level has problems (see Check). Save anyway?" : "The level has not been checked as solvable. Save anyway?",
                     "Save Anyway", "Cancel"))
             {
-                return;
+                return false;
             }
 
-            string path;
-            if (asNew || catalogIndex < 0)
-            {
-                path = NextLevelPath();
-            }
-            else
-            {
-                path = AssetDatabase.GetAssetPath(catalog.Levels[catalogIndex]);
-            }
-
-            File.WriteAllText(path, LevelSerializer.ToJson(data));
+            var isNew = asNew || levelAsset == null;
+            var path = isNew ? NextLevelPath() : AssetDatabase.GetAssetPath(levelAsset);
+            File.WriteAllText(path, levelJson);
             AssetDatabase.ImportAsset(path);
 
-            if (asNew || catalogIndex < 0)
+            if (isNew)
             {
-                var asset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
+                levelAsset = AssetDatabase.LoadAssetAtPath<TextAsset>(path);
                 var serializedCatalog = new SerializedObject(catalog);
                 var levels = serializedCatalog.FindProperty("levels");
                 levels.arraySize++;
-                levels.GetArrayElementAtIndex(levels.arraySize - 1).objectReferenceValue = asset;
+                levels.GetArrayElementAtIndex(levels.arraySize - 1).objectReferenceValue = levelAsset;
                 serializedCatalog.ApplyModifiedProperties();
-                catalogIndex = catalog.Count - 1;
             }
 
             AssetDatabase.SaveAssets();
-            isDirty = false;
-            RefreshSummaries();
+            IsDirty = false;
+            SyncCatalog();
             ShowNotification(new GUIContent($"Saved {Path.GetFileName(path)}"));
+            return true;
         }
 
         private string NextLevelPath()
         {
-            var folder = catalog.Count > 0
-                ? Path.GetDirectoryName(AssetDatabase.GetAssetPath(catalog.Levels[0]))!.Replace('\\', '/')
+            var first = FirstLevelIndex();
+            var folder = first >= 0
+                ? Path.GetDirectoryName(AssetDatabase.GetAssetPath(catalog.Levels[first]))!.Replace('\\', '/')
                 : Path.GetDirectoryName(AssetDatabase.GetAssetPath(catalog))!.Replace('\\', '/');
             for (var number = catalog.Count + 1; ; number++)
             {
@@ -93,8 +87,9 @@ namespace ColorBlockJam.LevelEditor
             levels.DeleteArrayElementAtIndex(catalogIndex);
             serializedCatalog.ApplyModifiedProperties();
             AssetDatabase.SaveAssets();
+            levelAsset = null;
             catalogIndex = -1;
-            isDirty = true;
+            IsDirty = true;
             RefreshSummaries();
         }
 
@@ -116,9 +111,47 @@ namespace ColorBlockJam.LevelEditor
                     continue;
                 }
 
-                var data = LevelSerializer.FromJson(text.text);
-                levelSummaries.Add($"{i + 1}. {text.name}  ·  {data.difficulty}");
+                try
+                {
+                    var data = LevelSerializer.FromJson(text.text);
+                    levelSummaries.Add($"{i + 1}. {text.name}  ·  {data.difficulty}");
+                }
+                catch (Exception)
+                {
+                    levelSummaries.Add($"{i + 1}. {text.name}  (invalid)");
+                }
             }
+        }
+
+        private int FirstLevelIndex()
+        {
+            for (var i = 0; i < catalog.Count; i++)
+            {
+                if (catalog.Levels[i] != null)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private int IndexOfLevel(TextAsset asset)
+        {
+            for (var i = 0; i < catalog.Count; i++)
+            {
+                if (catalog.Levels[i] == asset)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private Color ColorOf(int index)
+        {
+            return index >= 0 && index < palette.Count ? palette.GetColor(index) : Color.magenta;
         }
 
         private string[] ColorNames()

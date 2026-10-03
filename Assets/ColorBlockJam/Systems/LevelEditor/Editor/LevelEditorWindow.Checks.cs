@@ -13,16 +13,28 @@ namespace ColorBlockJam.LevelEditor
     {
         private void StartValidation()
         {
-            if (validation != null)
+            CancelValidation();
+            StopPreview();
+            validationError = null;
+            var board = BoardFactory.Create(level.ToData());
+            validationRevision = revision;
+            validationCancel = new CancellationTokenSource();
+            var token = validationCancel.Token;
+            validation = Task.Run(() => new BoardSolver().Solve(board, BoardSolver.DefaultBudget, token), token);
+            isLayoutStale = true;
+        }
+
+        private void CancelValidation()
+        {
+            if (validationCancel == null)
             {
                 return;
             }
 
-            StopPreview();
-            var board = BoardFactory.Create(level.ToData());
-            validationRevision = revision;
-            validation = Task.Run(() => new BoardSolver().Solve(board, ValidationBudget));
-            isLayoutStale = true;
+            validationCancel.Cancel();
+            validationCancel.Dispose();
+            validationCancel = null;
+            validation = null;
         }
 
         private void SetPreviewStep(int step)
@@ -101,6 +113,8 @@ namespace ColorBlockJam.LevelEditor
 
             RecordUndo();
             SetLevel(EditableLevel.From(generated.Level), dirty: true);
+            levelAsset = null;
+            catalogIndex = -1;
             result = generated.Solution;
             resultRevision = revision;
             generateSeed++;

@@ -7,7 +7,7 @@ namespace ColorBlockJam.Tests
 {
     public sealed class LevelDiagnosticsTests
     {
-        private const int StuckBudget = 30000;
+        private const int StuckBudget = BoardSolver.DefaultBudget;
         private const int Tutorials = 3;
 
         [Test]

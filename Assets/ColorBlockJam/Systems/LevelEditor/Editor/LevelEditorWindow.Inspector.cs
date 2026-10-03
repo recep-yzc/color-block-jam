@@ -47,7 +47,7 @@ namespace ColorBlockJam.LevelEditor
                 ExitIfLayoutStale();
             }
 
-            EditorGUILayout.HelpBox(ToolHelp[(int)tool], MessageType.None);
+            EditorGUILayout.HelpBox(HelpFor(tool), MessageType.None);
 
             EditorGUILayout.Space();
             GUILayout.Label("Color", EditorStyles.boldLabel);
@@ -66,7 +66,8 @@ namespace ColorBlockJam.LevelEditor
                 EditorGUILayout.Space();
                 GUILayout.Label("Selected Block", EditorStyles.boldLabel);
                 var block = level.Blocks[selectedBlock];
-                var newColor = EditorGUILayout.Popup("Color", block.Color, ColorNames());
+                var newColor = EditorGUILayout.Popup(new GUIContent("Color", "Seçili bloğun rengi. Bloğu bu renkteki bir kapıdan çıkar."),
+                    block.Color, ColorNames());
                 if (newColor != block.Color)
                 {
                     Change(() => block.Color = newColor);
@@ -87,7 +88,7 @@ namespace ColorBlockJam.LevelEditor
                     Change(() => block.Ice = ice);
                 }
 
-                if (GUILayout.Button("Delete Block"))
+                if (GUILayout.Button(new GUIContent("Delete Block", "Seçili bloğu siler (Delete).")))
                 {
                     var index = selectedBlock;
                     selectedBlock = -1;
@@ -107,6 +108,19 @@ namespace ColorBlockJam.LevelEditor
 
             EditorGUILayout.EndScrollView();
             EditorGUILayout.EndVertical();
+        }
+
+        private static string HelpFor(Tool chosen)
+        {
+            foreach (var entry in Tools)
+            {
+                if (entry.Tool == chosen)
+                {
+                    return entry.Help;
+                }
+            }
+
+            return string.Empty;
         }
 
         private void DrawColorPicker()
@@ -159,7 +173,7 @@ namespace ColorBlockJam.LevelEditor
                     var box = new Rect(rect.x + column * boxWidth + 2f, rect.y + 2f, boxWidth - 4f, rect.height - 4f);
                     EditorGUI.DrawRect(box, index == shapeIndex ? new Color(0.35f, 0.55f, 0.9f) : new Color(0.22f, 0.22f, 0.22f));
                     DrawShapeThumbnail(shapes[index], box);
-                    if (GUI.Button(box, GUIContent.none, GUIStyle.none))
+                    if (GUI.Button(box, new GUIContent(string.Empty, "Stamp aracıyla yerleştirilecek şekil."), GUIStyle.none))
                     {
                         shapeIndex = index;
                     }
@@ -182,13 +196,12 @@ namespace ColorBlockJam.LevelEditor
             foreach (var cell in shape)
             {
                 EditorGUI.DrawRect(new Rect(origin.x + cell.X * unit + 1f, origin.y - (cell.Y + 1) * unit + 1f, unit - 2f, unit - 2f),
-                    palette.GetColor(color));
+                    ColorOf(color));
             }
         }
 
         private void DrawCheckSection()
         {
-            ExitIfLayoutStale();
             GUILayout.Label("Check", EditorStyles.boldLabel);
             foreach (var problem in problems)
             {
@@ -200,6 +213,10 @@ namespace ColorBlockJam.LevelEditor
             {
                 EditorGUILayout.HelpBox("Checking whether the level can be solved…", MessageType.Info);
             }
+            else if (validationError != null)
+            {
+                EditorGUILayout.HelpBox($"The check stopped with an error: {validationError}", MessageType.Error);
+            }
             else if (result == null || resultRevision != revision)
             {
                 EditorGUILayout.HelpBox("Not checked since the last change. Press Check.", MessageType.None);
@@ -210,7 +227,8 @@ namespace ColorBlockJam.LevelEditor
                 var moves = LevelRating.MovesToWin(level.Blocks.Count, result);
                 EditorGUILayout.HelpBox($"Wins in {moves} moves: {level.Blocks.Count} block(s) to send out, and {result.Repositions} " +
                                         $"to move out of the way first. That plays like {suggested}.", MessageType.Info);
-                if (suggested != level.Difficulty && GUILayout.Button($"Set Difficulty To {suggested}"))
+                if (suggested != level.Difficulty && GUILayout.Button(new GUIContent($"Set Difficulty To {suggested}",
+                        "Seviyenin zorluk rozetini, hamle sayısının hak ettiği zorluğa çevirir.")))
                 {
                     Change(() => level.Difficulty = suggested);
                 }
@@ -224,13 +242,14 @@ namespace ColorBlockJam.LevelEditor
             }
             else
             {
-                EditorGUILayout.HelpBox($"No solution found within {ValidationBudget} positions. The level may be too hard or unsolvable.",
+                EditorGUILayout.HelpBox($"No solution found within {BoardSolver.DefaultBudget} positions, the same budget the game's stuck " +
+                                        "check uses. The level may be too hard or unsolvable.",
                     MessageType.Warning);
             }
 
             using (new EditorGUI.DisabledScope(validation != null))
             {
-                if (GUILayout.Button("Check Level"))
+                if (GUILayout.Button(new GUIContent("Check Level", "Seviyenin çözülebilir olup olmadığını arka planda bulur.")))
                 {
                     StartValidation();
                 }
@@ -240,7 +259,7 @@ namespace ColorBlockJam.LevelEditor
         private void DrawSolutionPreview()
         {
             EditorGUILayout.BeginHorizontal();
-            if (GUILayout.Button("◀", GUILayout.Width(30f)))
+            if (GUILayout.Button(new GUIContent("◀", "Çözümde bir adım geri."), GUILayout.Width(30f)))
             {
                 SetPreviewStep(previewStep - 1);
             }
@@ -251,7 +270,7 @@ namespace ColorBlockJam.LevelEditor
                 SetPreviewStep(step);
             }
 
-            if (GUILayout.Button("▶", GUILayout.Width(30f)))
+            if (GUILayout.Button(new GUIContent("▶", "Çözümde bir adım ileri."), GUILayout.Width(30f)))
             {
                 SetPreviewStep(previewStep + 1);
             }
@@ -263,7 +282,8 @@ namespace ColorBlockJam.LevelEditor
         private void DrawGenerateSection()
         {
             GUILayout.Label("Generate", EditorStyles.boldLabel);
-            generateDifficulty = (LevelDifficulty)EditorGUILayout.EnumPopup("Difficulty", generateDifficulty);
+            generateDifficulty = (LevelDifficulty)EditorGUILayout.EnumPopup(new GUIContent("Difficulty", "Üretilecek seviyenin zorluğu."),
+                generateDifficulty);
             EditorGUILayout.BeginHorizontal();
             generateSeed = EditorGUILayout.IntField(new GUIContent("Seed", "Aynı seed her zaman aynı seviyeyi üretir."), generateSeed);
             if (GUILayout.Button(new GUIContent("🎲", "Rastgele bir seed seçer."), GUILayout.Width(30f)))
@@ -274,12 +294,12 @@ namespace ColorBlockJam.LevelEditor
             EditorGUILayout.EndHorizontal();
             generateHoles = EditorGUILayout.IntSlider(new GUIContent("Holes", "Tahtanın içine açılacak delik sayısı. Her delik en az 2x2 hücredir."),
                 generateHoles, 0, 2);
-            if (GUILayout.Button("Generate Level") && ConfirmDiscard())
+            if (GUILayout.Button(new GUIContent("Generate Level", "Bu zorlukta çözülebilir yeni bir seviye üretir.")) && ConfirmDiscard())
             {
                 Generate();
             }
 
-            EditorGUILayout.LabelField("Makes a new solvable level of that difficulty, replacing the board. Save it to keep it.",
+            EditorGUILayout.LabelField("Makes a new solvable level of that difficulty, replacing the board. It is a new level: Save As New Level keeps it.",
                 EditorStyles.wordWrappedMiniLabel);
         }
     }

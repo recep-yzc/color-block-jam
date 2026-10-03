@@ -5,6 +5,8 @@ namespace ColorBlockJam.Gameplay.Logic
 {
     public sealed class BoardSolver
     {
+        public const int DefaultBudget = 30000;
+
         private const int InitialStates = 256;
 
         public SolveResult Solve(Board board, int maxStates, CancellationToken cancellationToken = default)

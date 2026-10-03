@@ -16,6 +16,14 @@ namespace ColorBlockJam.Gameplay.Logic
 
         public Board(int width, int height, BoardBlock[] blocks, BoardDoor[] doors, GridPoint[] holes = null)
         {
+            for (var i = 0; i < blocks.Length; i++)
+            {
+                if (blocks[i].Id != i)
+                {
+                    throw new ArgumentException($"Block {i} has the id {blocks[i].Id}; a block's id must be its index.", nameof(blocks));
+                }
+            }
+
             Width = width;
             Height = height;
             this.blocks = blocks;
@@ -42,7 +50,7 @@ namespace ColorBlockJam.Gameplay.Logic
         public int RemainingBlocks { get; private set; }
         public bool IsCleared => RemainingBlocks == 0;
 
-        public int ClearedCount => blocks.Length - RemainingBlocks;
+        private int ClearedCount => blocks.Length - RemainingBlocks;
 
         public bool IsFrozen(BoardBlock block) => block.Ice > ClearedCount;
 
@@ -59,7 +67,7 @@ namespace ColorBlockJam.Gameplay.Logic
             return new Board(Width, Height, copies, doors, holes);
         }
 
-        public bool IsInside(int x, int y)
+        private bool IsInside(int x, int y)
         {
             return x >= 0 && y >= 0 && x < Width && y < Height;
         }
@@ -234,7 +242,7 @@ namespace ColorBlockJam.Gameplay.Logic
             RemainingBlocks--;
         }
 
-        public void SetState(IReadOnlyList<GridPoint> positions, IReadOnlyList<bool> cleared)
+        internal void SetState(GridPoint[] positions, bool[] cleared)
         {
             for (var i = 0; i < blocks.Length; i++)
             {

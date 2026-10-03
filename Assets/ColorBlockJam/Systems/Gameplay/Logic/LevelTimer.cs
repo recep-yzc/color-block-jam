@@ -13,7 +13,7 @@ namespace ColorBlockJam.Gameplay.Logic
         public bool IsPaused { get; set; }
         public bool IsExpired => Remaining <= 0f;
 
-        public float FreezeLeft { get; private set; }
+        private float FreezeLeft { get; set; }
         public bool IsFrozen => FreezeLeft > 0f;
 
         public void Freeze(float seconds)

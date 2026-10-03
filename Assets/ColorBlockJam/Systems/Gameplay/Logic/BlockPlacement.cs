@@ -20,7 +20,7 @@ namespace ColorBlockJam.Gameplay.Logic
             foreach (var offset in SnapCandidates)
             {
                 var candidate = rounded + offset;
-                if (!board.CanPlace(block, candidate) || !StaysOnAxis(block, candidate))
+                if (!board.CanPlace(block, candidate) || !StaysOnLane(block.Axis, block.Position, candidate))
                 {
                     continue;
                 }
@@ -36,12 +36,12 @@ namespace ColorBlockJam.Gameplay.Logic
             return best;
         }
 
-        private static bool StaysOnAxis(BoardBlock block, GridPoint cell)
+        public static bool StaysOnLane(BlockAxis axis, GridPoint lane, GridPoint cell)
         {
-            return block.Axis switch
+            return axis switch
             {
-                BlockAxis.Horizontal => cell.Y == block.Position.Y,
-                BlockAxis.Vertical => cell.X == block.Position.X,
+                BlockAxis.Horizontal => cell.Y == lane.Y,
+                BlockAxis.Vertical => cell.X == lane.X,
                 _ => true
             };
         }

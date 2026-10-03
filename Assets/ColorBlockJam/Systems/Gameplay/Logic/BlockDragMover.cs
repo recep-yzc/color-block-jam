@@ -14,13 +14,15 @@ namespace ColorBlockJam.Gameplay.Logic
         private const float ParallelTolerance = 1e-6f;
         private const float Play = 0.005f;
         private const float HalfSize = 1f - Play;
+        private const float MaxRounding = 0.45f;
+        private const float Still = 1e-9f;
 
         private readonly float radius;
         private readonly float inner;
 
         public BlockDragMover(float cornerRounding)
         {
-            radius = Math.Clamp(cornerRounding, 0f, 0.45f);
+            radius = Math.Clamp(cornerRounding, 0f, MaxRounding);
             inner = HalfSize - radius;
         }
 
@@ -182,7 +184,7 @@ namespace ColorBlockJam.Gameplay.Logic
             {
                 var start = axis == 0 ? origin.X : origin.Y;
                 var speed = axis == 0 ? motion.X : motion.Y;
-                if (MathF.Abs(speed) < 1e-9f)
+                if (MathF.Abs(speed) < Still)
                 {
                     if (MathF.Abs(start) >= HalfSize)
                     {

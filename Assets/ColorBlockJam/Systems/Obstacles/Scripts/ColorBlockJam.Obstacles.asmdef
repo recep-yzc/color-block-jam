@@ -7,9 +7,7 @@
         "ColorBlockJam.Gameplay",
         "ColorBlockJam.Level.Data",
         "VContainer",
-        "UniTask",
-        "UnityEngine.UI",
-        "Unity.TextMeshPro"
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

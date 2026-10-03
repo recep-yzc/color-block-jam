@@ -8,7 +8,7 @@ namespace ColorBlockJam.Tests
 {
     public sealed class ObstacleRulesTests
     {
-        private ObstacleIntroductions introductions;
+        private SeenObstacles seen;
         private ObstacleDefinition arrow;
         private ObstacleDefinition ice;
         private ObstacleDefinition hole;
@@ -17,10 +17,10 @@ namespace ColorBlockJam.Tests
         [SetUp]
         public void SetUp()
         {
-            introductions = new ObstacleIntroductions(new InMemoryStorage());
-            arrow = Create("arrow", ObstacleKind.ArrowBlock);
-            ice = Create("ice", ObstacleKind.Ice);
-            hole = Create("hole", ObstacleKind.Hole);
+            seen = new SeenObstacles(new InMemoryStorage());
+            arrow = Create<ArrowBlockObstacle>("arrow");
+            ice = Create<IceObstacle>("ice");
+            hole = Create<HoleObstacle>("hole");
             obstacles = new[] { arrow, ice, hole };
         }
 
@@ -35,7 +35,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void APlainLevelIntroducesNothing()
         {
-            CollectionAssert.IsEmpty(ObstacleRules.Pending(obstacles, Level(new BlockData()), introductions));
+            CollectionAssert.IsEmpty(ObstacleRules.Pending(obstacles, Level(new BlockData()), seen));
         }
 
         [Test]
@@ -44,16 +44,16 @@ namespace ColorBlockJam.Tests
             var level = Level(new BlockData { ice = 2 }, new BlockData { axis = BlockAxis.Vertical });
             level.holes = new[] { new CellData() };
 
-            CollectionAssert.AreEqual(new[] { arrow, ice, hole }, ObstacleRules.Pending(obstacles, level, introductions));
+            CollectionAssert.AreEqual(new[] { arrow, ice, hole }, ObstacleRules.Pending(obstacles, level, seen));
         }
 
         [Test]
         public void AnObstacleIsIntroducedOnlyOnce()
         {
             var level = Level(new BlockData { ice = 1 });
-            introductions.MarkIntroduced(ice);
+            seen.MarkSeen(ice);
 
-            CollectionAssert.IsEmpty(ObstacleRules.Pending(obstacles, level, introductions));
+            CollectionAssert.IsEmpty(ObstacleRules.Pending(obstacles, level, seen));
         }
 
         private static LevelData Level(params BlockData[] blocks)
@@ -61,12 +61,11 @@ namespace ColorBlockJam.Tests
             return new LevelData { blocks = blocks };
         }
 
-        private static ObstacleDefinition Create(string id, ObstacleKind kind)
+        private static T Create<T>(string id) where T : ObstacleDefinition
         {
-            var obstacle = ScriptableObject.CreateInstance<ObstacleDefinition>();
+            var obstacle = ScriptableObject.CreateInstance<T>();
             var fields = new SerializedObject(obstacle);
             fields.FindProperty("id").stringValue = id;
-            fields.FindProperty("kind").enumValueIndex = (int)kind;
             fields.ApplyModifiedPropertiesWithoutUndo();
             return obstacle;
         }

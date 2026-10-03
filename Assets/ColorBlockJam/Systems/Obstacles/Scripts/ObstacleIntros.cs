@@ -1,54 +1,35 @@
-using System;
 using System.Threading;
 using ColorBlockJam.Gameplay;
 using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
-using VContainer.Unity;
 
 namespace ColorBlockJam.Obstacles
 {
-    public sealed class ObstacleIntros : IStartable, IDisposable
+    public sealed class ObstacleIntros : ILevelIntro
     {
         private readonly ObstacleCatalog catalog;
-        private readonly ILevelProvider levels;
-        private readonly IObstacleIntroductions introductions;
+        private readonly LevelSession session;
+        private readonly ISeenObstacles seen;
         private readonly IWindows windows;
-        private readonly CancellationTokenSource lifetime = new();
 
-        public ObstacleIntros(ObstacleCatalog catalog, ILevelProvider levels, IObstacleIntroductions introductions, IWindows windows)
+        public ObstacleIntros(ObstacleCatalog catalog, LevelSession session, ISeenObstacles seen, IWindows windows)
         {
             this.catalog = catalog;
-            this.levels = levels;
-            this.introductions = introductions;
+            this.session = session;
+            this.seen = seen;
             this.windows = windows;
         }
 
-        public void Start()
+        public async UniTask PresentAsync(CancellationToken cancellationToken)
         {
-            if (!levels.IsEditorTest)
+            foreach (var obstacle in ObstacleRules.Pending(catalog.Obstacles, session.Level, seen))
             {
-                PresentAsync().Forget();
-            }
-        }
-
-        public void Dispose()
-        {
-            lifetime.Cancel();
-            lifetime.Dispose();
-        }
-
-        private async UniTaskVoid PresentAsync()
-        {
-            var token = lifetime.Token;
-            foreach (var obstacle in ObstacleRules.Pending(catalog.Obstacles, levels.Load(), introductions))
-            {
-                var (isCanceled, _) = await windows.Get<ObstacleIntroPopupPresenter>().ShowAsync(obstacle, token).SuppressCancellationThrow();
-                if (isCanceled)
+                if (!await windows.Get<ObstacleIntroPopupPresenter>().ShowAsync(obstacle, cancellationToken))
                 {
                     return;
                 }
 
-                introductions.MarkIntroduced(obstacle);
+                seen.MarkSeen(obstacle);
             }
         }
     }

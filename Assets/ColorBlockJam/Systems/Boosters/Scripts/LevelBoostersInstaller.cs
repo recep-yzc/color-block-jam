@@ -1,4 +1,5 @@
 using ColorBlockJam.Core.Installers;
+using ColorBlockJam.Gameplay;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -12,7 +13,7 @@ namespace ColorBlockJam.Boosters
         {
             builder.Register<BoosterContext>(Lifetime.Singleton);
             builder.RegisterEntryPoint<LevelBoosters>().AsSelf();
-            builder.RegisterEntryPoint<BoosterUnlocks>().AsSelf();
+            builder.Register<BoosterUnlocks>(Lifetime.Singleton).As<ILevelIntro>();
             builder.RegisterEntryPoint<BoosterBarPresenter>();
         }
     }

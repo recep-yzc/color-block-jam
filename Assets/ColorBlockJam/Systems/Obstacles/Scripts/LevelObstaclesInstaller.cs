@@ -1,4 +1,5 @@
 using ColorBlockJam.Core.Installers;
+using ColorBlockJam.Gameplay;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -14,8 +15,8 @@ namespace ColorBlockJam.Obstacles
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(catalog);
-            builder.Register<ObstacleIntroductions>(Lifetime.Singleton).As<IObstacleIntroductions>();
-            builder.RegisterEntryPoint<ObstacleIntros>().AsSelf();
+            builder.Register<SeenObstacles>(Lifetime.Singleton).As<ISeenObstacles>();
+            builder.Register<ObstacleIntros>(Lifetime.Singleton).As<ILevelIntro>();
         }
     }
 }

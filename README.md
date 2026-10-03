@@ -11,7 +11,7 @@ Drag colored blocks around the board and slide each one out through a door of it
 3. To build an APK, switch to Android in *File › Build Settings* and press **Build**. The build settings already list the scenes (Splash, Main, Gameplay), and the player settings use IL2CPP and ARM64.
 4. To run the tests, open *Window › General › Test Runner*. There are 86 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, which obstacles a level introduces, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
-To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster, and `obstacles.<id>.introduced` for each obstacle.
+To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster, and `obstacles.<id>.seen` for each obstacle.
 
 ### How to play
 
@@ -217,8 +217,9 @@ Every object the board builds has a parent whose pivot is where it stands on the
 
 ### Obstacle introductions
 
-- **Each obstacle is an asset.** An `ObstacleDefinition` holds its id, its kind (arrow block, ice or hole), its name, its description and an optional icon; `ObstacleCatalog` lists them in the order their popups show.
-- **The level decides, not a level number.** At the start of a level, `ObstacleIntros` asks `ObstacleRules` which kinds the level's data has and which of them the player has not met (`ObstacleIntroductions`, saved), and shows `ObstacleIntroPopup` for each. An obstacle counts as met once **Continue** closes its popup. Levels tried from the editor introduce nothing.
+- **Each obstacle is an asset.** An `ObstacleDefinition` holds its id, its name, its description and an optional icon, and each kind of obstacle is a small subclass that says whether a level has it (`ArrowBlockObstacle`, `IceObstacle`, `HoleObstacle`). `ObstacleCatalog` lists them in the order their popups show. A new obstacle takes a subclass, an asset and a catalog entry.
+- **The level decides, not a level number.** At the start of a level, `ObstacleIntros` asks `ObstacleRules` which obstacles the level's data has and which of them the player has not seen (`SeenObstacles`, saved), and shows `ObstacleIntroPopup` for each. An obstacle counts as seen once **Continue** closes its popup.
+- **One queue for the popups of a level's start.** `LevelIntros` runs every `ILevelIntro` of the level scope one after another, the booster unlocks first and then the obstacles, so two of them never open on top of each other, and levels tried from the editor show none. A new kind of level-start popup only registers another `ILevelIntro`.
 - The booster unlock and obstacle popups share one view and prefab in UI, `ShowcasePopup` (an icon, a name, a description and one button), and one presenter base, `ShowcasePopupPresenter`. `BoosterUnlockPopup` and `ObstacleIntroPopup` are prefab variants that change only the title and the button text. No obstacle icons were supplied, so the icon is hidden until one is set on the asset.
 
 ### Boosters
@@ -265,7 +266,6 @@ Coins, the current level, the settings and the player's boosters go through `IKe
 - The APK (about 25 MB) is built into `Builds/`, which is not in the repository.
 - UI sprites are imported uncompressed (RGBA32) on Android, for the sharpest look. The full-screen backgrounds cost about 25 MB of memory that way; ASTC would cut that to a fraction if memory ever matters more.
 - Lives are a placeholder, as the case allows: failing a level costs nothing.
-- A level that unlocks a booster and introduces an obstacle at once would show both popups stacked. No shipped level does both: boosters unlock on levels 2 to 8, and obstacles first appear on levels 12, 16 and 22.
 - A booster's description is plain text in its asset, so changing, for example, the freeze's seconds means changing its description too.
 - On the levels that ship with the game, **stuck cannot happen**, because they are all proven solvable and solvability never changes during play. To see the stuck popup, make a level in the editor that cannot be solved (for example a block with no door of its color), then press ▶ Play.
 - While AUTO plays, the timer, the boosters and the restart and pause buttons are off.

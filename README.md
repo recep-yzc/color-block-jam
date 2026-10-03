@@ -21,7 +21,7 @@ To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear A
 - **Arrow blocks** carry a double arrow and move only along it. They can only leave through a door ahead of them.
 - Some boards have **holes**: cells taken out of the board, with a wall around them. Blocks go around them like around the outer wall.
 - **Frozen blocks** sit in ice showing a number: how many more blocks must leave before the ice breaks. Until then they cannot move, and pulling them only makes them shake.
-- Clear the board before the timer reaches zero. **Level Complete** shows the coins you won, and **Continue** opens the next level.
+- Clear the board before the timer reaches zero. The timer starts when you first touch a block, so looking at the board is free. **Level Complete** shows the coins you won, and **Continue** opens the next level.
 - When the timer reaches zero, **Out of Time!** offers 20 more seconds for 100 coins (both are set on `GameplayConfig`). **Continue** buys them and the level goes on. With fewer coins the price turns red and the button does nothing. ✕ or the back button gives up.
 - The level fails in two cases, and **Level Failed** offers **Retry** and **Home**:
   - **Time's up**: the timer reached zero and no time was bought.

@@ -22,6 +22,7 @@ namespace ColorBlockJam.Gameplay
         private readonly LevelIntros intros;
         private readonly CancellationTokenSource lifetime = new();
         private bool hasPlayerMoved;
+        private bool isTimerStarted;
 
         public LevelSession(LevelData level, ILevelProvider levels, LevelBoard levelBoard, BlockDragController drag, AutoPlayer autoPlayer,
             SolvabilityWatcher solvability, LevelResults results, IWindows windows, ILevelFlow flow, LevelIntros intros)
@@ -54,6 +55,7 @@ namespace ColorBlockJam.Gameplay
         public void Start()
         {
             levelBoard.Build(Level);
+            drag.BlockPressed += OnBlockPressed;
             drag.BlockMoved += OnBlockMoved;
             levelBoard.BlockLeft += OnBlockLeft;
             levelBoard.BlocksSmashed += OnBlocksSmashed;
@@ -72,7 +74,7 @@ namespace ColorBlockJam.Gameplay
 
             var isHeld = windows.HasOpenWindow || flow.IsLeaving || intros.IsShowing;
             drag.IsEnabled = State == LevelState.Playing && !isHeld;
-            Timer.IsPaused = State != LevelState.Playing || isHeld;
+            Timer.IsPaused = State != LevelState.Playing || isHeld || !isTimerStarted;
 
             if (Timer.Tick(Time.deltaTime))
             {
@@ -84,6 +86,7 @@ namespace ColorBlockJam.Gameplay
         {
             lifetime.Cancel();
             lifetime.Dispose();
+            drag.BlockPressed -= OnBlockPressed;
             drag.BlockMoved -= OnBlockMoved;
             levelBoard.BlockLeft -= OnBlockLeft;
             levelBoard.BlocksSmashed -= OnBlocksSmashed;
@@ -97,6 +100,7 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
+            isTimerStarted = true;
             SetState(LevelState.AutoPlaying);
             AutoPlayAsync().Forget();
         }
@@ -112,6 +116,11 @@ namespace ColorBlockJam.Gameplay
             Debug.LogWarning("Auto play found no solution from this board.");
             SetState(LevelState.Playing);
             FailIfStuck();
+        }
+
+        private void OnBlockPressed()
+        {
+            isTimerStarted = true;
         }
 
         private void OnBlockMoved()

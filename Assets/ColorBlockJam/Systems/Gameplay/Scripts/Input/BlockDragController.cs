@@ -35,6 +35,8 @@ namespace ColorBlockJam.Gameplay
             mover = new BlockDragMover(config.CornerRounding);
         }
 
+        public event Action BlockPressed;
+
         public event Action BlockMoved;
 
         public bool IsEnabled { get; set; }
@@ -78,7 +80,13 @@ namespace ColorBlockJam.Gameplay
             }
 
             var block = BlockPicker.Pick(Board, cell, config.PickPadding, out var pressed);
-            if (block == null || pressRouter.TryPick(block, pressed))
+            if (block == null)
+            {
+                return;
+            }
+
+            BlockPressed?.Invoke();
+            if (pressRouter.TryPick(block, pressed))
             {
                 return;
             }

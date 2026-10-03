@@ -70,6 +70,7 @@ namespace ColorBlockJam.Gameplay
             BuildCorners(board, art, walls);
             BuildHoleRims(board, art, walls);
             AddBoard(ground, walls, art);
+            AddFloor(board, art);
 
             foreach (var door in doors)
             {
@@ -356,6 +357,62 @@ namespace ColorBlockJam.Gameplay
             Destroy(groundMesh);
             Destroy(wallMesh);
             AddRenderer(staticParts, "Board", mesh, art.GroundMaterial, art.WallMaterial);
+        }
+
+        private void AddFloor(Board board, BoardArt art)
+        {
+            var vertices = new List<Vector3>();
+            var uvs = new List<Vector2>();
+            var triangles = new List<int>();
+            var height = art.FloorHeight * artScale;
+            for (var y = 0; y < board.Height; y++)
+            {
+                for (var x = 0; x < board.Width; x++)
+                {
+                    if (!board.IsFloor(x, y))
+                    {
+                        continue;
+                    }
+
+                    var start = x;
+                    while (x + 1 < board.Width && board.IsFloor(x + 1, y))
+                    {
+                        x++;
+                    }
+
+                    AddFloorRow(vertices, uvs, triangles, start, x + 1, y, height);
+                }
+            }
+
+            var mesh = new Mesh { name = "Floor" };
+            mesh.SetVertices(vertices);
+            mesh.SetUVs(0, uvs);
+            mesh.SetTriangles(triangles, 0);
+            mesh.RecalculateNormals();
+            var floorRenderer = AddRenderer(staticParts, "Floor", mesh, art.FloorMaterial);
+            floorRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+
+        private void AddFloorRow(List<Vector3> vertices, List<Vector2> uvs, List<int> triangles, int from, int to, int row,
+            float height)
+        {
+            var first = vertices.Count;
+            AddFloorCorner(vertices, uvs, from, row, height);
+            AddFloorCorner(vertices, uvs, from, row + 1, height);
+            AddFloorCorner(vertices, uvs, to, row + 1, height);
+            AddFloorCorner(vertices, uvs, to, row, height);
+            triangles.Add(first);
+            triangles.Add(first + 1);
+            triangles.Add(first + 2);
+            triangles.Add(first);
+            triangles.Add(first + 2);
+            triangles.Add(first + 3);
+        }
+
+        private void AddFloorCorner(List<Vector3> vertices, List<Vector2> uvs, int x, int y, float height)
+        {
+            vertices.Add(new Vector3(x * cellSize, height, y * cellSize));
+            uvs.Add(new Vector2(x, y));
         }
 
         private static Mesh Combine(string meshName, List<CombineInstance> pieces)

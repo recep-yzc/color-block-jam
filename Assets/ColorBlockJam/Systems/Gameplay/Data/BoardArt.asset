@@ -29,6 +29,7 @@ MonoBehaviour:
   wallCorner: {fileID: 5732635521261682974, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
   door: {fileID: -621459505486514712, guid: 22b545ba6061c7d4f9152e93d28457f1, type: 3}
   wallHeightOffset: -1
+  floorHeight: -0.3
   wallModelRotation: {x: 0, y: 90, z: 180}
   cornerModelRotation: {x: 0, y: 0, z: 180}
   doorModelRotation: {x: 0, y: 0, z: 180}
@@ -36,6 +37,7 @@ MonoBehaviour:
   doorMaterial: {fileID: 2100000, guid: 6e909acf08b5a4848b8679f7a5fc70c9, type: 2}
   wallMaterial: {fileID: 2100000, guid: 46ed6a5e2c7dd7748ae322b8b893bffa, type: 2}
   groundMaterial: {fileID: 2100000, guid: a9da9576e7ca6e441a38ac5ccb6718a7, type: 2}
+  floorMaterial: {fileID: 2100000, guid: aef648a0b90246d1a9056fc2942f6704, type: 2}
   blockOutlineMaskMaterial: {fileID: 2100000, guid: ba7764ef4cd94acf98fb3ddd78384da9, type: 2}
   blockOutlineMaterial: {fileID: 2100000, guid: a99a3a415b234c3aa488c7d7f286bb4d, type: 2}
   iceMaterial: {fileID: 2100000, guid: 4cc29222f8ad4ead89ebf73f4f07c887, type: 2}

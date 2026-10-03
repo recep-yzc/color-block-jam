@@ -40,6 +40,9 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Mesh door;
         [Tooltip("Duvar orijininin yüksekliği, sanat biriminde (bir hücre 2 birim). Duvarlar bloklardan uzundur.")]
         [SerializeField] private float wallHeightOffset = -0.8f;
+        [Tooltip("Karoların altına serilen düz tabanın yüksekliği, sanat biriminde. Taban sadece oyun alanının " +
+                 "hücrelerini kaplar, deliklerde yoktur; karoların arasından görünür.")]
+        [SerializeField] private float floorHeight = -0.3f;
 
         [Header("Model turns")]
         [Tooltip("Duvar modelini ortası etrafında düzelten dönüş, derece. WallAndDoor.fbx içindeki modeller ters " +
@@ -60,6 +63,8 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Material wallMaterial;
         [Tooltip("Zemin karolarının materyali.")]
         [SerializeField] private Material groundMaterial;
+        [Tooltip("Karoların altındaki düz tabanın materyali.")]
+        [SerializeField] private Material floorMaterial;
         [Tooltip("Tutulan bloğun silüetini işaretler, böylece çerçevesi sadece dışına çizilir.")]
         [SerializeField] private Material blockOutlineMaskMaterial;
         [Tooltip("Oyuncunun tuttuğu bloğun etrafına, her şeyin üstünde çizilen dış çerçeve.")]
@@ -78,6 +83,7 @@ namespace ColorBlockJam.Gameplay
         public Mesh WallCorner => wallCorner;
         public Mesh Door => door;
         public float WallHeightOffset => wallHeightOffset;
+        public float FloorHeight => floorHeight;
         public Quaternion WallModelRotation => Quaternion.Euler(wallModelRotation);
         public Quaternion CornerModelRotation => Quaternion.Euler(cornerModelRotation);
         public Quaternion DoorModelRotation => Quaternion.Euler(doorModelRotation);
@@ -85,6 +91,7 @@ namespace ColorBlockJam.Gameplay
         public Material DoorMaterial => doorMaterial;
         public Material WallMaterial => wallMaterial;
         public Material GroundMaterial => groundMaterial;
+        public Material FloorMaterial => floorMaterial;
         public Material BlockOutlineMaskMaterial => blockOutlineMaskMaterial;
         public Material BlockOutlineMaterial => blockOutlineMaterial;
         public Material IceMaterial => iceMaterial;

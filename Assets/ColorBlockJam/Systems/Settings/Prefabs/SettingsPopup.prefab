@@ -1411,7 +1411,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   content: {fileID: 8295011235925658349}
-  homeButton: {fileID: 0}
 --- !u!1 &8893368884531616072
 GameObject:
   m_ObjectHideFlags: 0

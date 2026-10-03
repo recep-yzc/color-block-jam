@@ -66,6 +66,24 @@ namespace ColorBlockJam.Tests
             Assert.IsTrue(found, $"No window catalog shows {presenter.Name}.");
         }
 
+        [Test]
+        public void ThePauseMenuHasAHomeButton()
+        {
+            WindowEntry pause = null;
+            foreach (var catalog in TestAssets.LoadAll<WindowCatalog>())
+            {
+                if (catalog.TryGetEntry(typeof(PauseMenuPresenter), out var entry))
+                {
+                    pause = entry;
+                }
+            }
+
+            Assert.IsNotNull(pause, "No window catalog shows the pause menu.");
+            var menu = pause.prefab.GetComponent<PauseMenu>();
+            Assert.IsNotNull(menu, $"{pause.prefab.name} has no {nameof(PauseMenu)}.");
+            Assert.IsNotNull(menu.HomeButton, "The pause menu's HOME button is not set.");
+        }
+
         private static Type ViewTypeOf(Type presenter)
         {
             for (var type = presenter; type != null; type = type.BaseType)

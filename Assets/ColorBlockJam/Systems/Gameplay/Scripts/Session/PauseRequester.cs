@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using ColorBlockJam.Settings;
 using ColorBlockJam.UI.Windows;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -50,7 +49,7 @@ namespace ColorBlockJam.Gameplay
         private async UniTaskVoid PauseAsync()
         {
             var (isCanceled, choice) = await windows.Get<PauseMenuPresenter>().ShowAsync(lifetime.Token).SuppressCancellationThrow();
-            if (!isCanceled && choice == SettingsChoice.Home)
+            if (!isCanceled && choice == PauseChoice.Home)
             {
                 flow.GoHome();
             }

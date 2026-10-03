@@ -11,7 +11,14 @@ namespace ColorBlockJam.Core.Installers
         public override void Install(IContainerBuilder builder)
         {
             builder.Register<SceneLoader>(Lifetime.Singleton).As<ISceneLoader>();
-            builder.Register<PlayerPrefsStorage>(Lifetime.Singleton).As<IKeyValueStorage>();
+            if (StorageSandbox.IsActive)
+            {
+                builder.Register<SandboxStorage>(Lifetime.Singleton).As<IKeyValueStorage>();
+            }
+            else
+            {
+                builder.Register<PlayerPrefsStorage>(Lifetime.Singleton).As<IKeyValueStorage>();
+            }
         }
     }
 }

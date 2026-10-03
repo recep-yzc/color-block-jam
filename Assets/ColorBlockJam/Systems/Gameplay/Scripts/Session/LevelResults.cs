@@ -10,7 +10,6 @@ namespace ColorBlockJam.Gameplay
 {
     public sealed class LevelResults : IDisposable
     {
-        private readonly ILevelProvider levels;
         private readonly IProgressionService progression;
         private readonly ICoinWallet wallet;
         private readonly EconomyConfig economy;
@@ -19,10 +18,9 @@ namespace ColorBlockJam.Gameplay
         private readonly GameplayConfig config;
         private readonly CancellationTokenSource lifetime = new();
 
-        public LevelResults(ILevelProvider levels, IProgressionService progression, ICoinWallet wallet, EconomyConfig economy,
-            IWindows windows, ILevelFlow flow, GameplayConfig config)
+        public LevelResults(IProgressionService progression, ICoinWallet wallet, EconomyConfig economy, IWindows windows, ILevelFlow flow,
+            GameplayConfig config)
         {
-            this.levels = levels;
             this.progression = progression;
             this.wallet = wallet;
             this.economy = economy;
@@ -34,11 +32,8 @@ namespace ColorBlockJam.Gameplay
         public void Win(LevelDifficulty difficulty)
         {
             var reward = economy.RewardFor(difficulty);
-            if (!levels.IsEditorTest)
-            {
-                progression.CompleteCurrentLevel();
-                wallet.Add(reward);
-            }
+            progression.CompleteCurrentLevel();
+            wallet.Add(reward);
 
             ShowWinAsync(reward).Forget();
         }

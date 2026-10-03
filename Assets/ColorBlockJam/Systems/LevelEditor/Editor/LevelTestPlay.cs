@@ -1,3 +1,4 @@
+using ColorBlockJam.Core.Persistence;
 using ColorBlockJam.Core.SceneManagement;
 using ColorBlockJam.Level;
 using UnityEditor;
@@ -28,6 +29,7 @@ namespace ColorBlockJam.LevelEditor
             }
 
             EditorTestLevel.Begin(level);
+            StorageSandbox.Begin();
             EditorSceneManager.playModeStartScene = scene;
             EditorApplication.EnterPlaymode();
         }
@@ -40,6 +42,7 @@ namespace ColorBlockJam.LevelEditor
             }
 
             EditorTestLevel.End();
+            StorageSandbox.End();
             EditorSceneManager.playModeStartScene = null;
         }
 

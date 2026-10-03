@@ -12,6 +12,11 @@ namespace ColorBlockJam.Core.SceneManagement
         public async UniTask<PreloadedScene> PreloadAsync(string sceneName, IProgress<float> progress, CancellationToken cancellationToken)
         {
             var operation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
+            if (operation == null)
+            {
+                throw new InvalidOperationException($"The scene '{sceneName}' cannot be loaded. Is it in the build settings?");
+            }
+
             operation.allowSceneActivation = false;
 
             while (operation.progress < LoadedProgress)

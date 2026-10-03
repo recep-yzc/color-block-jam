@@ -17,7 +17,7 @@ namespace ColorBlockJam.Navigation
         [Tooltip("Seçili sekmenin arkasına kayan vurgu. Sekme konteynerinin çocuğudur.")]
         [SerializeField] private RectTransform selectionHighlight;
         [Tooltip("Sekmelerle konteynerin kenarları arasındaki boşluk.")]
-        [SerializeField] private RectOffset padding = new(10, 10, 10, 0);
+        [SerializeField] private RectOffset padding = new();
         [Tooltip("Yan yana iki sekme arasındaki boşluk.")]
         [SerializeField, Min(0f)] private float spacing;
 
@@ -96,6 +96,11 @@ namespace ColorBlockJam.Navigation
             highlightTo = toIndex;
             highlightBlend = blend;
             ApplyHighlight();
+        }
+
+        private void Reset()
+        {
+            padding = new RectOffset(10, 10, 10, 0);
         }
 
         private void OnRectTransformDimensionsChange()

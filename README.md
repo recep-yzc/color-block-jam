@@ -288,4 +288,4 @@ Coins, the current level, the settings and the player's boosters go through `IKe
 
 ## Work time
 
-Going by the commit history, about 18 hours in five evening sessions, from 28 Sep 2026 20:10 to 2 Oct 2026 20:50.
+Going by the commit history, about 19 hours in six evening sessions, from 28 Sep 2026 20:10 to 3 Oct 2026 23:30.

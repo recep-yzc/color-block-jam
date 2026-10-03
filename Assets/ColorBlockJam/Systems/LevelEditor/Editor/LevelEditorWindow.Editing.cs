@@ -1,6 +1,6 @@
 using System.Collections.Generic;
-using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
+using ColorBlockJam.LevelEditor.Authoring;
 using UnityEditor;
 
 namespace ColorBlockJam.LevelEditor

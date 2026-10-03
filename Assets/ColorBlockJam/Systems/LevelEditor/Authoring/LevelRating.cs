@@ -1,6 +1,7 @@
+using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
 
-namespace ColorBlockJam.Gameplay.Logic
+namespace ColorBlockJam.LevelEditor.Authoring
 {
     public static class LevelRating
     {

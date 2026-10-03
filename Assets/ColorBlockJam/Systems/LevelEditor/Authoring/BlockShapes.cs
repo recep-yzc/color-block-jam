@@ -1,6 +1,7 @@
 using System.Collections.Generic;
+using ColorBlockJam.Gameplay.Logic;
 
-namespace ColorBlockJam.Gameplay.Logic
+namespace ColorBlockJam.LevelEditor.Authoring
 {
     public static class BlockShapes
     {

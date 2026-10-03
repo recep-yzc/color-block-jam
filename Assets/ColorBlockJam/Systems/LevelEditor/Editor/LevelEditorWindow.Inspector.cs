@@ -1,8 +1,9 @@
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
+using ColorBlockJam.LevelEditor.Authoring;
+using Random = System.Random;
 using UnityEditor;
 using UnityEngine;
-using Random = System.Random;
 
 namespace ColorBlockJam.LevelEditor
 {

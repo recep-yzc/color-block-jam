@@ -1,4 +1,4 @@
-namespace ColorBlockJam.Gameplay.Logic
+namespace ColorBlockJam.LevelEditor.Authoring
 {
     public readonly struct LevelProblem
     {

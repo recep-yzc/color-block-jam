@@ -3,6 +3,7 @@
     "rootNamespace": "ColorBlockJam.Tests",
     "references": [
         "ColorBlockJam.Gameplay.Logic",
+        "ColorBlockJam.LevelEditor.Authoring",
         "ColorBlockJam.Level",
         "ColorBlockJam.Level.Data",
         "ColorBlockJam.Economy",

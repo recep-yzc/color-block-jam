@@ -1,5 +1,6 @@
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
+using ColorBlockJam.LevelEditor.Authoring;
 using NUnit.Framework;
 
 namespace ColorBlockJam.Tests

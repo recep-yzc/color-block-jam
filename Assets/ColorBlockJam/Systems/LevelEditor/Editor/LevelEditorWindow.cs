@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
+using ColorBlockJam.LevelEditor.Authoring;
 using UnityEditor;
 using UnityEngine;
 

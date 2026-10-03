@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class LevelFailPopupPresenter : WindowPresenter<LevelFailPopup>
+    public sealed class LevelFailPopupPresenter : WindowPresenter<LevelFailPopup, LevelFailChoice>
     {
         private LevelFailReason reason;
 

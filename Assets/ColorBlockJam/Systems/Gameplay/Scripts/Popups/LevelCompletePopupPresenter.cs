@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class LevelCompletePopupPresenter : WindowPresenter<LevelCompletePopup>
+    public sealed class LevelCompletePopupPresenter : WindowPresenter<LevelCompletePopup, bool>
     {
         private int reward;
 

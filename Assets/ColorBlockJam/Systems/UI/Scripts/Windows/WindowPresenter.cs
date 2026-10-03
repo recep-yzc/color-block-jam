@@ -4,17 +4,17 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.UI.Windows
 {
-    public abstract class WindowPresenter<TView> : IWindowPresenter where TView : WindowView
+    public abstract class WindowPresenter<TView, TResult> : IWindowPresenter where TView : WindowView
     {
         private IWindowHost host;
-        private object pending;
-        private Action<bool> ending;
+        private UniTaskCompletionSource<TResult> pending;
+        private TResult closedResult;
 
         protected TView View { get; private set; }
 
         public bool IsOpen => host != null && host.IsOpen(this);
 
-        protected async UniTask<TResult> OpenAsync<TResult>(TResult closedResult, CancellationToken cancellationToken)
+        protected async UniTask<TResult> OpenAsync(TResult resultWhenClosed, CancellationToken cancellationToken)
         {
             if (host == null)
             {
@@ -22,25 +22,19 @@ namespace ColorBlockJam.UI.Windows
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            ending?.Invoke(false);
+            Settle(isCanceled: false);
 
             var source = new UniTaskCompletionSource<TResult>();
             pending = source;
-            ending = isCanceled =>
-            {
-                if (isCanceled)
-                {
-                    source.TrySetCanceled();
-                }
-                else
-                {
-                    source.TrySetResult(closedResult);
-                }
-            };
+            closedResult = resultWhenClosed;
 
             using (cancellationToken.Register(() =>
                    {
-                       Forget(source);
+                       if (pending == source)
+                       {
+                           pending = null;
+                       }
+
                        host.Close(this);
                        source.TrySetCanceled();
                    }))
@@ -50,21 +44,12 @@ namespace ColorBlockJam.UI.Windows
             }
         }
 
-        protected void Finish<TResult>(TResult result)
+        protected void Finish(TResult result)
         {
-            var source = pending as UniTaskCompletionSource<TResult>;
-            Forget(source);
+            var source = pending;
+            pending = null;
             host?.Close(this);
             source?.TrySetResult(result);
-        }
-
-        private void Forget(object source)
-        {
-            if (source != null && ReferenceEquals(pending, source))
-            {
-                pending = null;
-                ending = null;
-            }
         }
 
         protected virtual void OnViewCreated()
@@ -103,10 +88,21 @@ namespace ColorBlockJam.UI.Windows
 
         void IWindowPresenter.NotifyClosed(bool isCanceled)
         {
-            var end = ending;
-            ending = null;
+            Settle(isCanceled);
+        }
+
+        private void Settle(bool isCanceled)
+        {
+            var source = pending;
             pending = null;
-            end?.Invoke(isCanceled);
+            if (isCanceled)
+            {
+                source?.TrySetCanceled();
+            }
+            else
+            {
+                source?.TrySetResult(closedResult);
+            }
         }
     }
 }

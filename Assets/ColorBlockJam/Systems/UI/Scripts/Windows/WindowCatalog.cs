@@ -14,16 +14,10 @@ namespace ColorBlockJam.UI.Windows
 
         public IReadOnlyList<WindowEntry> Windows => windows;
 
-        public WindowEntry EntryFor(Type presenterType)
+        public bool TryGetEntry(Type presenterType, out WindowEntry entry)
         {
             entriesByPresenter ??= BuildLookup();
-
-            if (entriesByPresenter.TryGetValue(presenterType, out var entry))
-            {
-                return entry;
-            }
-
-            throw new InvalidOperationException($"{name} has no window for {presenterType.Name}. Add it to the catalog.");
+            return entriesByPresenter.TryGetValue(presenterType, out entry);
         }
 
         private void OnEnable()

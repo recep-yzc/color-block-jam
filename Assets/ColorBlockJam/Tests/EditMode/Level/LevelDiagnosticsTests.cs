@@ -1,7 +1,6 @@
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
 using NUnit.Framework;
-using UnityEditor;
 
 namespace ColorBlockJam.Tests
 {
@@ -172,9 +171,7 @@ namespace ColorBlockJam.Tests
 
         private static LevelCatalog LoadCatalog()
         {
-            var guids = AssetDatabase.FindAssets($"t:{nameof(LevelCatalog)}");
-            Assert.AreEqual(1, guids.Length);
-            return AssetDatabase.LoadAssetAtPath<LevelCatalog>(AssetDatabase.GUIDToAssetPath(guids[0]));
+            return TestAssets.LoadOnly<LevelCatalog>();
         }
     }
 }

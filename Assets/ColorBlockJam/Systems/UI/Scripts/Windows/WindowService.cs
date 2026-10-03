@@ -13,7 +13,7 @@ namespace ColorBlockJam.UI.Windows
 {
     public sealed class WindowService : IWindows, IWindowHost, IInitializable, ITickable, IDisposable
     {
-        private readonly WindowCatalog catalog;
+        private readonly IReadOnlyList<WindowCatalog> catalogs;
         private readonly WindowLayer layerPrefab;
         private readonly IObjectResolver resolver;
         private readonly Dictionary<IWindowPresenter, WindowSlot> slots = new();
@@ -21,9 +21,9 @@ namespace ColorBlockJam.UI.Windows
         private readonly InputAction backAction = new("Back", InputActionType.Button, "<Keyboard>/escape");
         private WindowLayer layer;
 
-        public WindowService(WindowCatalog catalog, WindowLayer layerPrefab, IObjectResolver resolver)
+        public WindowService(IReadOnlyList<WindowCatalog> catalogs, WindowLayer layerPrefab, IObjectResolver resolver)
         {
-            this.catalog = catalog;
+            this.catalogs = catalogs;
             this.layerPrefab = layerPrefab;
             this.resolver = resolver;
         }
@@ -79,7 +79,7 @@ namespace ColorBlockJam.UI.Windows
             var presenter = resolver.Resolve<TPresenter>();
             if (!slots.ContainsKey(presenter))
             {
-                slots.Add(presenter, new WindowSlot { Entry = catalog.EntryFor(typeof(TPresenter)) });
+                slots.Add(presenter, new WindowSlot { Entry = EntryFor(typeof(TPresenter)) });
                 presenter.Bind(this);
             }
 
@@ -155,6 +155,19 @@ namespace ColorBlockJam.UI.Windows
             }
 
             presenter.NotifyClosed(isCanceled: true);
+        }
+
+        private WindowEntry EntryFor(Type presenterType)
+        {
+            foreach (var catalog in catalogs)
+            {
+                if (catalog.TryGetEntry(presenterType, out var entry))
+                {
+                    return entry;
+                }
+            }
+
+            throw new InvalidOperationException($"No window catalog has a window for {presenterType.Name}. Add it to its system's catalog.");
         }
 
         private void Create(IWindowPresenter presenter, WindowSlot slot)

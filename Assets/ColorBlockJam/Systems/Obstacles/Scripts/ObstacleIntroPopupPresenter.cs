@@ -4,34 +4,11 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Obstacles
 {
-    public sealed class ObstacleIntroPopupPresenter : WindowPresenter<ObstacleIntroPopup>
+    public sealed class ObstacleIntroPopupPresenter : ShowcasePopupPresenter
     {
-        private ObstacleDefinition obstacle;
-
-        public UniTask<bool> ShowAsync(ObstacleDefinition introduced, CancellationToken cancellationToken = default)
+        public UniTask<bool> ShowAsync(ObstacleDefinition obstacle, CancellationToken cancellationToken = default)
         {
-            obstacle = introduced;
-            return OpenAsync(false, cancellationToken);
-        }
-
-        protected override void OnViewCreated()
-        {
-            View.ContinueButton.Clicked += OnContinueClicked;
-        }
-
-        protected override void OnViewDestroyed()
-        {
-            View.ContinueButton.Clicked -= OnContinueClicked;
-        }
-
-        protected override void OnShowing()
-        {
-            View.SetObstacle(obstacle);
-        }
-
-        private void OnContinueClicked()
-        {
-            Finish(true);
+            return ShowAsync(obstacle.Icon, obstacle.DisplayName, obstacle.Description, cancellationToken);
         }
     }
 }

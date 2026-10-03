@@ -4,7 +4,7 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Settings
 {
-    public class SettingsPopupPresenter : WindowPresenter<SettingsPopup>
+    public class SettingsPopupPresenter : WindowPresenter<SettingsPopup, SettingsChoice>
     {
         private readonly ISettingsService settings;
         private readonly IHapticService haptics;

@@ -5,7 +5,7 @@ using Cysharp.Threading.Tasks;
 
 namespace ColorBlockJam.Gameplay
 {
-    public sealed class OutOfTimePopupPresenter : WindowPresenter<OutOfTimePopup>
+    public sealed class OutOfTimePopupPresenter : WindowPresenter<OutOfTimePopup, bool>
     {
         private readonly ICoinWallet wallet;
         private ExtraTimeOffer offer;

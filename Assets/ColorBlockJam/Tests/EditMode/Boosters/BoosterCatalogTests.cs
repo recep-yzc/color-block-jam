@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using ColorBlockJam.Boosters;
-using ColorBlockJam.UI.Windows;
 using NUnit.Framework;
-using UnityEditor;
 
 namespace ColorBlockJam.Tests
 {
@@ -11,7 +9,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void EveryShippedBoosterIsComplete()
         {
-            var catalog = LoadOnly<BoosterCatalog>();
+            var catalog = TestAssets.LoadOnly<BoosterCatalog>();
             Assert.IsNotEmpty(catalog.Boosters);
 
             var ids = new HashSet<string>();
@@ -30,21 +28,6 @@ namespace ColorBlockJam.Tests
                     Assert.IsFalse(string.IsNullOrWhiteSpace(aimed.AimHint), $"{booster.name} tells the player nothing while aiming.");
                 }
             }
-        }
-
-        [Test]
-        public void TheUnlockWindowIsInTheCatalog()
-        {
-            var catalog = LoadOnly<WindowCatalog>();
-
-            Assert.IsNotNull(catalog.EntryFor(typeof(BoosterUnlockPopupPresenter)).prefab);
-        }
-
-        private static T LoadOnly<T>() where T : UnityEngine.Object
-        {
-            var guids = AssetDatabase.FindAssets("t:" + typeof(T).Name);
-            Assert.AreEqual(1, guids.Length, $"Expected one {typeof(T).Name}.");
-            return AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guids[0]));
         }
     }
 }

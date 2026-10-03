@@ -12,5 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f97e857d6eef4b1f975907032696542c, type: 3}
   m_Name: WindowInstaller
   m_EditorClassIdentifier: 
-  catalog: {fileID: 11400000, guid: 252f0fa8b31b27940a180851b0e6c8cd, type: 2}
+  catalogs:
+  - {fileID: 11400000, guid: 50d43412ea3a488b92061aa530b40b85, type: 2}
+  - {fileID: 11400000, guid: 4023e52f070f4f0ca8624f4cce957a98, type: 2}
+  - {fileID: 11400000, guid: 4664b09e230049f08e7a9d8d8e2380da, type: 2}
+  - {fileID: 11400000, guid: d74501c3c9864d12b3a0659f58fcf9dd, type: 2}
   layer: {fileID: 2858136139757613346, guid: 690d0f8d168069940859a1e839dcb4be, type: 3}

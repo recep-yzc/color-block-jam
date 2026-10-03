@@ -10,19 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94b75e51a378a0d4e92e5113d1a7c33e, type: 3}
-  m_Name: WindowCatalog
+  m_Name: GameplayWindows
   m_EditorClassIdentifier: 
   windows:
-  - presenter: ColorBlockJam.Settings.SettingsPopupPresenter, ColorBlockJam.Settings
-    prefab: {fileID: 3520381107686963961, guid: 06a6a095db7d61f4387e88a9fbb78f51, type: 3}
-    settings:
-      dimsBackground: 1
-      closeOnBackdropClick: 1
-      closeOnBackButton: 1
-      closeOnSceneChange: 1
-      destroyOnHide: 1
-      showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-      hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
   - presenter: ColorBlockJam.Gameplay.PauseMenuPresenter, ColorBlockJam.Gameplay
     prefab: {fileID: 893668471129687358, guid: be018483d1d82c34f9e1ea2e72460329, type: 3}
     settings:
@@ -55,26 +45,6 @@ MonoBehaviour:
       hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
   - presenter: ColorBlockJam.Gameplay.LevelFailPopupPresenter, ColorBlockJam.Gameplay
     prefab: {fileID: 6085398487317462043, guid: 22fc599ae22fcf4458c4ea80f8b6a35a, type: 3}
-    settings:
-      dimsBackground: 1
-      closeOnBackdropClick: 0
-      closeOnBackButton: 0
-      closeOnSceneChange: 1
-      destroyOnHide: 0
-      showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-      hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  - presenter: ColorBlockJam.Boosters.BoosterUnlockPopupPresenter, ColorBlockJam.Boosters
-    prefab: {fileID: 1084484342502058740, guid: a1449daa19d617f4e94c6386c3d7e03e, type: 3}
-    settings:
-      dimsBackground: 1
-      closeOnBackdropClick: 0
-      closeOnBackButton: 0
-      closeOnSceneChange: 1
-      destroyOnHide: 0
-      showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-      hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
-  - presenter: ColorBlockJam.Obstacles.ObstacleIntroPopupPresenter, ColorBlockJam.Obstacles
-    prefab: {fileID: 1084484342502058740, guid: 8da035536b0b4304bc3a97d89d3001d0, type: 3}
     settings:
       dimsBackground: 1
       closeOnBackdropClick: 0

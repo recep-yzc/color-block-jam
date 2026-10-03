@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using ColorBlockJam.Core.Installers;
 using UnityEngine;
 using VContainer;
@@ -8,26 +9,28 @@ namespace ColorBlockJam.UI.Windows
     [CreateAssetMenu(menuName = "Color Block Jam/Installers/Windows", fileName = "WindowInstaller")]
     public sealed class WindowInstaller : ScriptableInstaller
     {
-        [Tooltip("Açılabilecek pencerelerin kataloğu.")]
-        [SerializeField] private WindowCatalog catalog;
+        [Tooltip("Açılabilecek pencerelerin katalogları. Her sistem kendi pencerelerini kendi kataloğunda tutar.")]
+        [SerializeField] private WindowCatalog[] catalogs = { };
         [Tooltip("Pencerelerin açıldığı, sahneler arasında yaşayan katman.")]
         [SerializeField] private WindowLayer layer;
 
         public override void Install(IContainerBuilder builder)
         {
-            builder.RegisterInstance(catalog);
-            builder.RegisterEntryPoint<WindowService>().WithParameter(layer);
+            builder.RegisterEntryPoint<WindowService>().WithParameter(layer).WithParameter<IReadOnlyList<WindowCatalog>>(catalogs);
 
-            foreach (var entry in catalog.Windows)
+            foreach (var catalog in catalogs)
             {
-                var presenterType = entry.PresenterType;
-                if (presenterType == null)
+                foreach (var entry in catalog.Windows)
                 {
-                    Debug.LogError($"{catalog.name} has a window whose presenter '{entry.presenter}' was not found.", catalog);
-                    continue;
-                }
+                    var presenterType = entry.PresenterType;
+                    if (presenterType == null)
+                    {
+                        Debug.LogError($"{catalog.name} has a window whose presenter '{entry.presenter}' was not found.", catalog);
+                        continue;
+                    }
 
-                builder.Register(presenterType, Lifetime.Singleton);
+                    builder.Register(presenterType, Lifetime.Singleton);
+                }
             }
         }
     }

@@ -67,6 +67,12 @@ namespace ColorBlockJam.Navigation
             if (selectedTab != null)
             {
                 selectedTab.SetSelected(true, config, instant);
+                if (instant)
+                {
+                    highlightFrom = index;
+                    highlightTo = index;
+                    highlightBlend = 0f;
+                }
             }
 
             UpdateSeparators();

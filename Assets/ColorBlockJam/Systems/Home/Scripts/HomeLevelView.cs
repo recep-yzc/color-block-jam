@@ -18,7 +18,6 @@ namespace ColorBlockJam.Home
         [SerializeField] private RectTransform pathNodesRoot;
 
         private int currentLevel;
-        private int lastUnlockedLevel;
         private bool isStarted;
 
         public ActionButton PlayButton => playButton;
@@ -29,10 +28,9 @@ namespace ColorBlockJam.Home
             ShowTiles();
         }
 
-        public void Show(int level, int lastUnlocked)
+        public void Show(int level)
         {
             currentLevel = level;
-            lastUnlockedLevel = lastUnlocked;
             levelLabel.SetText("Level {0}", level);
 
             if (isStarted)
@@ -51,7 +49,7 @@ namespace ColorBlockJam.Home
             for (var i = 0; i < nodes.Length; i++)
             {
                 var level = currentLevel + i;
-                nodes[i].Show(level, isLocked: level > lastUnlockedLevel);
+                nodes[i].Show(level, isLocked: i > 0);
             }
         }
 

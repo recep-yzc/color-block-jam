@@ -20,7 +20,7 @@ namespace ColorBlockJam.Home
 
         protected override void OnInitialize()
         {
-            View.Show(progression.CurrentLevel, lastUnlocked: progression.CurrentLevel);
+            View.Show(progression.CurrentLevel);
             View.PlayButton.Clicked += OnPlayClicked;
         }
 

@@ -33,13 +33,13 @@ namespace ColorBlockJam.Gameplay
 
         public void Win(LevelDifficulty difficulty)
         {
+            var reward = economy.RewardFor(difficulty);
             if (!levels.IsEditorTest)
             {
                 progression.CompleteCurrentLevel();
+                wallet.Add(reward);
             }
 
-            var reward = economy.RewardFor(difficulty);
-            wallet.Add(reward);
             ShowWinAsync(reward).Forget();
         }
 

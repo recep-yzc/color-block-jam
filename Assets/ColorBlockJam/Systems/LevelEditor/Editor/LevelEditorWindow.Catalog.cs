@@ -154,15 +154,17 @@ namespace ColorBlockJam.LevelEditor
             return index >= 0 && index < palette.Count ? palette.GetColor(index) : Color.magenta;
         }
 
-        private string[] ColorNames()
+        private void RefreshPaletteLabels()
         {
-            var names = new string[palette.Count];
-            for (var i = 0; i < names.Length; i++)
+            colorNames = new string[palette.Count];
+            swatchLabels = new GUIContent[palette.Count];
+            chosenLabels = new string[palette.Count];
+            for (var i = 0; i < palette.Count; i++)
             {
-                names[i] = palette.GetName(i);
+                colorNames[i] = palette.GetName(i);
+                swatchLabels[i] = new GUIContent(string.Empty, $"{colorNames[i]} (tuş {(i + 1) % 10})");
+                chosenLabels[i] = $"Chosen: {colorNames[i]}";
             }
-
-            return names;
         }
 
         private static EditableLevel NewLevel() => new(LevelData.DefaultWidth, LevelData.DefaultHeight);

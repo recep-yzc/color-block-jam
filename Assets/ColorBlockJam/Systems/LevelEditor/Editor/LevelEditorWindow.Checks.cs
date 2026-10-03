@@ -115,19 +115,39 @@ namespace ColorBlockJam.LevelEditor
             SetLevel(EditableLevel.From(generated.Level), dirty: true);
             levelAsset = null;
             catalogIndex = -1;
-            result = generated.Solution;
-            resultRevision = revision;
+            SetResult(generated.Solution);
             generateSeed++;
         }
 
-        private LevelDifficulty SuggestDifficulty(SolveResult solution)
+        private void SetResult(SolveResult solution)
         {
-            return LevelRating.Rate(LevelRating.MovesToWin(level.Blocks.Count, solution));
+            result = solution;
+            resultRevision = revision;
+            if (!solution.IsSolved)
+            {
+                return;
+            }
+
+            var moves = LevelRating.MovesToWin(level.Blocks.Count, solution);
+            suggestedDifficulty = LevelRating.Rate(moves);
+            resultSummary = $"Wins in {moves} moves: {level.Blocks.Count} block(s) to send out, and {solution.Repositions} " +
+                            $"to move out of the way first. That plays like {suggestedDifficulty}.";
+            setDifficultyLabel = new GUIContent($"Set Difficulty To {suggestedDifficulty}",
+                "Seviyenin zorluk rozetini, hamle sayısının hak ettiği zorluğa çevirir.");
+        }
+
+        private void RefreshProblemTexts()
+        {
+            problemTexts.Clear();
+            foreach (var problem in problems)
+            {
+                problemTexts.Add(problem.Block >= 0 ? Describe(problem) + " It is outlined in red." : Describe(problem));
+            }
         }
 
         private string Describe(LevelProblem problem)
         {
-            var colorName = problem.Color >= 0 && problem.Color < palette.Count ? palette.GetName(problem.Color) : "?";
+            var colorName = problem.Color >= 0 && problem.Color < colorNames.Length ? colorNames[problem.Color] : "?";
             return problem.Kind switch
             {
                 LevelProblemKind.NoBlocks => "The board has no blocks.",

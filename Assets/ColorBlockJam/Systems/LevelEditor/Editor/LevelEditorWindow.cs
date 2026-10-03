@@ -140,6 +140,21 @@ namespace ColorBlockJam.LevelEditor
         private int previewStep;
         private Board preview;
 
+        private string toolbarTitle;
+        private int titleIndex;
+        private bool titleIsDirty;
+        private string statusText;
+        private int statusRevision;
+        private bool statusHasHover;
+        private Hit statusHover;
+        private string[] colorNames = Array.Empty<string>();
+        private GUIContent[] swatchLabels = Array.Empty<GUIContent>();
+        private string[] chosenLabels = Array.Empty<string>();
+        private readonly List<string> problemTexts = new();
+        private string resultSummary;
+        private LevelDifficulty suggestedDifficulty;
+        private GUIContent setDifficultyLabel;
+
         private Vector2 sidebarScroll;
         private Vector2 inspectorScroll;
 
@@ -149,7 +164,7 @@ namespace ColorBlockJam.LevelEditor
         public static LevelEditorWindow Open()
         {
             var window = GetWindow<LevelEditorWindow>();
-            window.titleContent = new GUIContent("Level Editor");
+            window.titleContent = LevelEditorLabels.WindowTitle;
             window.minSize = new Vector2(900f, 560f);
             window.Show();
             return window;
@@ -242,6 +257,7 @@ namespace ColorBlockJam.LevelEditor
             if (palette != null)
             {
                 color = Mathf.Clamp(color, 0, Mathf.Max(0, palette.Count - 1));
+                RefreshPaletteLabels();
             }
         }
 
@@ -267,8 +283,7 @@ namespace ColorBlockJam.LevelEditor
             }
             else if (validation.IsCompletedSuccessfully && validationRevision == revision)
             {
-                result = validation.Result;
-                resultRevision = revision;
+                SetResult(validation.Result);
             }
 
             validation = null;
@@ -323,11 +338,18 @@ namespace ColorBlockJam.LevelEditor
         private void DrawToolbar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-            var title = catalogIndex >= 0 && catalogIndex < catalog.Count ? $"Level {catalogIndex + 1}  ({catalog.Levels[catalogIndex].name})" : "New level";
-            GUILayout.Label(IsDirty ? title + "  *" : title, EditorStyles.boldLabel);
+            if (toolbarTitle == null || titleIndex != catalogIndex || titleIsDirty != IsDirty)
+            {
+                titleIndex = catalogIndex;
+                titleIsDirty = IsDirty;
+                var title = catalogIndex >= 0 && catalogIndex < catalog.Count ? $"Level {catalogIndex + 1}  ({catalog.Levels[catalogIndex].name})" : "New level";
+                toolbarTitle = IsDirty ? title + "  *" : title;
+            }
+
+            GUILayout.Label(toolbarTitle, EditorStyles.boldLabel);
             GUILayout.FlexibleSpace();
 
-            if (GUILayout.Button(new GUIContent("New", "Boş bir seviye başlatır."), EditorStyles.toolbarButton) && ConfirmDiscard())
+            if (GUILayout.Button(LevelEditorLabels.New, EditorStyles.toolbarButton) && ConfirmDiscard())
             {
                 levelAsset = null;
                 catalogIndex = -1;
@@ -337,13 +359,13 @@ namespace ColorBlockJam.LevelEditor
 
             using (new EditorGUI.DisabledScope(catalogIndex < 0))
             {
-                if (GUILayout.Button(new GUIContent("Save", "Seviyenin dosyasının üzerine kaydeder."), EditorStyles.toolbarButton))
+                if (GUILayout.Button(LevelEditorLabels.Save, EditorStyles.toolbarButton))
                 {
                     Save(asNew: false);
                 }
             }
 
-            if (GUILayout.Button(new GUIContent("Save As New Level", "Kataloğun sonuna yeni bir dosya olarak kaydeder."), EditorStyles.toolbarButton))
+            if (GUILayout.Button(LevelEditorLabels.SaveAsNew, EditorStyles.toolbarButton))
             {
                 Save(asNew: true);
             }
@@ -351,7 +373,7 @@ namespace ColorBlockJam.LevelEditor
             GUILayout.Space(12f);
             using (new EditorGUI.DisabledScope(undoHistory.Count == 0))
             {
-                if (GUILayout.Button(new GUIContent("Undo", "Geri alır (Ctrl+Z)."), EditorStyles.toolbarButton))
+                if (GUILayout.Button(LevelEditorLabels.Undo, EditorStyles.toolbarButton))
                 {
                     Undo();
                 }
@@ -359,22 +381,21 @@ namespace ColorBlockJam.LevelEditor
 
             using (new EditorGUI.DisabledScope(redoHistory.Count == 0))
             {
-                if (GUILayout.Button(new GUIContent("Redo", "Yineler (Ctrl+Y)."), EditorStyles.toolbarButton))
+                if (GUILayout.Button(LevelEditorLabels.Redo, EditorStyles.toolbarButton))
                 {
                     Redo();
                 }
             }
 
             GUILayout.Space(12f);
-            if (GUILayout.Button(new GUIContent("Check", "Seviyenin çözülebilir olup olmadığını bulur."), EditorStyles.toolbarButton))
+            if (GUILayout.Button(LevelEditorLabels.Check, EditorStyles.toolbarButton))
             {
                 StartValidation();
             }
 
             using (new EditorGUI.DisabledScope(EditorApplication.isPlayingOrWillChangePlaymode))
             {
-                if (GUILayout.Button(new GUIContent("▶ Play", "Bu seviyeyi oyun sahnesinde oynatır. Oyun çalışırken kapalıdır."),
-                        EditorStyles.toolbarButton))
+                if (GUILayout.Button(LevelEditorLabels.Play, EditorStyles.toolbarButton))
                 {
                     LevelTestPlay.Play(level.ToData());
                 }
@@ -410,17 +431,17 @@ namespace ColorBlockJam.LevelEditor
             using (new EditorGUI.DisabledScope(catalogIndex < 0))
             {
                 EditorGUILayout.BeginHorizontal();
-                if (GUILayout.Button(new GUIContent("▲", "Seviyeyi katalogda bir öne alır.")))
+                if (GUILayout.Button(LevelEditorLabels.MoveUp))
                 {
                     MoveInCatalog(-1);
                 }
 
-                if (GUILayout.Button(new GUIContent("▼", "Seviyeyi katalogda bir sonraya alır.")))
+                if (GUILayout.Button(LevelEditorLabels.MoveDown))
                 {
                     MoveInCatalog(1);
                 }
 
-                if (GUILayout.Button(new GUIContent("Remove", "Seviyeyi katalogdan çıkarır. Dosyası silinmez.")))
+                if (GUILayout.Button(LevelEditorLabels.Remove))
                 {
                     RemoveFromCatalog();
                 }
@@ -458,8 +479,16 @@ namespace ColorBlockJam.LevelEditor
         private void DrawStatusBar()
         {
             EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
-            var where = !hasHover ? "" : hover.IsCell ? $"Cell {hover.Cell.X}, {hover.Cell.Y}" : $"{hover.Side} wall, slot {hover.Slot}";
-            GUILayout.Label($"{level.Width} × {level.Height}   {level.Blocks.Count} blocks   {colorCount} colors   {where}", EditorStyles.miniLabel);
+            if (statusText == null || statusRevision != revision || statusHasHover != hasHover || (hasHover && !SameHit(statusHover, hover)))
+            {
+                statusRevision = revision;
+                statusHasHover = hasHover;
+                statusHover = hover;
+                var where = !hasHover ? "" : hover.IsCell ? $"Cell {hover.Cell.X}, {hover.Cell.Y}" : $"{hover.Side} wall, slot {hover.Slot}";
+                statusText = $"{level.Width} × {level.Height}   {level.Blocks.Count} blocks   {colorCount} colors   {where}";
+            }
+
+            GUILayout.Label(statusText, EditorStyles.miniLabel);
             GUILayout.FlexibleSpace();
             GUILayout.Label("Right-click erases · 1–0 pick a color · Delete removes the selected block · ← → previous / next level · Ctrl+Z / Ctrl+Y undo / redo",
                 EditorStyles.miniLabel);

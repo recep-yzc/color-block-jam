@@ -40,6 +40,7 @@ namespace ColorBlockJam.LevelEditor
             var data = level.ToData();
             levelJson = LevelSerializer.ToJson(data);
             problems = LevelDiagnostics.Find(data);
+            RefreshProblemTexts();
             usedColors.Clear();
             foreach (var block in level.Blocks)
             {

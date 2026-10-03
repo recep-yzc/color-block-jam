@@ -9,7 +9,7 @@ Drag colored blocks around the board and slide each one out through a door of it
 1. Open the project with **Unity 2022.3.62f2**. Packages resolve from `Packages/manifest.json`: URP 14, Input System, UniTask, LitMotion, VContainer and TextMesh Pro.
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**. Set the Game view to a portrait resolution, such as 1080×1920 or 1080×2400.
 3. To build an APK, switch to Android in *File › Build Settings* and press **Build**. The build settings already list the scenes (Splash, Main, Gameplay), and the player settings use IL2CPP and ARM64.
-4. To run the tests, open *Window › General › Test Runner*. There are 86 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, which obstacles a level introduces, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner*. There are 93 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, which obstacles a level introduces, the generator and its cancelling, and checks that every level, booster, obstacle and window that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster, and `obstacles.<id>.seen` for each obstacle.
 
@@ -66,12 +66,12 @@ The window has three columns:
    - **Erase**: click a block, a door or a removed cell.
    - **Hole**: click or drag over empty cells to take them out of the board, and again to put them back. In the game a removed cell is a hole with a wall around it.
 
-   Right-click erases with every tool. Keys 1–0 pick a color, ← → open the previous and next level of the catalog, Delete removes the selected block, and Ctrl+Z / Ctrl+Y undo and redo.
+   Right-click erases with every tool. Keys 1–0 pick a color, ← → open the previous and next level of the catalog, Delete removes the selected block, and Ctrl+Z / Ctrl+Y undo and redo. One drag is one undo step, whether it painted one door or a whole wall, and the history survives a test play.
 4. Click a block to select it. **Moves** makes it an arrow block (Horizontal or Vertical), and **Ice** freezes it until that many other blocks have left. The board draws the arrow and the ice count where the game puts them.
-5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps, a block on a removed cell, a door that opens onto one, a hole smaller than 2×2. It then runs the solver in the background. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
-6. **Generate** makes a new solvable level of the chosen difficulty. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. **Holes** adds up to two holes inside the board. The same seed always gives the same level.
-7. **Save** writes over the level's file. **Save As New Level** adds a file at the end of the catalog. Before saving a level that has problems or has not been checked, the editor warns you.
-8. **▶ Play** starts the gameplay scene with this level, without touching the player's progress.
+5. **Check** lists mistakes right away: a color without a door, a block that fits no door it can reach (for an arrow block, only the doors ahead of it count), ice that can never melt, overlaps, a block on a removed cell, a door that opens onto one, a hole smaller than 2×2. It then runs the solver in the background, with the same budget as the game's stuck check, and starts over when you edit the level. It tells you whether the level is solvable, in how many moves, and which difficulty it plays like. You can step through the solution on the board with ◀ ▶, ice counting down included.
+6. **Generate** makes a new solvable level of the chosen difficulty. Medium and harder levels may get arrow blocks, and hard and super hard levels blocks in ice. **Holes** adds up to two holes inside the board. The same seed always gives the same level, and the search can be cancelled. A generated level is a new level: **Save As New Level** keeps it, and the level that was open stays as it was.
+7. **Save** writes over the file of the level you opened, even if the catalog was reordered since. **Save As New Level** adds a file at the end of the catalog. Before saving a level that has problems or has not been checked, the editor warns you, and closing the window with unsaved changes asks to save them.
+8. **▶ Play** starts the gameplay scene with this level, without touching the player's progress or coins.
 
 **Format.** The editor and the game read the same JSON file (`LevelData`). `axis` is 0 free, 1 horizontal, 2 vertical; `ice` is how many blocks must leave first; `holes` are the removed cells:
 
@@ -114,11 +114,11 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 | Boosters | the booster definitions, the inventory, the bar and the unlock popup |
 | Obstacles | the obstacle definitions and the popup that introduces a new obstacle |
 | Home | the home screen and its level path |
-| LevelEditor | the level editor window |
+| LevelEditor | the level editor window, and the authoring tools it uses (generator, level checks, difficulty rating, block shapes) |
 | Rendering | the render pipeline and the shaders |
 
 - A system's folder has `Scripts` with its assembly, `Data` with its assets, `Prefabs`, and `Logic` or `Editor` where it has them. The installer asset that registers a system's app-wide services sits in that system's `Data`. A system is read, changed or removed in one place.
-- Every system is an assembly, and references go one way. The general systems (Core, UI, Navigation, Settings, Pooling) know nothing of the game's rules, and `Gameplay.Logic` and `Level.Data` do not reference Unity at all. *Why:* each system compiles and is tested on its own, and the compiler keeps the dependencies honest.
+- Every system is an assembly, and references go one way. The general systems (Core, UI, Navigation, Settings, Pooling) know nothing of the game's rules, and `Gameplay.Logic`, `Level.Data` and `LevelEditor.Authoring` do not reference Unity at all. The authoring tools are an editor-only assembly, so they do not ship in the player. *Why:* each system compiles and is tested on its own, and the compiler keeps the dependencies honest.
 - `Art` and `Scenes` hold the shared art and the three scenes. `Tests/EditMode/<System>/` and `Tests/PlayMode/<System>/` hold the tests, grouped by the system they cover.
 - Every type has a file named after it. The code has no comments: names carry the meaning, every inspector setting explains itself in a tooltip (in Turkish), and this README holds the design.
 
@@ -134,7 +134,7 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 - The UI uses **MVP**. A passive `UIView` shows data and raises events; a plain C# `ViewPresenter<TView>` holds the logic.
 - How things look is a **strategy asset**:
   - `ViewTransition`: fade, scale,
-  - `ButtonFeedback`: scale, punch, jelly, wiggle, tilt, heartbeat, pop,
+  - `ButtonFeedback`: scale, punch, jelly, wiggle, tilt (the heartbeat and pop feel are presets of punch and scale),
   - `ToggleStateVisual`: objects, color, slide.
 - Buttons derive from `ButtonBase` and only decide what a click does. A button that is switched off dims itself.
 - **Windows** (the popups) live in the root scope, in one `WindowLayer` that stays across scenes. Each system lists its own windows in its own `WindowCatalog` (`SettingsWindows`, `GameplayWindows`, `BoosterWindows`, `ObstacleWindows`): for each, a presenter picked from a list, the prefab it shows, and how it behaves (dims the background, closes on a backdrop tap, on the back button or when the scene changes, is destroyed when hidden, its show and hide transitions). `WindowInstaller` in `Boot/Data`, the composition root, installs every catalog, so the UI system itself names no gameplay type, not even in its data. The prefab only holds its view's references and settings of its own, such as a message format or colors.
@@ -149,13 +149,14 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 | Layer | Where | What |
 |---|---|---|
 | Data | `Systems/Level` (`Level.Data` has `noEngineReferences`) | `LevelData` (JSON), `BlockPalette`, `LevelCatalog`. One format for the editor and the game. |
-| Rules | `Systems/Gameplay/Logic` (`noEngineReferences`) | `Board`, `BoardBlock`, `BlockDragMover`, `BlockPlacement`, `BoardSolver`, `LevelGenerator`, `LevelDiagnostics`, `LevelTimer`, `BlockMarks` |
-| View and input | `Systems/Gameplay/Scripts/Board`, `Input` | `BoardView`, `DoorView`, `BlockView`, `BlockMeshBuilder`, `BlockDragController` (Input System), `BoardCamera`, `BlockBurstEffects` |
-| Flow | `Systems/Gameplay/Scripts/Session` | `LevelSession` (timer, extra time, win and fail), `LevelBoard` (builds and shows the board), `SolvabilityWatcher`, `LevelResults`, `PauseRequester`, `AutoPlayer`, `LevelFlow`, `LevelProvider` |
+| Rules | `Systems/Gameplay/Logic` (`noEngineReferences`) | `Board`, `BoardBlock`, `BlockDragMover`, `BlockPlacement`, `BlockPicker`, `BoardSolver`, `LevelTimer`, `BlockMarks`, `BoardTargets` |
+| Authoring | `Systems/LevelEditor/Authoring` (`noEngineReferences`, editor only) | `LevelGenerator`, `LevelDiagnostics`, `LevelRating`, `BlockShapes` |
+| View and input | `Systems/Gameplay/Scripts/Board`, `Input` | `BoardView`, `BoardMeshBuilder`, `DoorView`, `BlockView`, `BlockMeshBuilder`, `BlockDragController` (Input System), `BoardCamera`, `BlockBurstEffects` |
+| Flow | `Systems/Gameplay/Scripts/Session` | `LevelSession` (timer, extra time, win and fail), `LevelBoard` (builds the board and carries out every change to it), `SolvabilityWatcher`, `LevelResults`, `LevelIntros`, `PauseRequester`, `AutoPlayer`, `LevelFlow`, `LevelProvider` |
 | Boosters | `Systems/Boosters` (its own assembly) | the booster definitions and catalog, `BoosterInventory`, `LevelBoosters`, `BoosterUnlocks`, the bar and the unlock popup |
 | UI | `Systems/Gameplay/Scripts/Hud`, `Popups` | HUD, and the out-of-time, fail and complete popups |
 
-*Why:* the rules know nothing about Unity. The game, the level editor, the tests and worker threads all use the same code.
+*Why:* the rules know nothing about Unity. The game, the level editor, the tests and worker threads all use the same code, and a rule such as when a block may leave through a door is written once: the drag, auto play, the solver and the level checks all ask `BlockPlacement.DoorToEnter`.
 
 How a move flows through the gameplay scene:
 
@@ -164,13 +165,13 @@ flowchart LR
     Pointer[BoardPointer] --> Drag[BlockDragController]
     Drag -- "a press while a booster aims" --> Router[BlockPressRouter]
     Router --> Boosters[LevelBoosters]
-    Drag -- "BlockMoved, BlockLeft" --> Session[LevelSession]
-    Boosters -- "smash" --> Board[LevelBoard]
+    Drag -- BlockMoved --> Session[LevelSession]
+    Drag -- "leave, exit" --> Board[LevelBoard]
+    Auto[AutoPlayer] -- "slide, leave" --> Board
+    Boosters -- "smash" --> Board
     Boosters -- "freeze the timer" --> Session
     Boosters -- "take a use" --> Inventory[(BoosterInventory)]
-    Board -- BlockSmashed --> Session
-    Auto[AutoPlayer] -- "a block left" --> Session
-    Session -- "door, ice" --> Board
+    Board -- "BlockLeft, BlocksSmashed" --> Session
     Session -- "can it still be cleared?" --> Watcher[SolvabilityWatcher]
     Session -- "win, out of time, fail" --> Results[LevelResults]
     Results -- "show and wait for the choice" --> Windows[(IWindows)]
@@ -179,7 +180,7 @@ flowchart LR
     Hud[GameplayHudPresenter] --> Session
 ```
 
-Every way a block leaves the board, through a door, by auto play or under a booster, ends in one method of `LevelSession`, so the door animation, the ice, the win check and the stuck check follow each of them the same way.
+Every way a block leaves the board, through a door, by auto play or under a booster, goes through `LevelBoard`, which updates the board, plays the block, door and ice animations and raises one event; `LevelSession` answers it with the win check and the stuck check. So each way to clear a block behaves the same, and a booster that clears a whole row is checked once.
 
 ### Movement
 
@@ -237,6 +238,8 @@ Every object the board builds has a parent whose pivot is where it stands on the
 - It then searches, breadth first, over *repositions*: moving one block to any cell it can reach. The depth of the result is the number of blocks that must be moved out of the way, which is the level's difficulty.
 - Every move can be undone and leaving never hurts, so **a solvable board stays solvable whatever the player does**.
 - The session therefore asks the solver on a worker thread, on a copy of the board, and asks again only while the answer is unknown. The search can be cancelled, so leaving the scene never leaves it running. The stuck fail popup appears after the player's first move on a level that cannot be cleared.
+- Boosters are the exception: smashing a block can make a stuck board solvable again. After a smash, an unsolvable answer is dropped, a search still running on the old board is cancelled, and the solver is asked again.
+- The solver keeps every state it has seen as two bytes per block in one growing buffer, and its visited set holds indexes into that buffer, so a search allocates a few large arrays instead of objects, arrays and strings for each state. A move back into a known state skips the leaving pass.
 
 ### Generator
 
@@ -250,7 +253,9 @@ The generator places random doors and blocks for a difficulty, turns some blocks
 - There are no allocations in the drag loop, and a test checks it. The timer text uses `SetText` with arguments and only changes once a second.
 - The block bursts come from a pool and take the block's color.
 - The held block's outline is only its outer rim, drawn on top of everything. Two tiny unlit shaders (`Systems/Rendering/Shaders`) do it, with no lighting, textures or keywords: one marks the block's silhouette in the stencil buffer, the other draws the mesh pushed out along its normals only outside that mark, ignoring depth. They are added as extra materials only while the block is held, and the push follows normals averaged at build time, so hard edges do not split the rim.
-- The solver runs off the main thread.
+- The solver runs off the main thread and allocates per search, not per state, so it adds little garbage while the level is played.
+- PlayerPrefs are written to disk once when the app goes to the background or quits, not on every change.
+- Views keep their motion handles and cancel them when destroyed, instead of registering a callback for every motion they play.
 - UI graphics have raycast target, maskable, rich text, kerning and extra padding turned off wherever they are not needed. UI sprites under `Art/UI/Atlas` share one sprite atlas; the large backgrounds under `Art/UI/NoAtlas` stay out of it, so they do not waste atlas space. The thin tab separator (`bg_home_line`) stays in the atlas because it is drawn between tab icons. The ice texture is capped at 512 pixels.
 
 ### Look
@@ -259,7 +264,7 @@ Everything in the gameplay scene uses one toon shader (`Systems/Rendering/Shader
 
 ### Persistence
 
-Coins, the current level, the settings and the player's boosters go through `IKeyValueStorage`, which uses PlayerPrefs.
+Coins, the current level, the settings, the player's boosters and the obstacles seen go through `IKeyValueStorage`, which uses PlayerPrefs and saves them to disk when the app loses focus or quits.
 
 ## Known issues and limits
 
@@ -268,7 +273,8 @@ Coins, the current level, the settings and the player's boosters go through `IKe
 - Lives are a placeholder, as the case allows: failing a level costs nothing.
 - A booster's description is plain text in its asset, so changing, for example, the freeze's seconds means changing its description too.
 - On the levels that ship with the game, **stuck cannot happen**, because they are all proven solvable and solvability never changes during play. To see the stuck popup, make a level in the editor that cannot be solved (for example a block with no door of its color), then press ▶ Play.
-- While AUTO plays, the timer, the boosters and the restart and pause buttons are off.
+- While AUTO plays, the timer, the boosters and the restart and pause buttons are off. A level won by AUTO pays its reward like any other; AUTO is a demo of the solver.
+- An editor ▶ Play does not save progress or coins, but a booster used during it still uses the player's saved stock.
 - The solver has a budget. On a very large custom level, Check may answer "no solution found within the budget" instead of a clear yes or no.
 - During an editor ▶ Play, **Continue**, **Retry**, **Restart** and **Home › Play** all return to the tested level until play mode ends.
 - After level 50 the catalog starts again from level 1, while the home screen keeps counting up.
@@ -289,4 +295,4 @@ Coins, the current level, the settings and the player's boosters go through `IKe
 
 ## Work time
 
-Going by the commit history, about 19 hours in six evening sessions, from 28 Sep 2026 20:10 to 3 Oct 2026 23:30.
+Going by the commit history, about 20 hours in six evening sessions, from 28 Sep 2026 20:10 to 4 Oct 2026 00:45.

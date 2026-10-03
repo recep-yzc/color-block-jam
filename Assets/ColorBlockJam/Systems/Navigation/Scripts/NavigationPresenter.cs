@@ -24,13 +24,12 @@ namespace ColorBlockJam.Navigation
             navigator.Initialize(config);
             tabBar.Initialize(config);
             MapPagesToTabs();
+            navigator.Open(config.DefaultPageId, instant: true);
+            tabBar.Select(config.DefaultPageId, instant: true);
 
             navigator.PageOpening += OnPageOpening;
             navigator.ScrollPositionChanged += OnScrollPositionChanged;
             tabBar.TabClicked += OnTabClicked;
-
-            navigator.Open(config.DefaultPageId, instant: true);
-            tabBar.Select(config.DefaultPageId, instant: true);
         }
 
         public void Dispose()

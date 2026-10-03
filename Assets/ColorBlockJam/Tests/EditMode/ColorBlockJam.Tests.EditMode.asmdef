@@ -4,6 +4,7 @@
     "references": [
         "ColorBlockJam.Gameplay.Logic",
         "ColorBlockJam.LevelEditor.Authoring",
+        "ColorBlockJam.LevelEditor.Editor",
         "ColorBlockJam.Level",
         "ColorBlockJam.Level.Data",
         "ColorBlockJam.Economy",

@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: afe318634a6c4657b288c11b0f1f0665, type: 3}
+  m_Name: GeneratorPresets
+  m_EditorClassIdentifier: 
+  presets:
+  - difficulty: 0
+    width: 5
+    height: 6
+    colors: 3
+    minBlocks: 4
+    maxBlocks: 6
+    maxDoorLength: 2
+    minRepositions: 0
+    maxRepositions: 1
+    minMoves: 4
+    solveBudget: 5000
+    baseSeconds: 20
+    secondsPerBlock: 10
+    arrowShare: 0
+    iceBlocks: 0
+    maxIce: 1
+    smallShapes: 1
+    longShapes: 0
+    complexShapes: 0
+  - difficulty: 1
+    width: 6
+    height: 7
+    colors: 5
+    minBlocks: 7
+    maxBlocks: 9
+    maxDoorLength: 3
+    minRepositions: 1
+    maxRepositions: 3
+    minMoves: 9
+    solveBudget: 10000
+    baseSeconds: 20
+    secondsPerBlock: 9
+    arrowShare: 0.15
+    iceBlocks: 0
+    maxIce: 1
+    smallShapes: 1
+    longShapes: 1
+    complexShapes: 0
+  - difficulty: 2
+    width: 7
+    height: 8
+    colors: 6
+    minBlocks: 10
+    maxBlocks: 12
+    maxDoorLength: 3
+    minRepositions: 2
+    maxRepositions: 5
+    minMoves: 13
+    solveBudget: 20000
+    baseSeconds: 25
+    secondsPerBlock: 9
+    arrowShare: 0.2
+    iceBlocks: 1
+    maxIce: 3
+    smallShapes: 1
+    longShapes: 1
+    complexShapes: 1
+  - difficulty: 3
+    width: 7
+    height: 8
+    colors: 7
+    minBlocks: 12
+    maxBlocks: 14
+    maxDoorLength: 3
+    minRepositions: 3
+    maxRepositions: 8
+    minMoves: 17
+    solveBudget: 30000
+    baseSeconds: 30
+    secondsPerBlock: 9
+    arrowShare: 0.25
+    iceBlocks: 2
+    maxIce: 4
+    smallShapes: 1
+    longShapes: 1
+    complexShapes: 1

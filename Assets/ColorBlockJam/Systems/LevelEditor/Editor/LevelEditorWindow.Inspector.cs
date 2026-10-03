@@ -294,6 +294,16 @@ namespace ColorBlockJam.LevelEditor
             EditorGUILayout.EndHorizontal();
             generateHoles = EditorGUILayout.IntSlider(new GUIContent("Holes", "Tahtanın içine açılacak delik sayısı. Her delik en az 2x2 hücredir."),
                 generateHoles, 0, 2);
+            using (new EditorGUI.DisabledScope(presets == null))
+            {
+                if (GUILayout.Button(new GUIContent("Edit Presets", "Her zorluk için tahta boyunu, blok ve renk sayısını, ok ve buz oranını " +
+                                                                    "ve şekilleri tutan ayar asset'ini seçer.")))
+                {
+                    Selection.activeObject = presets;
+                    EditorGUIUtility.PingObject(presets);
+                }
+            }
+
             if (GUILayout.Button(new GUIContent("Generate Level", "Bu zorlukta çözülebilir yeni bir seviye üretir.")) && ConfirmDiscard())
             {
                 Generate();

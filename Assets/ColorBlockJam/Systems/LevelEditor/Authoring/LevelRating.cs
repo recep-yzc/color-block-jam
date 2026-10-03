@@ -9,6 +9,17 @@ namespace ColorBlockJam.LevelEditor.Authoring
         public const int MostMediumMoves = 12;
         public const int MostHardMoves = 16;
 
+        public static int MostMovesFor(LevelDifficulty difficulty)
+        {
+            return difficulty switch
+            {
+                LevelDifficulty.Easy => MostEasyMoves,
+                LevelDifficulty.Medium => MostMediumMoves,
+                LevelDifficulty.Hard => MostHardMoves,
+                _ => int.MaxValue
+            };
+        }
+
         public static int MovesToWin(int blocks, SolveResult solution)
         {
             return blocks + solution.Repositions;

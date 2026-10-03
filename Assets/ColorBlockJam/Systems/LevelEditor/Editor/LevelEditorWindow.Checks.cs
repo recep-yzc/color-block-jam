@@ -80,7 +80,7 @@ namespace ColorBlockJam.LevelEditor
         private void Generate()
         {
             var generator = new LevelGenerator();
-            var settings = GeneratorSettings.For(generateDifficulty);
+            var settings = presets != null ? presets.SettingsFor(generateDifficulty) : GeneratorSettings.For(generateDifficulty);
             settings.Holes = generateHoles;
             settings.MaxHoleSize = HoleSizeLimit;
             GeneratedLevel generated;

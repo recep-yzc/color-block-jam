@@ -105,6 +105,7 @@ namespace ColorBlockJam.LevelEditor
         private readonly List<string> levelSummaries = new();
         private LevelCatalog catalog;
         private BlockPalette palette;
+        private GeneratorPresets presets;
         private EditableLevel level;
         private List<GridPoint[]> shapes;
         private List<LevelProblem> problems = new();
@@ -237,6 +238,7 @@ namespace ColorBlockJam.LevelEditor
         {
             catalog = catalog != null ? catalog : FindAsset<LevelCatalog>();
             palette = palette != null ? palette : FindAsset<BlockPalette>();
+            presets = presets != null ? presets : FindAsset<GeneratorPresets>();
             if (palette != null)
             {
                 color = Mathf.Clamp(color, 0, Mathf.Max(0, palette.Count - 1));

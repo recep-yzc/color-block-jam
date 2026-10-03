@@ -161,8 +161,9 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
+            var byAutoPlay = State == LevelState.AutoPlaying;
             SetState(LevelState.Won);
-            results.Win(Level.difficulty);
+            results.Win(Level.difficulty, byAutoPlay);
         }
 
         private void RunOutOfTime()

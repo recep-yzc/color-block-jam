@@ -29,11 +29,14 @@ namespace ColorBlockJam.Gameplay
             this.config = config;
         }
 
-        public void Win(LevelDifficulty difficulty)
+        public void Win(LevelDifficulty difficulty, bool byAutoPlay)
         {
-            var reward = economy.RewardFor(difficulty);
+            var reward = byAutoPlay ? 0 : economy.RewardFor(difficulty);
             progression.CompleteCurrentLevel();
-            wallet.Add(reward);
+            if (reward > 0)
+            {
+                wallet.Add(reward);
+            }
 
             ShowWinAsync(reward).Forget();
         }

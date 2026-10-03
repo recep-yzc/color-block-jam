@@ -8,10 +8,7 @@ Drag colored blocks around the board and slide each one out through a door of it
 
 1. Open the project with **Unity 2022.3.62f2**. Packages resolve from `Packages/manifest.json`: URP 14, Input System, UniTask, LitMotion, VContainer and TextMesh Pro.
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**. Set the Game view to a portrait resolution, such as 1080×1920 or 1080×2400.
-3. To build an APK, use **Tools › Build › Android APK**. It builds the scenes of the build settings (Splash, Main, Gameplay) with the player settings as they are (IL2CPP, ARM64) into `Builds/Android/ColorBlockJam.apk`. The same build runs from the command line:
-   ```
-   Unity -batchmode -quit -buildTarget Android -projectPath . -executeMethod ColorBlockJam.Build.AndroidBuild.BuildFromCommandLine
-   ```
+3. To build an APK, switch to Android in *File › Build Settings* and press **Build**. The build settings already list the scenes (Splash, Main, Gameplay), and the player settings use IL2CPP and ARM64.
 4. To run the tests, open *Window › General › Test Runner*. There are 78 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
@@ -116,7 +113,6 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 | Home | the home screen and its level path |
 | LevelEditor | the level editor window |
 | Rendering | the render pipeline and the shaders |
-| Build | the Android APK build |
 
 - A system's folder has `Scripts` with its assembly, `Data` with its assets, `Prefabs`, and `Logic` or `Editor` where it has them. The installer asset that registers a system's app-wide services sits in that system's `Data`. A system is read, changed or removed in one place.
 - Every system is an assembly, and references go one way. The general systems (Core, UI, Navigation, Settings, Pooling) know nothing of the game's rules, and `Gameplay.Logic` and `Level.Data` do not reference Unity at all. *Why:* each system compiles and is tested on its own, and the compiler keeps the dependencies honest.

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using ColorBlockJam.Level;
 
 namespace ColorBlockJam.Gameplay.Logic
@@ -14,32 +15,26 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private readonly BoardSolver solver = new();
 
-        public int MaxAttempts { get; } = 300;
+        public const int MaxAttempts = 300;
 
-        public GeneratedLevel Generate(LevelDifficulty difficulty, int paletteSize, int seed, Func<int, bool> onAttempt = null)
-        {
-            return Generate(GeneratorSettings.For(difficulty), difficulty, paletteSize, seed, onAttempt);
-        }
-
-        public GeneratedLevel Generate(GeneratorSettings settings, LevelDifficulty difficulty, int paletteSize, int seed,
-            Func<int, bool> onAttempt = null)
+        public GeneratedLevel Generate(GeneratorSettings settings, int paletteSize, int seed,
+            CancellationToken cancellationToken = default, Action<int> onAttempt = null)
         {
             var random = new Random(seed);
 
             for (var attempt = 1; attempt <= MaxAttempts; attempt++)
             {
-                if (onAttempt != null && !onAttempt(attempt))
-                {
-                    return null;
-                }
+                cancellationToken.ThrowIfCancellationRequested();
+                onAttempt?.Invoke(attempt);
 
-                var level = TryBuild(settings, difficulty, paletteSize, random);
+                var level = TryBuild(settings, paletteSize, random);
                 if (level == null)
                 {
                     continue;
                 }
 
-                var result = solver.Solve(BoardFactory.Create(level), settings.SolveBudget);
+                var result = solver.Solve(BoardFactory.Create(level), settings.SolveBudget, cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
                 if (!result.IsSolved)
                 {
                     continue;
@@ -56,7 +51,7 @@ namespace ColorBlockJam.Gameplay.Logic
             return null;
         }
 
-        private static LevelData TryBuild(GeneratorSettings settings, LevelDifficulty difficulty, int paletteSize, Random random)
+        private static LevelData TryBuild(GeneratorSettings settings, int paletteSize, Random random)
         {
             var holes = PlaceHoles(settings, random);
             if (holes == null)
@@ -84,7 +79,7 @@ namespace ColorBlockJam.Gameplay.Logic
             {
                 width = settings.Width,
                 height = settings.Height,
-                difficulty = difficulty,
+                difficulty = settings.Difficulty,
                 timeLimit = RoundUpToFive(settings.BaseSeconds + settings.SecondsPerBlock * blocks.Count),
                 blocks = blocks.ToArray(),
                 doors = doors.ToArray(),
@@ -259,10 +254,18 @@ namespace ColorBlockJam.Gameplay.Logic
 
         private static void AddIce(GeneratorSettings settings, List<BlockData> blocks, Random random)
         {
-            for (var i = 0; i < settings.IceBlocks; i++)
+            var order = new int[blocks.Count];
+            for (var i = 0; i < order.Length; i++)
             {
-                var block = blocks[random.Next(blocks.Count)];
-                block.ice = Math.Min(blocks.Count - 1, random.Next(1, settings.MaxIce + 1));
+                order[i] = i;
+            }
+
+            var count = Math.Min(settings.IceBlocks, order.Length);
+            for (var i = 0; i < count; i++)
+            {
+                var pick = random.Next(i, order.Length);
+                (order[i], order[pick]) = (order[pick], order[i]);
+                blocks[order[i]].ice = Math.Min(blocks.Count - 1, random.Next(1, settings.MaxIce + 1));
             }
         }
 

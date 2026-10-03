@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
@@ -69,11 +71,21 @@ namespace ColorBlockJam.LevelEditor
             settings.Holes = generateHoles;
             settings.MaxHoleSize = HoleSizeLimit;
             GeneratedLevel generated;
+            using var cancellation = new CancellationTokenSource();
             try
             {
-                generated = generator.Generate(settings, generateDifficulty, palette.Count, generateSeed, attempt =>
-                    !EditorUtility.DisplayCancelableProgressBar("Level Editor", $"Looking for a {generateDifficulty} level… try {attempt}",
-                        attempt / (float)generator.MaxAttempts));
+                generated = generator.Generate(settings, palette.Count, generateSeed, cancellation.Token, attempt =>
+                {
+                    if (EditorUtility.DisplayCancelableProgressBar("Level Editor", $"Looking for a {generateDifficulty} level… try {attempt}",
+                            attempt / (float)LevelGenerator.MaxAttempts))
+                    {
+                        cancellation.Cancel();
+                    }
+                });
+            }
+            catch (OperationCanceledException)
+            {
+                return;
             }
             finally
             {
@@ -115,6 +127,7 @@ namespace ColorBlockJam.LevelEditor
                 LevelProblemKind.BlockFitsNoDoor => $"A {colorName} block fits no {colorName} door it can reach. An arrow " +
                                                     "block reaches only the doors ahead of it along its arrow.",
                 LevelProblemKind.IceNeverMelts => $"A {colorName} block has more ice than there are other blocks to melt it.",
+                LevelProblemKind.EmptyBlock => $"A {colorName} block has no cells.",
                 _ => problem.Kind.ToString()
             };
         }

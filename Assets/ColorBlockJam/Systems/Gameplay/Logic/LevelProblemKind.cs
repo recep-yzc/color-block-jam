@@ -12,6 +12,7 @@ namespace ColorBlockJam.Gameplay.Logic
         DoorFacesHole,
         ColorHasNoDoor,
         BlockFitsNoDoor,
-        IceNeverMelts
+        IceNeverMelts,
+        EmptyBlock
     }
 }

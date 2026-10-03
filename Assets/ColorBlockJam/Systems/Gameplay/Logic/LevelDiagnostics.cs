@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ColorBlockJam.Level;
 
@@ -15,32 +16,45 @@ namespace ColorBlockJam.Gameplay.Logic
                 problems.Add(new LevelProblem(LevelProblemKind.NoBlocks));
             }
 
-            var owner = new int[level.width * level.height];
-            for (var i = 0; i < owner.Length; i++)
-            {
-                owner[i] = -1;
-            }
-
             var holes = BoardFactory.HolesOf(level);
-            var isHole = new bool[owner.Length];
+            var isHole = HoleMap(level, holes);
+            CheckHoles(level, holes, isHole, problems);
+            CheckCells(level, isHole, problems);
+            CheckDoors(level, isHole, problems);
+            CheckExits(level, holes, problems);
+            return problems;
+        }
+
+        private static bool[] HoleMap(LevelData level, GridPoint[] holes)
+        {
+            var isHole = new bool[level.width * level.height];
             foreach (var hole in holes)
             {
-                if (hole.X >= 0 && hole.Y >= 0 && hole.X < level.width && hole.Y < level.height)
+                if (IsInside(level, hole.X, hole.Y))
                 {
                     isHole[hole.Y * level.width + hole.X] = true;
                 }
             }
 
+            return isHole;
+        }
+
+        private static void CheckHoles(LevelData level, GridPoint[] holes, bool[] isHole, List<LevelProblem> problems)
+        {
             foreach (var hole in holes)
             {
-                if (hole.X >= 0 && hole.Y >= 0 && hole.X < level.width && hole.Y < level.height &&
-                    !IsInLargeEnoughHole(level, isHole, hole))
+                if (IsInside(level, hole.X, hole.Y) && !IsInLargeEnoughHole(level, isHole, hole))
                 {
                     problems.Add(new LevelProblem(LevelProblemKind.HoleTooSmall));
-                    break;
+                    return;
                 }
             }
+        }
 
+        private static void CheckCells(LevelData level, bool[] isHole, List<LevelProblem> problems)
+        {
+            var owner = new int[level.width * level.height];
+            Array.Fill(owner, -1);
             for (var b = 0; b < level.blocks.Length; b++)
             {
                 var block = level.blocks[b];
@@ -48,7 +62,7 @@ namespace ColorBlockJam.Gameplay.Logic
                 {
                     var x = block.x + cell.x;
                     var y = block.y + cell.y;
-                    if (x < 0 || y < 0 || x >= level.width || y >= level.height)
+                    if (!IsInside(level, x, y))
                     {
                         problems.Add(new LevelProblem(LevelProblemKind.BlockOutsideBoard, b, block.color));
                         break;
@@ -70,7 +84,10 @@ namespace ColorBlockJam.Gameplay.Logic
                     owner[index] = b;
                 }
             }
+        }
 
+        private static void CheckDoors(LevelData level, bool[] isHole, List<LevelProblem> problems)
+        {
             for (var d = 0; d < level.doors.Length; d++)
             {
                 var door = level.doors[d];
@@ -86,20 +103,24 @@ namespace ColorBlockJam.Gameplay.Logic
 
                 for (var other = 0; other < d; other++)
                 {
-                    var next = level.doors[other];
-                    if (next.side == door.side && door.start < next.start + next.length && next.start < door.start + door.length)
+                    var earlier = level.doors[other];
+                    if (earlier.side == door.side && door.start < earlier.start + earlier.length && earlier.start < door.start + door.length)
                     {
                         problems.Add(new LevelProblem(LevelProblemKind.DoorsOverlap, color: door.color));
                     }
                 }
             }
+        }
 
+        private static void CheckExits(LevelData level, GridPoint[] holes, List<LevelProblem> problems)
+        {
             var reported = new HashSet<int>();
             for (var b = 0; b < level.blocks.Length; b++)
             {
                 var block = level.blocks[b];
                 if (block.cells.Length == 0)
                 {
+                    problems.Add(new LevelProblem(LevelProblemKind.EmptyBlock, b, block.color));
                     continue;
                 }
 
@@ -124,12 +145,15 @@ namespace ColorBlockJam.Gameplay.Logic
                     problems.Add(new LevelProblem(LevelProblemKind.IceNeverMelts, b, block.color));
                 }
             }
+        }
 
-            return problems;
+        private static bool IsInside(LevelData level, int x, int y)
+        {
+            return x >= 0 && y >= 0 && x < level.width && y < level.height;
         }
 
         public static bool CanEverLeave(int width, int height, GridPoint[] shape, int color, IReadOnlyList<DoorData> doors,
-            BlockAxis axis = BlockAxis.Free, GridPoint origin = default, GridPoint[] holes = null)
+            BlockAxis axis, GridPoint origin, GridPoint[] holes)
         {
             var probe = new BoardBlock(0, color, origin, shape, axis);
             if (probe.Width > width || probe.Height > height)
@@ -165,13 +189,13 @@ namespace ColorBlockJam.Gameplay.Logic
                         _ => new GridPoint(width - 1 - probe.MaxX, along - probe.MinY)
                     };
 
-                    if (!IsOnLane(axis, position, origin) || !board.CanPlace(probe, position))
+                    if (!BlockPlacement.StaysOnLane(axis, origin, position) || !board.CanPlace(probe, position))
                     {
                         continue;
                     }
 
                     board.Move(probe, position);
-                    if (board.CanPassThrough(probe, position, direction))
+                    if (BlockPlacement.DoorToEnter(board, probe, position) != null)
                     {
                         return true;
                     }
@@ -203,7 +227,7 @@ namespace ColorBlockJam.Gameplay.Logic
             {
                 for (var y = bottom; y < bottom + MinHoleSize; y++)
                 {
-                    if (x < 0 || y < 0 || x >= level.width || y >= level.height || !isHole[y * level.width + x])
+                    if (!IsInside(level, x, y) || !isHole[y * level.width + x])
                     {
                         return false;
                     }
@@ -232,16 +256,6 @@ namespace ColorBlockJam.Gameplay.Logic
             }
 
             return false;
-        }
-
-        private static bool IsOnLane(BlockAxis axis, GridPoint position, GridPoint origin)
-        {
-            return axis switch
-            {
-                BlockAxis.Horizontal => position.Y == origin.Y,
-                BlockAxis.Vertical => position.X == origin.X,
-                _ => true
-            };
         }
 
         private static bool HasDoor(LevelData level, int color)

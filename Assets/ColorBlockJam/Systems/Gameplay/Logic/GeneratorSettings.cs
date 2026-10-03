@@ -6,6 +6,7 @@ namespace ColorBlockJam.Gameplay.Logic
 {
     public sealed class GeneratorSettings
     {
+        public LevelDifficulty Difficulty;
         public int Width;
         public int Height;
         public int Colors;
@@ -37,6 +38,7 @@ namespace ColorBlockJam.Gameplay.Logic
             {
                 LevelDifficulty.Easy => new GeneratorSettings
                 {
+                    Difficulty = LevelDifficulty.Easy,
                     Width = 5, Height = 6, Colors = 3, MinBlocks = 4, MaxBlocks = 6, MaxDoorLength = 2,
                     MinRepositions = 0, MaxRepositions = 1, MinMoves = 4, MaxMoves = LevelRating.MostEasyMoves,
                     BaseSeconds = 20, SecondsPerBlock = 10,
@@ -44,6 +46,7 @@ namespace ColorBlockJam.Gameplay.Logic
                 },
                 LevelDifficulty.Medium => new GeneratorSettings
                 {
+                    Difficulty = LevelDifficulty.Medium,
                     Width = 6, Height = 7, Colors = 5, MinBlocks = 7, MaxBlocks = 9, MaxDoorLength = 3,
                     MinRepositions = 1, MaxRepositions = 3, MinMoves = LevelRating.MostEasyMoves + 1,
                     MaxMoves = LevelRating.MostMediumMoves, SolveBudget = 10000,
@@ -52,6 +55,7 @@ namespace ColorBlockJam.Gameplay.Logic
                 },
                 LevelDifficulty.Hard => new GeneratorSettings
                 {
+                    Difficulty = LevelDifficulty.Hard,
                     Width = 7, Height = 8, Colors = 6, MinBlocks = 10, MaxBlocks = 12, MaxDoorLength = 3,
                     MinRepositions = 2, MaxRepositions = 5, MinMoves = LevelRating.MostMediumMoves + 1,
                     MaxMoves = LevelRating.MostHardMoves, SolveBudget = 20000,
@@ -60,6 +64,7 @@ namespace ColorBlockJam.Gameplay.Logic
                 },
                 LevelDifficulty.SuperHard => new GeneratorSettings
                 {
+                    Difficulty = LevelDifficulty.SuperHard,
                     Width = 7, Height = 8, Colors = 7, MinBlocks = 12, MaxBlocks = 14, MaxDoorLength = 3,
                     MinRepositions = 3, MaxRepositions = 8, MinMoves = LevelRating.MostHardMoves + 1, SolveBudget = 30000,
                     BaseSeconds = 30, SecondsPerBlock = 9, ArrowShare = 0.25, IceBlocks = 2, MaxIce = 4,

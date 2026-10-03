@@ -59,7 +59,7 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0f)] private float resultPopupDelay = 0.6f;
         [Tooltip("Seviye açıldıktan sonra açılış popup'larının (yeni booster, yeni engel) çıkmadan önce beklediği süre, saniye. " +
                  "Sahne yerine oturur; bu sırada süre işlemez ve bloklar tutulamaz.")]
-        [SerializeField, Min(0f)] private float introDelay = 0.8f;
+        [SerializeField, Min(0f)] private float introDelay = 0.1f;
 
         [Header("Ice")]
         [Tooltip("Yeterince blok çıkınca buzun kırılıp kaybolma süresi, ayrıca sayının zıplama süresi, saniye.")]

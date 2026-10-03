@@ -127,7 +127,20 @@ namespace ColorBlockJam.Gameplay.Logic
             else if (x >= Width && y >= 0 && y < Height) { side = BoardSide.Right; alongEdge = y; }
             else { return null; }
 
-            return DoorAt(block, side, alongEdge);
+            return DoorFor(block, side, alongEdge);
+        }
+
+        public BoardDoor DoorAt(BoardSide side, int alongEdge)
+        {
+            foreach (var door in doors)
+            {
+                if (door.Side == side && door.Covers(alongEdge))
+                {
+                    return door;
+                }
+            }
+
+            return null;
         }
 
         private bool DoorTakesWhole(BoardBlock block, int x, int y, BoardSide side)
@@ -135,7 +148,7 @@ namespace ColorBlockJam.Gameplay.Logic
             var isAcrossColumns = side is BoardSide.Top or BoardSide.Bottom;
             foreach (var cell in block.Cells)
             {
-                if (DoorAt(block, side, isAcrossColumns ? x + cell.X : y + cell.Y) == null)
+                if (DoorFor(block, side, isAcrossColumns ? x + cell.X : y + cell.Y) == null)
                 {
                     return false;
                 }
@@ -144,7 +157,7 @@ namespace ColorBlockJam.Gameplay.Logic
             return true;
         }
 
-        private BoardDoor DoorAt(BoardBlock block, BoardSide side, int alongEdge)
+        private BoardDoor DoorFor(BoardBlock block, BoardSide side, int alongEdge)
         {
             foreach (var door in doors)
             {

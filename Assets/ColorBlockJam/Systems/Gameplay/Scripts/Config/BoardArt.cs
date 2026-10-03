@@ -46,6 +46,9 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private float doorArrowLift = 0.12f;
         [Tooltip("Duvar orijininin yüksekliği, sanat biriminde (bir hücre 2 birim). Duvarlar bloklardan uzundur.")]
         [SerializeField] private float wallHeightOffset = -0.8f;
+        [Tooltip("Duvar kalınlığının yarısı, hücre. Kenar duvarlarının ortası tahtanın kenarından bu kadar dışarıda, " +
+                 "delik duvarlarınınki deliğin kenarından bu kadar içeride durur. Duvar modeli yarım hücre kalınlığında.")]
+        [SerializeField, Range(0.05f, 0.5f)] private float wallHalfThickness = 0.25f;
         [Tooltip("Karoların altına serilen düz tabanın yüksekliği, sanat biriminde. Taban sadece oyun alanının " +
                  "hücrelerini kaplar, deliklerde yoktur; karoların arasından görünür.")]
         [SerializeField] private float floorHeight = -0.3f;
@@ -93,6 +96,7 @@ namespace ColorBlockJam.Gameplay
         public float DoorArrowScale => doorArrowScale;
         public float DoorArrowLift => doorArrowLift;
         public float WallHeightOffset => wallHeightOffset;
+        public float WallHalfThickness => wallHalfThickness;
         public float FloorHeight => floorHeight;
         public Quaternion WallModelRotation => Quaternion.Euler(wallModelRotation);
         public Quaternion CornerModelRotation => Quaternion.Euler(cornerModelRotation);

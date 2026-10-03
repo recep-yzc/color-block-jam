@@ -32,6 +32,7 @@ MonoBehaviour:
   doorArrowScale: 1.4
   doorArrowLift: 0.12
   wallHeightOffset: -1
+  wallHalfThickness: 0.25
   floorHeight: -0.3
   wallModelRotation: {x: 0, y: 90, z: 180}
   cornerModelRotation: {x: 0, y: 0, z: 180}

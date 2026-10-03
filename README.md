@@ -193,6 +193,7 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 - A block leaves when `Board.CanPassThrough` holds: every cell the whole shape sweeps on the way out is free or beyond a door of its color. An L-shaped block therefore cannot leave through a door that only its foot fits.
 - A block dropped on a cell right in front of a door it can pass through goes in by itself (`BlockPlacement.DoorToEnter`).
 - Doors of one color side by side are one stretched piece, and each squashes and springs back as a block goes through it.
+- Each cell of a door carries the supplied `Door_Arrow`, pointing out of the board, the way a block leaves. It is part of the door's mesh, so it squashes with the door, and it takes a light shade of the door's color, like the arrows on blocks.
 
 ### Holes
 
@@ -256,7 +257,6 @@ Coins, the current level, the settings and the player's boosters go through `IKe
 - The solver has a budget. On a very large custom level, Check may answer "no solution found within the budget" instead of a clear yes or no.
 - During an editor ▶ Play, **Continue**, **Retry**, **Restart** and **Home › Play** all return to the tested level until play mode ends.
 - After level 50 the catalog starts again from level 1, while the home screen keeps counting up.
-- The supplied `Door_Arrow` mesh is not used; the doors show their direction by where they are.
 
 **Feedback on the supplied assets**
 

@@ -74,11 +74,20 @@ namespace ColorBlockJam.Gameplay
 
             foreach (var door in doors)
             {
-                var piece = door.Piece;
-                piece.transform = Matrix4x4.Translate(-door.Pivot) * piece.transform;
+                var pieces = new List<CombineInstance> { door.Piece };
+                AddDoorArrows(board, art, door, pieces);
+                var toPivot = Matrix4x4.Translate(-door.Pivot);
+                for (var i = 0; i < pieces.Count; i++)
+                {
+                    var piece = pieces[i];
+                    piece.transform = toPivot * piece.transform;
+                    pieces[i] = piece;
+                }
+
                 var doorName = $"Door {door.Side} {door.From}";
-                var doorMesh = Combine(doorName, new List<CombineInstance> { piece });
-                MeshTint.Paint(doorMesh, palette.GetColor(door.Color));
+                var doorMesh = Combine(doorName, pieces);
+                var doorColor = palette.GetColor(door.Color);
+                MeshTint.Paint(doorMesh, doorColor, art.Door.vertexCount, art.ArrowColorOn(doorColor));
                 var doorRenderer = AddRenderer(doorParts, doorName, doorMesh, art.DoorMaterial);
                 doorRenderer.transform.localPosition = door.Pivot;
 
@@ -187,6 +196,41 @@ namespace ColorBlockJam.Gameplay
         {
             var stretch = (to - from) * ArtSpace.CellSize / LengthAlongX(mesh, rotation);
             return WallPiece(art, mesh, rotation, EdgePoint(board, side, (from + to) * 0.5f), turn, stretch);
+        }
+
+        private void AddDoorArrows(Board board, BoardArt art, DoorRun door, List<CombineInstance> pieces)
+        {
+            var arrow = art.DoorArrow;
+            var model = Matrix4x4.Scale(Vector3.one * art.DoorArrowScale) * Matrix4x4.Rotate(art.DoorArrowModelRotation) *
+                        Matrix4x4.Translate(-arrow.bounds.center);
+            var height = DoorTop(art) + art.DoorArrowLift;
+            var turn = Quaternion.Euler(0f, ExitAngle(door.Side), 0f);
+            for (var cell = door.From; cell < door.To; cell++)
+            {
+                var piece = Piece(arrow, EdgePoint(board, door.Side, cell + 0.5f), height, turn);
+                piece.transform *= model;
+                pieces.Add(piece);
+            }
+        }
+
+        private static float DoorTop(BoardArt art)
+        {
+            var bounds = art.Door.bounds;
+            var turned = Matrix4x4.Rotate(art.DoorModelRotation);
+            var extents = bounds.extents;
+            var halfHeight = Mathf.Abs(turned.m10) * extents.x + Mathf.Abs(turned.m11) * extents.y + Mathf.Abs(turned.m12) * extents.z;
+            return art.WallHeightOffset + bounds.center.y + halfHeight;
+        }
+
+        private static float ExitAngle(BoardSide side)
+        {
+            return side switch
+            {
+                BoardSide.Top => 0f,
+                BoardSide.Right => 90f,
+                BoardSide.Bottom => 180f,
+                _ => 270f
+            };
         }
 
         private static int DoorColorAt(Board board, BoardSide side, int alongEdge)

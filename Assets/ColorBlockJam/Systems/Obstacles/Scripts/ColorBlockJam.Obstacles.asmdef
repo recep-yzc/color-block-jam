@@ -1,0 +1,23 @@
+{
+    "name": "ColorBlockJam.Obstacles",
+    "rootNamespace": "ColorBlockJam.Obstacles",
+    "references": [
+        "ColorBlockJam.Core",
+        "ColorBlockJam.UI",
+        "ColorBlockJam.Gameplay",
+        "ColorBlockJam.Level.Data",
+        "VContainer",
+        "UniTask",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

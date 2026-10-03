@@ -73,3 +73,13 @@ MonoBehaviour:
       destroyOnHide: 0
       showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
       hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
+  - presenter: ColorBlockJam.Obstacles.ObstacleIntroPopupPresenter, ColorBlockJam.Obstacles
+    prefab: {fileID: 1084484342502058740, guid: 8da035536b0b4304bc3a97d89d3001d0, type: 3}
+    settings:
+      dimsBackground: 1
+      closeOnBackdropClick: 0
+      closeOnBackButton: 0
+      closeOnSceneChange: 1
+      destroyOnHide: 0
+      showTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}
+      hideTransition: {fileID: 11400000, guid: b98d6a55c3c6a054a83ac5b1b8fa57db, type: 2}

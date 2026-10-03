@@ -224,6 +224,7 @@ MonoBehaviour:
   levelInstallers:
   - {fileID: 11400000, guid: 9e4ac80bd19d8424ea6aaaef96041cc1, type: 2}
   - {fileID: 11400000, guid: 9906b72a8ecc9004295262cdf3ae5c41, type: 2}
+  - {fileID: 11400000, guid: f48bfc6108f84a6fa72df9587922c8eb, type: 2}
 --- !u!1 &113448718
 GameObject:
   m_ObjectHideFlags: 0

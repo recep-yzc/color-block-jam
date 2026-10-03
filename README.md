@@ -9,9 +9,9 @@ Drag colored blocks around the board and slide each one out through a door of it
 1. Open the project with **Unity 2022.3.62f2**. Packages resolve from `Packages/manifest.json`: URP 14, Input System, UniTask, LitMotion, VContainer and TextMesh Pro.
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**. Set the Game view to a portrait resolution, such as 1080×1920 or 1080×2400.
 3. To build an APK, switch to Android in *File › Build Settings* and press **Build**. The build settings already list the scenes (Splash, Main, Gameplay), and the player settings use IL2CPP and ARM64.
-4. To run the tests, open *Window › General › Test Runner*. There are 83 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner*. There are 86 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, which obstacles a level introduces, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
-To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
+To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster, and `obstacles.<id>.introduced` for each obstacle.
 
 ### How to play
 
@@ -32,6 +32,7 @@ To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The
   - **Pause** opens the settings with a **HOME** button that leaves the level; close them to play on. The level also pauses on the Android back button and, on a device, when the app loses focus. In the editor, clicking outside the Game view does not pause it.
   - **AUTO** lets the solver play the level from where you are.
 - In the editor and in development builds, → and ← jump to the next and the previous level, to try levels quickly.
+- The first level that has arrow blocks, ice or holes opens with a popup that introduces each of them; **Continue** starts the level. An obstacle is introduced only once.
 - Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.
   - **Freeze** (level 2) stops the timer for 10 seconds; the timer turns icy while it holds.
   - **Hammer** (level 4): tap it, then tap any block, frozen or not, to break it.
@@ -111,6 +112,7 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 | Level | the level format, the block palette, and the catalog with the 50 levels |
 | Gameplay | the rules (`Logic`), the board and its input, the session, the HUD and the popups of a level |
 | Boosters | the booster definitions, the inventory, the bar and the unlock popup |
+| Obstacles | the obstacle definitions and the popup that introduces a new obstacle |
 | Home | the home screen and its level path |
 | LevelEditor | the level editor window |
 | Rendering | the render pipeline and the shaders |
@@ -124,7 +126,7 @@ The whole game is one project in `Assets/ColorBlockJam`. Each system has a folde
 
 - The **root scope** (`Systems/Boot/Prefabs/AppScope.prefab`) runs the `ScriptableInstaller` assets of the systems with app-wide services: storage and scene loading (Core), the app settings (Boot), the settings, the economy, the progression, the booster inventory and the windows.
 - Each **scene scope** runs `MonoInstaller` components for that scene's services.
-- In the gameplay scene, **each level has its own child scope**. The scene scope keeps what outlives a level: the camera, the board view, the burst pool, input, the HUD and bar views, the level flow. `LevelRunner` builds a child scope for the level from the `LevelInstaller` and `LevelBoostersInstaller` assets that `LevelScopeInstaller` lists: the session, the board, the solver watch, the results, the drag, pause, the HUD presenter and the boosters. Restart and Next dispose that scope and build a new one, without loading the scene again. Disposing the scope cleans up everything the level made: block views, the board mesh, bar buttons and every pending search, timer or window.
+- In the gameplay scene, **each level has its own child scope**. The scene scope keeps what outlives a level: the camera, the board view, the burst pool, input, the HUD and bar views, the level flow. `LevelRunner` builds a child scope for the level from the `LevelInstaller`, `LevelBoostersInstaller` and `LevelObstaclesInstaller` assets that `LevelScopeInstaller` lists: the session, the board, the solver watch, the results, the drag, pause, the HUD presenter, the boosters and the obstacle introductions. Restart and Next dispose that scope and build a new one, without loading the scene again. Disposing the scope cleans up everything the level made: block views, the board mesh, bar buttons and every pending search, timer or window.
 - *Why:* systems are added or removed in the Inspector, there are no singletons or static state, and a scene's objects live exactly as long as the scene.
 
 ### UI
@@ -212,6 +214,12 @@ Every object the board builds has a parent whose pivot is where it stands on the
 - `BlockMarks` decides where the arrow and the ice count go on a block. The game and the level editor both use it, so they always agree.
 - The arrow is part of the block's mesh, in a light shade of the block's color. The ice is the block's own mesh pushed out a little and drawn see-through with its own small shader (a projected frost texture, a rim and a glint). The count is a 3D text over it. Both are in the `BlockIce` prefab, which a block creates only when it has ice and which removes itself when the ice breaks.
 
+### Obstacle introductions
+
+- **Each obstacle is an asset.** An `ObstacleDefinition` holds its id, its kind (arrow block, ice or hole), its name, its description and an optional icon; `ObstacleCatalog` lists them in the order their popups show.
+- **The level decides, not a level number.** At the start of a level, `ObstacleIntros` asks `ObstacleRules` which kinds the level's data has and which of them the player has not met (`ObstacleIntroductions`, saved), and shows `ObstacleIntroPopup` for each. An obstacle counts as met once **Continue** closes its popup. Levels tried from the editor introduce nothing.
+- The popup is a copy of the booster unlock popup. No obstacle icons were supplied, so the icon is hidden until one is set on the asset.
+
 ### Boosters
 
 - **Each booster is an asset.** A `BoosterDefinition` holds its id, name, description, icon, unlock level, starting count and coin price, and creates its own effect. `BoosterCatalog` lists the boosters in bar order.
@@ -256,6 +264,7 @@ Coins, the current level, the settings and the player's boosters go through `IKe
 - The APK (about 25 MB) is built into `Builds/`, which is not in the repository.
 - UI sprites are imported uncompressed (RGBA32) on Android, for the sharpest look. The full-screen backgrounds cost about 25 MB of memory that way; ASTC would cut that to a fraction if memory ever matters more.
 - Lives are a placeholder, as the case allows: failing a level costs nothing.
+- A level that unlocks a booster and introduces an obstacle at once would show both popups stacked. No shipped level does both: boosters unlock on levels 2 to 8, and obstacles first appear on levels 12, 16 and 22.
 - A booster's description is plain text in its asset, so changing, for example, the freeze's seconds means changing its description too.
 - On the levels that ship with the game, **stuck cannot happen**, because they are all proven solvable and solvability never changes during play. To see the stuck popup, make a level in the editor that cannot be solved (for example a block with no door of its color), then press ▶ Play.
 - While AUTO plays, the timer, the boosters and the restart and pause buttons are off.

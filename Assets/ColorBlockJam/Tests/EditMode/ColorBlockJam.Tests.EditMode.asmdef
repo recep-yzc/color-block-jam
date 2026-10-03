@@ -8,6 +8,7 @@
         "ColorBlockJam.Economy",
         "ColorBlockJam.Gameplay",
         "ColorBlockJam.Boosters",
+        "ColorBlockJam.Obstacles",
         "ColorBlockJam.Progression",
         "ColorBlockJam.Settings",
         "ColorBlockJam.Core",

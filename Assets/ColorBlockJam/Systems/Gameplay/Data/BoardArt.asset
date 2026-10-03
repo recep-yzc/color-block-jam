@@ -44,4 +44,3 @@ MonoBehaviour:
   floorMaterial: {fileID: 2100000, guid: aef648a0b90246d1a9056fc2942f6704, type: 2}
   blockOutlineMaskMaterial: {fileID: 2100000, guid: ba7764ef4cd94acf98fb3ddd78384da9, type: 2}
   blockOutlineMaterial: {fileID: 2100000, guid: a99a3a415b234c3aa488c7d7f286bb4d, type: 2}
-  iceMaterial: {fileID: 2100000, guid: 4cc29222f8ad4ead89ebf73f4f07c887, type: 2}

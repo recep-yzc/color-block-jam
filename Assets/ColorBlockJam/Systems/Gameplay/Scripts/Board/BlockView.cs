@@ -4,13 +4,11 @@ using ColorBlockJam.Gameplay.Logic;
 using Cysharp.Threading.Tasks;
 using LitMotion;
 using LitMotion.Extensions;
-using TMPro;
 using UnityEngine;
 using NVector2 = System.Numerics.Vector2;
 
 namespace ColorBlockJam.Gameplay
 {
-    [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
     public sealed class BlockView : MonoBehaviour
     {
         private const float MinMotionDuration = 0.05f;
@@ -21,18 +19,16 @@ namespace ColorBlockJam.Gameplay
         private const int ShakeFrequency = 6;
         private const float IceCountLift = 0.25f;
 
-        [Header("Ice")]
-        [Tooltip("Donmuş bloğun etrafındaki buz kabuğu. Bloğun mesh'ini ve buz materyalini alır. Prefab'da kapalı " +
-                 "durur, sadece donmuş bloklarda açılır.")]
-        [SerializeField] private MeshFilter iceShell;
-        [Tooltip("Buzun kırılması için kaç blok daha çıkması gerektiğini gösteren sayı. Kabuk gibi prefab'da kapalı " +
-                 "durur.")]
-        [SerializeField] private TMP_Text iceCount;
+        [Tooltip("Bloğun mesh'ini çizen çocuk obje. Kök objenin pivotu bloğun tabanında, zemin hizasındadır.")]
+        [SerializeField] private MeshRenderer body;
+        [Tooltip("Sadece buzlu bloklarda bloğun altına üretilen buz kabuğu ve sayacı.")]
+        [SerializeField] private BlockIceView icePrefab;
 
         private BoardView boardView;
         private GameplayConfig config;
         private Mesh mesh;
         private MeshRenderer meshRenderer;
+        private BlockIceView ice;
 
         private Material[] restMaterials;
         private Material[] heldMaterials;
@@ -44,7 +40,6 @@ namespace ColorBlockJam.Gameplay
         private MotionHandle liftMotion;
         private MotionHandle moveMotion;
         private MotionHandle shakeMotion;
-        private MotionHandle iceMotion;
 
         public event Action<BlockView> Removed;
 
@@ -62,8 +57,8 @@ namespace ColorBlockJam.Gameplay
             boardView = board;
             config = gameplayConfig;
             mesh = BlockMeshBuilder.Build(block, art, color);
-            GetComponent<MeshFilter>().sharedMesh = mesh;
-            meshRenderer = GetComponent<MeshRenderer>();
+            body.GetComponent<MeshFilter>().sharedMesh = mesh;
+            meshRenderer = body;
             restMaterials = new[] { art.BlockMaterial };
             heldMaterials = art.BlockOutlineMaskMaterial != null && art.BlockOutlineMaterial != null
                 ? new[] { art.BlockMaterial, art.BlockOutlineMaskMaterial, art.BlockOutlineMaterial }
@@ -76,12 +71,8 @@ namespace ColorBlockJam.Gameplay
             iceLeft = block.Ice;
             if (IsFrozen)
             {
-                iceShell.sharedMesh = mesh;
-                iceShell.GetComponent<MeshRenderer>().sharedMaterial = art.IceMaterial;
-                iceShell.gameObject.SetActive(true);
-                iceCount.transform.localPosition = IceCountPosition(block);
-                iceCount.SetText("{0}", iceLeft);
-                iceCount.gameObject.SetActive(true);
+                ice = Instantiate(icePrefab, transform);
+                ice.Show(mesh, IceCountPosition(block), iceLeft);
             }
 
             Apply();
@@ -193,22 +184,14 @@ namespace ColorBlockJam.Gameplay
             }
 
             iceLeft = left;
-            iceMotion.TryComplete();
             if (IsFrozen)
             {
-                iceCount.SetText("{0}", left);
-                iceMotion = LMotion.Punch.Create(Vector3.one, Vector3.one * config.IceCountPunch, config.IceBreakDuration)
-                    .BindToLocalScale(iceCount.transform)
-                    .AddTo(this);
+                ice.ShowLeft(left, config.IceCountPunch, config.IceBreakDuration);
                 return;
             }
 
-            iceCount.gameObject.SetActive(false);
-            iceMotion = LMotion.Create(Vector3.one, Vector3.zero, config.IceBreakDuration)
-                .WithEase(Ease.InBack)
-                .WithOnComplete(HideIce)
-                .BindToLocalScale(iceShell.transform)
-                .AddTo(this);
+            ice.Break(config.IceBreakDuration);
+            ice = null;
         }
 
         private void OnDestroy()
@@ -221,11 +204,6 @@ namespace ColorBlockJam.Gameplay
             var cell = BlockMarks.FindIceCell(block.Cells);
             var local = (new Vector2(cell.X + 0.5f, cell.Y + 0.5f) - middle) * ArtSpace.CellSize;
             return new Vector3(local.x, mesh.bounds.max.y + IceCountLift, local.y);
-        }
-
-        private void HideIce()
-        {
-            iceShell.gameObject.SetActive(false);
         }
 
         private void AnimateLift(float height)

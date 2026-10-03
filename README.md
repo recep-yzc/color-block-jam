@@ -189,6 +189,10 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 - **Blocks never overlap.** The view sits exactly where the mover puts the block, with no smoothing that could cut a corner. Only half a percent of a cell of play is kept, too small to see, so a block always fits a gap exactly its own size.
 - On release the block settles on the nearest free cell with an ease that does not overshoot into its neighbor.
 
+### Pivots
+
+Every object the board builds has a parent whose pivot is where it stands on the floor, at y = 0 for all of them: a block (`BlockView`, its mesh on the `Body` child and its ice on a `BlockIce` child), a door (`DoorView`, its mesh on the `Mesh` child) and the board parts (the ground and walls, and the floor). So a block lifts, shrinks and is smashed from its base, and a door squashes down into the floor. Walls and doors reach below the floor (`wallHeightOffset` on `BoardArt`); that part stays under their pivot.
+
 ### Doors
 
 - A block leaves when `Board.CanPassThrough` holds: every cell the whole shape sweeps on the way out is free or beyond a door of its color. An L-shaped block therefore cannot leave through a door that only its foot fits.
@@ -206,7 +210,7 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 - **Arrow blocks.** `BoardBlock.MovesAlong` limits a block to its axis. The drag mover drops the part of every step across the axis, settling stays on the block's row or column, `CanPassThrough` refuses doors off the axis, and the solver only reaches cells along it. The level check makes sure a door of its color is ahead of it.
 - **Ice** is stored as how many blocks must leave first, and the frozen state is derived: a block is frozen while fewer blocks have left than its ice. So there is no ice state to update, reset or undo; the solver gets it for free, because the blocks that have left are already part of each state it explores.
 - `BlockMarks` decides where the arrow and the ice count go on a block. The game and the level editor both use it, so they always agree.
-- The arrow is part of the block's mesh, in a light shade of the block's color. The ice is the block's own mesh pushed out a little and drawn see-through with its own small shader (a projected frost texture, a rim and a glint). The count is a 3D text over it.
+- The arrow is part of the block's mesh, in a light shade of the block's color. The ice is the block's own mesh pushed out a little and drawn see-through with its own small shader (a projected frost texture, a rim and a glint). The count is a 3D text over it. Both are in the `BlockIce` prefab, which a block creates only when it has ice and which removes itself when the ice breaks.
 
 ### Boosters
 

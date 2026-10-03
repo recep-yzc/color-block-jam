@@ -78,8 +78,6 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Material blockOutlineMaskMaterial;
         [Tooltip("Oyuncunun tuttuğu bloğun etrafına, her şeyin üstünde çizilen dış çerçeve.")]
         [SerializeField] private Material blockOutlineMaterial;
-        [Tooltip("Donmuş bloğun etrafındaki yarı saydam buz kabuğunun materyali.")]
-        [SerializeField] private Material iceMaterial;
 
         public Mesh BlockCenter => blockCenter;
         public Mesh BlockEdge => blockEdge;
@@ -107,7 +105,6 @@ namespace ColorBlockJam.Gameplay
         public Material FloorMaterial => floorMaterial;
         public Material BlockOutlineMaskMaterial => blockOutlineMaskMaterial;
         public Material BlockOutlineMaterial => blockOutlineMaterial;
-        public Material IceMaterial => iceMaterial;
 
         public Mesh ArrowFor(int cells)
         {

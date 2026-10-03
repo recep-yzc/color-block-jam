@@ -88,10 +88,12 @@ namespace ColorBlockJam.Gameplay
                 var doorMesh = Combine(doorName, pieces);
                 var doorColor = palette.GetColor(door.Color);
                 MeshTint.Paint(doorMesh, doorColor, art.Door.vertexCount, art.ArrowColorOn(doorColor));
-                var doorRenderer = AddRenderer(doorParts, doorName, doorMesh, art.DoorMaterial);
-                doorRenderer.transform.localPosition = door.Pivot;
+                var doorRoot = new GameObject(doorName).transform;
+                doorRoot.SetParent(doorParts, false);
+                doorRoot.localPosition = door.Pivot;
+                AddRenderer(doorRoot, "Mesh", doorMesh, art.DoorMaterial);
 
-                var doorView = doorRenderer.gameObject.AddComponent<DoorView>();
+                var doorView = doorRoot.gameObject.AddComponent<DoorView>();
                 doorView.Initialize(door.Side, door.From, door.To, config);
                 doorViews.Add(doorView);
             }

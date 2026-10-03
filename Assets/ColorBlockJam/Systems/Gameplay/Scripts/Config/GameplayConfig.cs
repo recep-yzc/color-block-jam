@@ -57,6 +57,9 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0)] private int burstPrewarm = 4;
         [Tooltip("Seviye bittikten sonra sonuç popup'ı açılana kadar geçen süre, saniye. Son hareketler bitsin diye.")]
         [SerializeField, Min(0f)] private float resultPopupDelay = 0.6f;
+        [Tooltip("Seviye açıldıktan sonra açılış popup'larının (yeni booster, yeni engel) çıkmadan önce beklediği süre, saniye. " +
+                 "Sahne yerine oturur; bu sırada süre işlemez ve bloklar tutulamaz.")]
+        [SerializeField, Min(0f)] private float introDelay = 0.8f;
 
         [Header("Ice")]
         [Tooltip("Yeterince blok çıkınca buzun kırılıp kaybolma süresi, ayrıca sayının zıplama süresi, saniye.")]
@@ -137,6 +140,7 @@ namespace ColorBlockJam.Gameplay
         public ParticleSystem BurstPrefab => burstPrefab;
         public int BurstPrewarm => burstPrewarm;
         public float ResultPopupDelay => resultPopupDelay;
+        public float IntroDelay => introDelay;
         public float IceBreakDuration => iceBreakDuration;
         public float IceCountPunch => iceCountPunch;
         public Color IceBurstColor => iceBurstColor;

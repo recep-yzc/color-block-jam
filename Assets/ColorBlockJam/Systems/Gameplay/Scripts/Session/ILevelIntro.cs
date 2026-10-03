@@ -5,6 +5,8 @@ namespace ColorBlockJam.Gameplay
 {
     public interface ILevelIntro
     {
+        bool IsPending { get; }
+
         UniTask PresentAsync(CancellationToken cancellationToken);
     }
 }

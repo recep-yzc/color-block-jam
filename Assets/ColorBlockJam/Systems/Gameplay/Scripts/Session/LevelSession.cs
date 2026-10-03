@@ -19,11 +19,12 @@ namespace ColorBlockJam.Gameplay
         private readonly LevelResults results;
         private readonly IWindows windows;
         private readonly ILevelFlow flow;
+        private readonly LevelIntros intros;
         private readonly CancellationTokenSource lifetime = new();
         private bool hasPlayerMoved;
 
-        public LevelSession(ILevelProvider levels, LevelBoard levelBoard, BlockDragController drag, AutoPlayer autoPlayer,
-            SolvabilityWatcher solvability, LevelResults results, IWindows windows, ILevelFlow flow)
+        public LevelSession(LevelData level, ILevelProvider levels, LevelBoard levelBoard, BlockDragController drag, AutoPlayer autoPlayer,
+            SolvabilityWatcher solvability, LevelResults results, IWindows windows, ILevelFlow flow, LevelIntros intros)
         {
             this.levels = levels;
             this.levelBoard = levelBoard;
@@ -33,8 +34,9 @@ namespace ColorBlockJam.Gameplay
             this.results = results;
             this.windows = windows;
             this.flow = flow;
+            this.intros = intros;
 
-            Level = levels.Load();
+            Level = level;
             Timer = new LevelTimer(Level.timeLimit);
         }
 
@@ -68,7 +70,7 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            var isHeld = windows.HasOpenWindow || flow.IsLeaving;
+            var isHeld = windows.HasOpenWindow || flow.IsLeaving || intros.IsShowing;
             drag.IsEnabled = State == LevelState.Playing && !isHeld;
             Timer.IsPaused = State != LevelState.Playing || isHeld;
 

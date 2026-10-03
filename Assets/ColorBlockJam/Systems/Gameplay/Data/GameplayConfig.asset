@@ -33,6 +33,7 @@ MonoBehaviour:
   burstPrefab: {fileID: 3003805300057978667, guid: a9f507dad8fedde49b1ba50b9c79b030, type: 3}
   burstPrewarm: 4
   resultPopupDelay: 0.6
+  introDelay: 0.8
   iceBreakDuration: 0.3
   iceCountPunch: 0.35
   iceBurstColor: {r: 0.72, g: 0.9, b: 1, a: 1}

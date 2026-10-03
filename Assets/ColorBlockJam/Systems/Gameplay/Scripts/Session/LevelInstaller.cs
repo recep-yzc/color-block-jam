@@ -10,6 +10,7 @@ namespace ColorBlockJam.Gameplay
     {
         public override void Install(IContainerBuilder builder)
         {
+            builder.Register(resolver => resolver.Resolve<ILevelProvider>().Load(), Lifetime.Singleton);
             builder.Register<AutoPlayer>(Lifetime.Singleton);
             builder.Register<LevelBoard>(Lifetime.Singleton);
             builder.Register<SolvabilityWatcher>(Lifetime.Singleton);

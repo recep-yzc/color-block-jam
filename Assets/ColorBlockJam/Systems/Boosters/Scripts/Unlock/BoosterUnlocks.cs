@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using ColorBlockJam.Gameplay;
 using ColorBlockJam.UI.Windows;
@@ -20,9 +21,11 @@ namespace ColorBlockJam.Boosters
             this.windows = windows;
         }
 
+        public bool IsPending => Pending().Count > 0;
+
         public async UniTask PresentAsync(CancellationToken cancellationToken)
         {
-            foreach (var booster in BoosterUnlockRules.Pending(catalog.Boosters, levels.LevelNumber, inventory))
+            foreach (var booster in Pending())
             {
                 if (!await windows.Get<BoosterUnlockPopupPresenter>().ShowAsync(booster, cancellationToken))
                 {
@@ -31,6 +34,11 @@ namespace ColorBlockJam.Boosters
 
                 inventory.Unlock(booster);
             }
+        }
+
+        private List<BoosterDefinition> Pending()
+        {
+            return BoosterUnlockRules.Pending(catalog.Boosters, levels.LevelNumber, inventory);
         }
     }
 }

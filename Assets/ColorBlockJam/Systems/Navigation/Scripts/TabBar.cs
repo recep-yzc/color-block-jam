@@ -3,16 +3,23 @@ using System.Collections.Generic;
 using ColorBlockJam.UI;
 using LitMotion;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace ColorBlockJam.Navigation
 {
     public sealed class TabBar : MonoBehaviour
     {
-        [Tooltip("Sekmelerin altında durduğu obje. Layout group'u sekmeleri yan yana dizer.")]
+        private const DrivenTransformProperties DrivenProperties =
+            DrivenTransformProperties.Anchors | DrivenTransformProperties.Pivot | DrivenTransformProperties.AnchoredPosition |
+            DrivenTransformProperties.SizeDelta;
+
+        [Tooltip("Sekmelerin altında durduğu obje. Sekme çubuğu sekmeleri bunun içine yan yana dizer.")]
         [SerializeField] private RectTransform tabContainer;
-        [Tooltip("Seçili sekmenin arkasına kayan vurgu. Sekme konteynerinin çocuğudur ve layout'u yok sayar.")]
+        [Tooltip("Seçili sekmenin arkasına kayan vurgu. Sekme konteynerinin çocuğudur.")]
         [SerializeField] private RectTransform selectionHighlight;
+        [Tooltip("Sekmelerle konteynerin kenarları arasındaki boşluk.")]
+        [SerializeField] private RectOffset padding = new(10, 10, 10, 0);
+        [Tooltip("Yan yana iki sekme arasındaki boşluk.")]
+        [SerializeField, Min(0f)] private float spacing;
 
         private readonly List<NavigationTab> tabs = new();
         private NavigationConfig config;
@@ -21,9 +28,12 @@ namespace ColorBlockJam.Navigation
         private int highlightTo;
         private float highlightBlend;
         private bool isLayoutDirty;
-        private LayoutElement[] tabLayouts;
-        private float[] widthsBeforeResize;
+        private float[] extraWidths;
+        private float[] extraWidthsBeforeResize;
+        private float[] centers;
+        private float[] widths;
         private MotionHandle resizeMotion;
+        private DrivenRectTransformTracker drivenTabs;
 
         public event Action<string> TabClicked;
 
@@ -31,21 +41,22 @@ namespace ColorBlockJam.Navigation
         {
             config = navigationConfig;
             NavigationOrder.CollectSorted(tabContainer, config, tabs);
-            tabLayouts = new LayoutElement[tabs.Count];
-            widthsBeforeResize = new float[tabs.Count];
+            extraWidths = new float[tabs.Count];
+            extraWidthsBeforeResize = new float[tabs.Count];
+            centers = new float[tabs.Count];
+            widths = new float[tabs.Count];
 
+            drivenTabs.Clear();
             for (var i = 0; i < tabs.Count; i++)
             {
                 tabs[i].transform.SetSiblingIndex(i);
                 tabs[i].Clicked += OnTabClicked;
                 tabs[i].SetSelected(false, config, instant: true);
-
-                tabLayouts[i] = tabs[i].TryGetComponent(out LayoutElement layout) ? layout : tabs[i].gameObject.AddComponent<LayoutElement>();
-                tabLayouts[i].preferredWidth = 0f;
+                drivenTabs.Add(this, tabs[i].RectTransform, DrivenProperties);
             }
 
             selectionHighlight.SetAsFirstSibling();
-            LayoutRebuilder.ForceRebuildLayoutImmediate(tabContainer);
+            LayOut();
         }
 
         public int IndexOf(string pageId)
@@ -100,13 +111,13 @@ namespace ColorBlockJam.Navigation
             }
 
             isLayoutDirty = false;
-            LayoutRebuilder.ForceRebuildLayoutImmediate(tabContainer);
-            ApplyHighlight();
+            LayOut();
         }
 
         private void OnDestroy()
         {
             resizeMotion.TryCancel();
+            drivenTabs.Clear();
         }
 
         private void UpdateSeparators()
@@ -122,11 +133,7 @@ namespace ColorBlockJam.Navigation
         private void ResizeTabs(bool instant)
         {
             resizeMotion.TryCancel();
-
-            for (var i = 0; i < tabs.Count; i++)
-            {
-                widthsBeforeResize[i] = tabLayouts[i].preferredWidth;
-            }
+            Array.Copy(extraWidths, extraWidthsBeforeResize, extraWidths.Length);
 
             if (instant)
             {
@@ -145,22 +152,54 @@ namespace ColorBlockJam.Navigation
             for (var i = 0; i < tabs.Count; i++)
             {
                 var target = tabs[i] == selectedTab ? config.SelectedTabExtraWidth : 0f;
-                tabLayouts[i].preferredWidth = Mathf.Max(0f, Mathf.LerpUnclamped(widthsBeforeResize[i], target, blend));
+                extraWidths[i] = Mathf.Max(0f, Mathf.LerpUnclamped(extraWidthsBeforeResize[i], target, blend));
             }
 
-            LayoutRebuilder.ForceRebuildLayoutImmediate(tabContainer);
+            LayOut();
+        }
+
+        private void LayOut()
+        {
+            if (tabs.Count == 0)
+            {
+                return;
+            }
+
+            var rect = tabContainer.rect;
+            var extra = 0f;
+            for (var i = 0; i < tabs.Count; i++)
+            {
+                extra += extraWidths[i];
+            }
+
+            var share = (rect.width - padding.horizontal - spacing * (tabs.Count - 1) - extra) / tabs.Count;
+            var left = rect.xMin + padding.left;
+            var anchor = new Vector2(rect.center.x, (padding.bottom - padding.top) * 0.5f);
+            for (var i = 0; i < tabs.Count; i++)
+            {
+                var width = Mathf.Max(0f, share + extraWidths[i]);
+                centers[i] = left + width * 0.5f;
+                widths[i] = width;
+
+                var tab = tabs[i].RectTransform;
+                tab.anchorMin = new Vector2(0.5f, 0f);
+                tab.anchorMax = new Vector2(0.5f, 1f);
+                tab.pivot = new Vector2(0.5f, 0.5f);
+                tab.anchoredPosition = new Vector2(centers[i] - anchor.x, anchor.y);
+                tab.sizeDelta = new Vector2(width, -padding.vertical);
+                left += width + spacing;
+            }
+
             ApplyHighlight();
         }
 
         private void ApplyHighlight()
         {
-            var from = tabs[highlightFrom].RectTransform;
-            var to = tabs[highlightTo].RectTransform;
-
             var position = selectionHighlight.localPosition;
-            position.x = Mathf.Lerp(from.localPosition.x, to.localPosition.x, highlightBlend);
+            position.x = Mathf.Lerp(centers[highlightFrom], centers[highlightTo], highlightBlend);
             selectionHighlight.localPosition = position;
-            selectionHighlight.sizeDelta = new Vector2(Mathf.Lerp(from.rect.width, to.rect.width, highlightBlend), selectionHighlight.sizeDelta.y);
+            selectionHighlight.sizeDelta = new Vector2(Mathf.Lerp(widths[highlightFrom], widths[highlightTo], highlightBlend),
+                selectionHighlight.sizeDelta.y);
         }
 
         private void OnTabClicked(NavigationTab tab)

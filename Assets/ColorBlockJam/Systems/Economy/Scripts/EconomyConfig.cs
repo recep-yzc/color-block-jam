@@ -1,3 +1,4 @@
+using System;
 using ColorBlockJam.Level;
 using UnityEngine;
 
@@ -28,7 +29,8 @@ namespace ColorBlockJam.Economy
                 LevelDifficulty.Easy => easyReward,
                 LevelDifficulty.Medium => mediumReward,
                 LevelDifficulty.Hard => hardReward,
-                _ => superHardReward
+                LevelDifficulty.SuperHard => superHardReward,
+                _ => throw new ArgumentOutOfRangeException(nameof(difficulty), difficulty, null)
             };
         }
     }

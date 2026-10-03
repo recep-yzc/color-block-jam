@@ -38,7 +38,7 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private Mesh wallCorner;
         [Tooltip("Bir hücre uzunluğundaki kapı parçası. Yan yana aynı renkli kapılar için uzatılır.")]
         [SerializeField] private Mesh door;
-        [Tooltip("Kapının her hücresinin üstüne yatırılan ok. Bloğun kapıdan çıkacağı yönü gösterir.")]
+        [Tooltip("Kapının ortasına yatırılan ok. Bloğun kapıdan çıkacağı yönü gösterir.")]
         [SerializeField] private Mesh doorArrow;
         [Tooltip("Kapı okunun büyüklüğü, modelin kendi boyutuna göre.")]
         [SerializeField] private float doorArrowScale = 1.4f;

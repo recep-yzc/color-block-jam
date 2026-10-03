@@ -75,7 +75,7 @@ namespace ColorBlockJam.Gameplay
             foreach (var door in doors)
             {
                 var pieces = new List<CombineInstance> { door.Piece };
-                AddDoorArrows(board, art, door, pieces);
+                pieces.Add(DoorArrow(board, art, door));
                 var toPivot = Matrix4x4.Translate(-door.Pivot);
                 for (var i = 0; i < pieces.Count; i++)
                 {
@@ -198,19 +198,15 @@ namespace ColorBlockJam.Gameplay
             return WallPiece(art, mesh, rotation, EdgePoint(board, side, (from + to) * 0.5f), turn, stretch);
         }
 
-        private void AddDoorArrows(Board board, BoardArt art, DoorRun door, List<CombineInstance> pieces)
+        private CombineInstance DoorArrow(Board board, BoardArt art, DoorRun door)
         {
             var arrow = art.DoorArrow;
             var model = Matrix4x4.Scale(Vector3.one * art.DoorArrowScale) * Matrix4x4.Rotate(art.DoorArrowModelRotation) *
                         Matrix4x4.Translate(-arrow.bounds.center);
-            var height = DoorTop(art) + art.DoorArrowLift;
-            var turn = Quaternion.Euler(0f, ExitAngle(door.Side), 0f);
-            for (var cell = door.From; cell < door.To; cell++)
-            {
-                var piece = Piece(arrow, EdgePoint(board, door.Side, cell + 0.5f), height, turn);
-                piece.transform *= model;
-                pieces.Add(piece);
-            }
+            var middle = EdgePoint(board, door.Side, (door.From + door.To) * 0.5f);
+            var piece = Piece(arrow, middle, DoorTop(art) + art.DoorArrowLift, Quaternion.Euler(0f, ExitAngle(door.Side), 0f));
+            piece.transform *= model;
+            return piece;
         }
 
         private static float DoorTop(BoardArt art)

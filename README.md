@@ -194,7 +194,7 @@ Movement is fully algorithmic, with no physics engine, but it behaves like pushi
 - A block leaves when `Board.CanPassThrough` holds: every cell the whole shape sweeps on the way out is free or beyond a door of its color. An L-shaped block therefore cannot leave through a door that only its foot fits.
 - A block dropped on a cell right in front of a door it can pass through goes in by itself (`BlockPlacement.DoorToEnter`).
 - Doors of one color side by side are one stretched piece, and each squashes and springs back as a block goes through it.
-- Each cell of a door carries the supplied `Door_Arrow`, pointing out of the board, the way a block leaves. It is part of the door's mesh, so it squashes with the door, and it takes a light shade of the door's color, like the arrows on blocks.
+- The middle of each door carries the supplied `Door_Arrow`, pointing out of the board, the way a block leaves. It is part of the door's mesh, so it squashes with the door, and it takes a light shade of the door's color, like the arrows on blocks.
 
 ### Holes
 

@@ -76,6 +76,8 @@ namespace ColorBlockJam.Gameplay
             View.RestartButton.Interactable = isPlaying;
             View.PauseButton.Interactable = isPlaying;
             View.AutoPlayButton.Interactable = isPlaying;
+            shownSeconds = -1;
+            Tick();
         }
 
         private void OnPauseClicked()

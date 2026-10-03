@@ -8,7 +8,6 @@ namespace ColorBlockJam.Gameplay
     {
         private readonly ISceneLoader sceneLoader;
         private readonly LevelRunner runner;
-        private bool isLeaving;
 
         public LevelFlow(ISceneLoader sceneLoader, LevelRunner runner)
         {
@@ -16,24 +15,26 @@ namespace ColorBlockJam.Gameplay
             this.runner = runner;
         }
 
+        public bool IsLeaving { get; private set; }
+
         public void Restart() => Reopen();
 
         public void PlayNext() => Reopen();
 
         public void GoHome()
         {
-            if (isLeaving)
+            if (IsLeaving)
             {
                 return;
             }
 
-            isLeaving = true;
+            IsLeaving = true;
             sceneLoader.LoadAsync(GameScenes.Main, CancellationToken.None).Forget();
         }
 
         private void Reopen()
         {
-            if (!isLeaving)
+            if (!IsLeaving)
             {
                 runner.Restart();
             }

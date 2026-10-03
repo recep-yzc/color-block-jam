@@ -34,11 +34,13 @@ namespace ColorBlockJam.Boosters
         public void Initialize()
         {
             pressRouter.Add(this);
+            session.StateChanged += OnStateChanged;
         }
 
         public void Dispose()
         {
             pressRouter.Remove(this);
+            session.StateChanged -= OnStateChanged;
         }
 
         public bool CanPress(Booster booster)
@@ -87,6 +89,14 @@ namespace ColorBlockJam.Boosters
             if (booster?.Effect is AimedBoosterEffect aimed && inventory.TryTake(booster.Definition))
             {
                 aimed.Apply(block, cell);
+            }
+        }
+
+        private void OnStateChanged()
+        {
+            if (session.State != LevelState.Playing)
+            {
+                PutBack();
             }
         }
 

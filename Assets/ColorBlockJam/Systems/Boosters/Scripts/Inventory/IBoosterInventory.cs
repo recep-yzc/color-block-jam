@@ -4,7 +4,7 @@ namespace ColorBlockJam.Boosters
 {
     public interface IBoosterInventory
     {
-        event Action<BoosterDefinition> Changed;
+        event Action Changed;
 
         bool IsUnlocked(BoosterDefinition booster);
 

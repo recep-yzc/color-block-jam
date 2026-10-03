@@ -110,7 +110,7 @@ namespace ColorBlockJam.Tests
         public void EveryChangeOfCountOrLockIsAnnounced()
         {
             var changes = 0;
-            inventory.Changed += _ => changes++;
+            inventory.Changed += () => changes++;
 
             inventory.Unlock(hammer);
             inventory.TryTake(hammer);

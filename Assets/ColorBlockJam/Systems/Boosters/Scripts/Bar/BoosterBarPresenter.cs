@@ -45,9 +45,9 @@ namespace ColorBlockJam.Boosters
                 readiness.Add(booster.Effect.IsReady);
             }
 
-            inventory.Changed += OnInventoryChanged;
+            inventory.Changed += Refresh;
             wallet.CoinsChanged += OnCoinsChanged;
-            session.StateChanged += OnStateChanged;
+            session.StateChanged += Refresh;
             boosters.AimingChanged += Refresh;
             Refresh();
         }
@@ -62,9 +62,9 @@ namespace ColorBlockJam.Boosters
 
             View.HideAimHint();
 
-            inventory.Changed -= OnInventoryChanged;
+            inventory.Changed -= Refresh;
             wallet.CoinsChanged -= OnCoinsChanged;
-            session.StateChanged -= OnStateChanged;
+            session.StateChanged -= Refresh;
             boosters.AimingChanged -= Refresh;
         }
 
@@ -81,28 +81,8 @@ namespace ColorBlockJam.Boosters
             }
         }
 
-        private void OnInventoryChanged(BoosterDefinition booster)
-        {
-            Refresh();
-        }
-
         private void OnCoinsChanged(int coins)
         {
-            if (boosters.IsAiming && !inventory.CanTake(boosters.Aiming.Definition))
-            {
-                boosters.PutBack();
-            }
-
-            Refresh();
-        }
-
-        private void OnStateChanged()
-        {
-            if (session.State != LevelState.Playing)
-            {
-                boosters.PutBack();
-            }
-
             Refresh();
         }
 

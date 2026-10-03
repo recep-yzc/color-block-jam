@@ -15,7 +15,7 @@ namespace ColorBlockJam.Boosters
             this.wallet = wallet;
         }
 
-        public event Action<BoosterDefinition> Changed;
+        public event Action Changed;
 
         public bool IsUnlocked(BoosterDefinition booster)
         {
@@ -36,7 +36,7 @@ namespace ColorBlockJam.Boosters
 
             storage.SetBool(UnlockedKey(booster), true);
             storage.SetInt(CountKey(booster), CountOf(booster) + booster.StartingCount);
-            Changed?.Invoke(booster);
+            Changed?.Invoke();
         }
 
         public bool CanTake(BoosterDefinition booster)
@@ -58,7 +58,7 @@ namespace ColorBlockJam.Boosters
             }
 
             storage.SetInt(CountKey(booster), count - 1);
-            Changed?.Invoke(booster);
+            Changed?.Invoke();
             return true;
         }
 

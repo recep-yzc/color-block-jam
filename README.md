@@ -229,7 +229,7 @@ Every object the board builds has a parent whose pivot is where it stands on the
 - **No booster has input code, and the gameplay code does not know boosters exist.** While one aims, the drag controller hands the pressed block and cell to the `BlockPressRouter`, and `LevelBoosters` is on it. Without the Boosters system, the gameplay scene runs just the same.
 - **The player's boosters are saved** by `BoosterInventory`, registered for the whole app. A use takes an owned booster first and buys one with coins only when none are left; an aimed booster is paid only when it hits.
 - **Unlocking.** At the start of a level, `BoosterUnlocks` finds the boosters the level has reached but the player has not claimed, so an old save catches up too, and shows `BoosterUnlockPopup` for each. The booster opens on **Claim**: the popup closes and the button rises into the bar with `ScaleUpTransition`. Locked boosters are not shown, and levels tried from the editor unlock nothing.
-- **Adding a booster** takes a definition class that returns its effect, the effect class, an asset made from the definition's *Create* menu, and an entry in `BoosterCatalog`. The bar, the inventory, the unlock popup and the catalog test pick it up from there.
+- **Adding a booster** takes a definition class, the effect class, an asset made from the definition's *Create* menu, and an entry in `BoosterCatalog`. The definition derives from `AimedBoosterDefinition` or `InstantBoosterDefinition`, which only accept an effect of their own kind, so a booster can never aim with an instant effect or the other way round. The bar, the inventory, the unlock popup and the catalog test pick it up from there.
 
 ### Solver and stuck
 

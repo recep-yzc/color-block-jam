@@ -5,7 +5,7 @@ namespace ColorBlockJam.Boosters
     [CreateAssetMenu(menuName = "Color Block Jam/Boosters/Hammer", fileName = "Hammer")]
     public sealed class HammerBoosterDefinition : AimedBoosterDefinition
     {
-        public override BoosterEffect CreateEffect(BoosterContext context)
+        protected override AimedBoosterEffect CreateAimedEffect(BoosterContext context)
         {
             return new HammerEffect(context.Board);
         }

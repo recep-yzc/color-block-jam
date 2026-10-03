@@ -29,8 +29,9 @@ namespace ColorBlockJam.Tests
         public void GeneratedHolesAreAtLeastTwoByTwoAndKeepTheLevelSound()
         {
             var settings = GeneratorSettings.For(LevelDifficulty.Medium);
+            settings.Width = 8;
+            settings.Height = 9;
             settings.Holes = 2;
-            settings.MaxHoleSize = 3;
 
             var generated = new LevelGenerator().Generate(settings, LevelDifficulty.Medium, paletteSize: 10, seed: 11);
 

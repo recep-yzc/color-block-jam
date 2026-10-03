@@ -14,11 +14,6 @@ namespace ColorBlockJam.UI.Windows
 
         public bool IsOpen => host != null && host.IsOpen(this);
 
-        public void Close()
-        {
-            host?.Close(this);
-        }
-
         protected async UniTask<TResult> OpenAsync<TResult>(TResult closedResult, CancellationToken cancellationToken)
         {
             if (host == null)

@@ -16,7 +16,7 @@ namespace ColorBlockJam.UI.Windows
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterInstance(catalog);
-            builder.RegisterEntryPoint<WindowService>().WithParameter(layer).As<IWindows>();
+            builder.RegisterEntryPoint<WindowService>().WithParameter(layer);
 
             foreach (var entry in catalog.Windows)
             {

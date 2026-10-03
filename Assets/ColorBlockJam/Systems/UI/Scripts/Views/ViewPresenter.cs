@@ -15,15 +15,11 @@ namespace ColorBlockJam.UI.Views
 
         void IInitializable.Initialize()
         {
-            View.Showing += OnShowing;
-            View.Hidden += OnHidden;
             OnInitialize();
         }
 
         void IDisposable.Dispose()
         {
-            View.Showing -= OnShowing;
-            View.Hidden -= OnHidden;
             OnDispose();
         }
 
@@ -32,14 +28,6 @@ namespace ColorBlockJam.UI.Views
         }
 
         protected virtual void OnDispose()
-        {
-        }
-
-        protected virtual void OnShowing()
-        {
-        }
-
-        protected virtual void OnHidden()
         {
         }
     }

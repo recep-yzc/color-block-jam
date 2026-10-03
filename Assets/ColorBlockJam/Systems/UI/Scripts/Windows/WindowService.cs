@@ -13,16 +13,10 @@ namespace ColorBlockJam.UI.Windows
 {
     public sealed class WindowService : IWindows, IWindowHost, IInitializable, ITickable, IDisposable
     {
-        private sealed class Slot
-        {
-            public WindowEntry Entry;
-            public WindowView View;
-        }
-
         private readonly WindowCatalog catalog;
         private readonly WindowLayer layerPrefab;
         private readonly IObjectResolver resolver;
-        private readonly Dictionary<IWindowPresenter, Slot> slots = new();
+        private readonly Dictionary<IWindowPresenter, WindowSlot> slots = new();
         private readonly List<IWindowPresenter> openWindows = new();
         private readonly InputAction backAction = new("Back", InputActionType.Button, "<Keyboard>/escape");
         private WindowLayer layer;
@@ -58,6 +52,7 @@ namespace ColorBlockJam.UI.Windows
             if (layer != null)
             {
                 layer.Backdrop.Clicked -= OnBackdropClicked;
+                Object.Destroy(layer.gameObject);
             }
         }
 
@@ -84,7 +79,7 @@ namespace ColorBlockJam.UI.Windows
             var presenter = resolver.Resolve<TPresenter>();
             if (!slots.ContainsKey(presenter))
             {
-                slots.Add(presenter, new Slot { Entry = catalog.EntryFor(typeof(TPresenter)) });
+                slots.Add(presenter, new WindowSlot { Entry = catalog.EntryFor(typeof(TPresenter)) });
                 presenter.Bind(this);
             }
 
@@ -100,6 +95,7 @@ namespace ColorBlockJam.UI.Windows
         {
             if (openWindows.Contains(presenter))
             {
+                presenter.NotifyShowing();
                 return;
             }
 
@@ -111,7 +107,7 @@ namespace ColorBlockJam.UI.Windows
 
             openWindows.Add(presenter);
             layer.BringToFront(slot.View);
-            ShowBackdrop();
+            RefreshBackdrop();
             presenter.NotifyShowing();
             await slot.View.ShowAsync(cancellationToken);
         }
@@ -129,7 +125,7 @@ namespace ColorBlockJam.UI.Windows
             }
 
             var slot = slots[presenter];
-            ShowBackdrop();
+            RefreshBackdrop();
             await slot.View.HideAsync();
             if (slot.View == null || slot.View.State != ViewState.Hidden)
             {
@@ -161,7 +157,7 @@ namespace ColorBlockJam.UI.Windows
             presenter.NotifyClosed(isCanceled: true);
         }
 
-        private void Create(IWindowPresenter presenter, Slot slot)
+        private void Create(IWindowPresenter presenter, WindowSlot slot)
         {
             var view = Object.Instantiate(slot.Entry.prefab, layer.transform);
             view.name = slot.Entry.prefab.name;
@@ -172,7 +168,7 @@ namespace ColorBlockJam.UI.Windows
             presenter.Attach(view);
         }
 
-        private void Destroy(IWindowPresenter presenter, Slot slot)
+        private void Destroy(IWindowPresenter presenter, WindowSlot slot)
         {
             presenter.Detach();
             slot.View.CloseRequested -= OnCloseRequested;
@@ -180,7 +176,7 @@ namespace ColorBlockJam.UI.Windows
             slot.View = null;
         }
 
-        private void ShowBackdrop()
+        private void RefreshBackdrop()
         {
             for (var i = openWindows.Count - 1; i >= 0; i--)
             {

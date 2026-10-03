@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using ColorBlockJam.UI.Transitions;
 using Cysharp.Threading.Tasks;
@@ -16,9 +15,6 @@ namespace ColorBlockJam.UI.Views
         private CancellationTokenSource transitionCancellation;
         private Vector3 restScale;
         private bool isInitialized;
-
-        public event Action Showing;
-        public event Action Hidden;
 
         public ViewState State { get; private set; }
 
@@ -49,7 +45,6 @@ namespace ColorBlockJam.UI.Views
             ResetToRest();
             gameObject.SetActive(true);
             canvasGroup.interactable = false;
-            Showing?.Invoke();
 
             if (await PlayAsync(ShowTransition, show: true, token))
             {
@@ -79,7 +74,6 @@ namespace ColorBlockJam.UI.Views
 
             State = ViewState.Hidden;
             gameObject.SetActive(false);
-            Hidden?.Invoke();
         }
 
         public void HideImmediate()

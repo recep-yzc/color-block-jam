@@ -39,9 +39,9 @@ namespace ColorBlockJam.UI.Editor
                 selectedIndex = options.Count - 1;
             }
 
-            using (new EditorGUI.PropertyScope(position, label, property))
+            using (var scope = new EditorGUI.PropertyScope(position, label, property))
             {
-                var newIndex = EditorGUI.Popup(position, label.text, selectedIndex, options.ToArray());
+                var newIndex = EditorGUI.Popup(position, scope.content, selectedIndex, options.Select(option => new GUIContent(option)).ToArray());
                 if (newIndex != selectedIndex && newIndex <= presenterTypes.Length)
                 {
                     property.stringValue = newIndex == 0 ? string.Empty : NameOf(presenterTypes[newIndex - 1]);

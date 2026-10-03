@@ -18,7 +18,7 @@ namespace ColorBlockJam.Tests
         {
             storage = new InMemoryStorage();
             economy = ScriptableObject.CreateInstance<EconomyConfig>();
-            storage.SetInt("economy.coins", 100);
+            storage.SetInt(CoinWallet.CoinsKey, 100);
             wallet = new CoinWallet(storage, economy);
             inventory = new BoosterInventory(storage, wallet);
             hammer = TestBoosters.Create<HammerBoosterDefinition>("hammer", unlockLevel: 3, startingCount: 2, coinCost: 50);

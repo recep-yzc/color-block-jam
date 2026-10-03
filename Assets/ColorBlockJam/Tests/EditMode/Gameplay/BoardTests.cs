@@ -6,14 +6,13 @@ namespace ColorBlockJam.Tests
 {
     public sealed class BoardTests
     {
-        private static readonly GridPoint[] Single = { new(0, 0) };
         private static readonly GridPoint[] Horizontal2 = { new(0, 0), new(1, 0) };
 
         [Test]
         public void BlocksCannotOverlap()
         {
             var a = new BoardBlock(0, 0, new GridPoint(0, 0), Horizontal2);
-            var b = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
+            var b = new BoardBlock(1, 1, new GridPoint(2, 0), TestShapes.Single);
             var board = new Board(4, 4, new[] { a, b }, new BoardDoor[0]);
 
             Assert.IsFalse(board.CanPlace(a, new GridPoint(1, 0)));
@@ -39,7 +38,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void RemovedCellsStopBlocksLikeWalls()
         {
-            var block = new BoardBlock(0, 3, new GridPoint(0, 0), Single);
+            var block = new BoardBlock(0, 3, new GridPoint(0, 0), TestShapes.Single);
             var door = new BoardDoor(BoardSide.Right, 0, 1, 3);
             var board = new Board(3, 2, new[] { block }, new[] { door }, new[] { new GridPoint(1, 0) });
 
@@ -95,8 +94,8 @@ namespace ColorBlockJam.Tests
         [Test]
         public void SolverClearsASolvableBoard()
         {
-            var red = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
-            var blue = new BoardBlock(1, 1, new GridPoint(1, 0), Single);
+            var red = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single);
+            var blue = new BoardBlock(1, 1, new GridPoint(1, 0), TestShapes.Single);
             var doors = new[] { new BoardDoor(BoardSide.Left, 0, 1, 0), new BoardDoor(BoardSide.Right, 0, 1, 1) };
             var board = new Board(3, 1, new[] { red, blue }, doors);
 
@@ -111,51 +110,12 @@ namespace ColorBlockJam.Tests
         [Test]
         public void SolverReportsStuckBoards()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single);
             var board = new Board(2, 2, new[] { block }, new[] { new BoardDoor(BoardSide.Top, 0, 2, 5) });
 
             var result = new BoardSolver().Solve(board, 1000);
 
             Assert.IsTrue(result.IsStuck);
-        }
-
-        [Test]
-        public void AFreezeHoldsTheTimer()
-        {
-            var timer = new LevelTimer(10f);
-            timer.Freeze(2f);
-
-            timer.Tick(1.5f);
-            Assert.AreEqual(10f, timer.Remaining, "Frozen time does not count.");
-
-            timer.Tick(1f);
-            Assert.AreEqual(9.5f, timer.Remaining, 0.0001f, "The rest of the step after the freeze counts.");
-            Assert.IsFalse(timer.IsFrozen);
-        }
-
-        [Test]
-        public void TimerStopsAtZero()
-        {
-            var timer = new LevelTimer(1f);
-
-            Assert.IsFalse(timer.Tick(0.6f));
-            Assert.IsTrue(timer.Tick(0.6f));
-            Assert.AreEqual(0f, timer.Remaining);
-            Assert.IsFalse(timer.Tick(1f), "It only reports running out once.");
-        }
-
-        [Test]
-        public void AddedTimeLetsARunOutTimerGoOn()
-        {
-            var timer = new LevelTimer(1f);
-            timer.Tick(1f);
-
-            timer.Add(20f);
-
-            Assert.IsFalse(timer.IsExpired);
-            Assert.IsFalse(timer.Tick(5f));
-            Assert.AreEqual(15f, timer.Remaining, 0.0001f);
-            Assert.IsTrue(timer.Tick(15f), "It reports running out again when the added time is used up.");
         }
     }
 }

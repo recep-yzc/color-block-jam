@@ -7,8 +7,17 @@ namespace ColorBlockJam.Tests
 {
     public sealed class LevelDiagnosticsTests
     {
-        private const int StuckBudget = BoardSolver.DefaultBudget;
         private const int Tutorials = 3;
+
+        private LevelCatalog catalog;
+        private SolveResult[] solutions;
+
+        [OneTimeSetUp]
+        public void LoadCatalog()
+        {
+            catalog = TestAssets.LoadOnly<LevelCatalog>();
+            solutions = new SolveResult[catalog.Count + 1];
+        }
 
         [Test]
         public void FindsColorsWithoutADoor()
@@ -105,14 +114,13 @@ namespace ColorBlockJam.Tests
         [Test]
         public void EveryCatalogLevelIsSoundAndEarnsItsBadge()
         {
-            var catalog = LoadCatalog();
             Assert.GreaterOrEqual(catalog.Count, 50);
 
             for (var number = 1; number <= catalog.Count; number++)
             {
                 var level = catalog.Load(number);
                 Assert.IsEmpty(LevelDiagnostics.Find(level), $"Level {number} has problems.");
-                var solution = new BoardSolver().Solve(BoardFactory.Create(level), StuckBudget);
+                var solution = SolutionOf(number);
                 Assert.IsTrue(solution.IsSolved, $"Level {number} is not solved within the budget the game checks it with.");
                 Assert.AreEqual(level.difficulty, LevelRating.Rate(LevelRating.MovesToWin(level.blocks.Length, solution)),
                     $"Level {number} wears a badge its moves do not earn.");
@@ -122,12 +130,10 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheFirstLevelsAreTutorials()
         {
-            var catalog = LoadCatalog();
-
             for (var number = 1; number <= Tutorials; number++)
             {
                 var level = catalog.Load(number);
-                var solution = new BoardSolver().Solve(BoardFactory.Create(level), StuckBudget);
+                var solution = SolutionOf(number);
                 Assert.LessOrEqual(level.blocks.Length, number, $"Tutorial {number} has too many blocks.");
                 Assert.AreEqual(0, solution.Repositions, $"Tutorial {number} asks to move a block out of the way.");
             }
@@ -136,16 +142,15 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheLevelsGetHarderOverTime()
         {
-            var catalog = LoadCatalog();
+            var middle = AverageMoves(18, 32);
 
-            Assert.Less(AverageMoves(catalog, 1, 15), AverageMoves(catalog, 18, 32));
-            Assert.Less(AverageMoves(catalog, 18, 32), AverageMoves(catalog, 36, 50));
+            Assert.Less(AverageMoves(1, 15), middle);
+            Assert.Less(middle, AverageMoves(36, 50));
         }
 
         [Test]
         public void ManyLevelsHaveHoles()
         {
-            var catalog = LoadCatalog();
             var withHoles = 0;
             for (var number = 1; number <= catalog.Count; number++)
             {
@@ -158,21 +163,20 @@ namespace ColorBlockJam.Tests
             Assert.GreaterOrEqual(withHoles, catalog.Count / 5);
         }
 
-        private static double AverageMoves(LevelCatalog catalog, int first, int last)
+        private double AverageMoves(int first, int last)
         {
             var total = 0;
             for (var number = first; number <= last; number++)
             {
-                var level = catalog.Load(number);
-                total += LevelRating.MovesToWin(level.blocks.Length, new BoardSolver().Solve(BoardFactory.Create(level), StuckBudget));
+                total += LevelRating.MovesToWin(catalog.Load(number).blocks.Length, SolutionOf(number));
             }
 
             return total / (double)(last - first + 1);
         }
 
-        private static LevelCatalog LoadCatalog()
+        private SolveResult SolutionOf(int number)
         {
-            return TestAssets.LoadOnly<LevelCatalog>();
+            return solutions[number] ??= new BoardSolver().Solve(BoardFactory.Create(catalog.Load(number)), BoardSolver.DefaultBudget);
         }
     }
 }

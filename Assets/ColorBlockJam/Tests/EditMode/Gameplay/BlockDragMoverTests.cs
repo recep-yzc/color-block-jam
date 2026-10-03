@@ -3,7 +3,6 @@ using System.Numerics;
 using ColorBlockJam.Gameplay.Logic;
 using ColorBlockJam.Level;
 using NUnit.Framework;
-using UnityEngine.TestTools.Constraints;
 
 namespace ColorBlockJam.Tests
 {
@@ -14,13 +13,12 @@ namespace ColorBlockJam.Tests
         private const float FollowSharpness = 26f;
         private const float MaxSpeed = 40f;
 
-        private static readonly GridPoint[] Single = { new(0, 0) };
 
         [Test]
         public void StopsAtTheFirstObstacleEvenInOneBigMove()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
-            var wall = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single);
+            var wall = new BoardBlock(1, 1, new GridPoint(2, 0), TestShapes.Single);
             var board = new Board(4, 1, new[] { block, wall }, Array.Empty<BoardDoor>());
 
             var reached = new BlockDragMover(Rounding).Move(board, block, Vector2.Zero, new Vector2(3f, 0f));
@@ -33,7 +31,7 @@ namespace ColorBlockJam.Tests
         {
             var shape = new[] { new GridPoint(0, 0), new GridPoint(1, 0), new GridPoint(0, 1) };
             var block = new BoardBlock(0, 0, new GridPoint(0, 0), shape);
-            var obstacle = new BoardBlock(1, 1, new GridPoint(3, 1), Single);
+            var obstacle = new BoardBlock(1, 1, new GridPoint(3, 1), TestShapes.Single);
             var board = new Board(6, 6, new[] { block, obstacle }, new[] { new BoardDoor(BoardSide.Right, 0, 2, 0) });
             var mover = new BlockDragMover(Rounding);
             TestDelegate frame = () => mover.Move(board, block, Vector2.Zero, new Vector2(2.6f, 1.4f));
@@ -52,7 +50,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void SlidesAlongAWallWhenPushedIntoIt()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 1), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(0, 1), TestShapes.Single);
             var board = new Board(5, 3, new[] { block }, Array.Empty<BoardDoor>());
 
             var reached = Drag(board, block, new Vector2(0f, 1f), new Vector2(4f, -3f), frames: 120);
@@ -64,9 +62,9 @@ namespace ColorBlockJam.Tests
         [Test]
         public void RollsIntoAGapItIsSlightlyOutOfLineWith()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 1), Single);
-            var below = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
-            var above = new BoardBlock(2, 1, new GridPoint(2, 2), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(0, 1), TestShapes.Single);
+            var below = new BoardBlock(1, 1, new GridPoint(2, 0), TestShapes.Single);
+            var above = new BoardBlock(2, 1, new GridPoint(2, 2), TestShapes.Single);
             var board = new Board(4, 3, new[] { block, below, above }, Array.Empty<BoardDoor>());
 
             var reached = Drag(board, block, new Vector2(0f, 0.75f), new Vector2(3f, 0.75f), frames: 120);
@@ -78,8 +76,8 @@ namespace ColorBlockJam.Tests
         [Test]
         public void RollsAroundACornerWithoutStopping()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(1, 1), Single);
-            var obstacle = new BoardBlock(1, 1, new GridPoint(2, 1), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(1, 1), TestShapes.Single);
+            var obstacle = new BoardBlock(1, 1, new GridPoint(2, 1), TestShapes.Single);
             var board = new Board(4, 4, new[] { block, obstacle }, Array.Empty<BoardDoor>());
             var finger = new Vector2(3f, 2.2f);
             var stalls = 0;
@@ -103,8 +101,8 @@ namespace ColorBlockJam.Tests
         [Test]
         public void APushIntoARoundedCornerRollsOverIt()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(1, 1), Single);
-            var obstacle = new BoardBlock(1, 1, new GridPoint(2, 1), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(1, 1), TestShapes.Single);
+            var obstacle = new BoardBlock(1, 1, new GridPoint(2, 1), TestShapes.Single);
             var board = new Board(4, 4, new[] { block, obstacle }, Array.Empty<BoardDoor>());
 
             var reached = new BlockDragMover(Rounding).Move(board, block, new Vector2(1f, 1.8f), new Vector2(1.8f, 1.8f));
@@ -117,8 +115,8 @@ namespace ColorBlockJam.Tests
         public void EntersOnlyADoorOfItsOwnColor()
         {
             var door = new BoardDoor(BoardSide.Bottom, 1, 1, color: 0);
-            var matching = new BoardBlock(0, 0, new GridPoint(1, 1), Single);
-            var other = new BoardBlock(0, 3, new GridPoint(1, 1), Single);
+            var matching = new BoardBlock(0, 0, new GridPoint(1, 1), TestShapes.Single);
+            var other = new BoardBlock(0, 3, new GridPoint(1, 1), TestShapes.Single);
 
             var through = Drag(new Board(3, 3, new[] { matching }, new[] { door }), matching, new Vector2(1f, 1f), new Vector2(1f, -2f), 60);
             var stopped = Drag(new Board(3, 3, new[] { other }, new[] { door }), other, new Vector2(1f, 1f), new Vector2(1f, -2f), 60);
@@ -135,7 +133,7 @@ namespace ColorBlockJam.Tests
             var blocks = new[]
             {
                 dragged,
-                new BoardBlock(1, 1, new GridPoint(3, 1), Single),
+                new BoardBlock(1, 1, new GridPoint(3, 1), TestShapes.Single),
                 new BoardBlock(2, 3, new GridPoint(1, 3), new[] { new GridPoint(0, 0), new GridPoint(1, 0) }),
                 new BoardBlock(3, 4, new GridPoint(4, 3), new[] { new GridPoint(0, 0), new GridPoint(0, 1) })
             };

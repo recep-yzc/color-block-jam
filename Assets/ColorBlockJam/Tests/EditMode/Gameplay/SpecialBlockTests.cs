@@ -9,12 +9,10 @@ namespace ColorBlockJam.Tests
 {
     public sealed class SpecialBlockTests
     {
-        private static readonly GridPoint[] Single = { new(0, 0) };
-
         [Test]
         public void AnArrowBlockIsDraggedAlongItsAxisOnly()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 1), Single, BlockAxis.Horizontal);
+            var block = new BoardBlock(0, 0, new GridPoint(0, 1), TestShapes.Single, BlockAxis.Horizontal);
             var board = new Board(4, 4, new[] { block }, Array.Empty<BoardDoor>());
 
             var reached = new BlockDragMover(0.3f).Move(board, block, new Vector2(0f, 1f), new Vector2(3f, 3f));
@@ -27,7 +25,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void AnArrowBlockLeavesOnlyThroughADoorOnItsAxis()
         {
-            var block = new BoardBlock(0, 2, new GridPoint(1, 0), Single, BlockAxis.Horizontal);
+            var block = new BoardBlock(0, 2, new GridPoint(1, 0), TestShapes.Single, BlockAxis.Horizontal);
             var doors = new[] { new BoardDoor(BoardSide.Bottom, 1, 1, 2), new BoardDoor(BoardSide.Right, 0, 1, 2) };
             var board = new Board(4, 4, new[] { block }, doors);
 
@@ -38,7 +36,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheSolverKeepsArrowBlocksOnTheirAxis()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(1, 1), Single, BlockAxis.Vertical);
+            var block = new BoardBlock(0, 0, new GridPoint(1, 1), TestShapes.Single, BlockAxis.Vertical);
             var board = new Board(4, 4, new[] { block }, new[] { new BoardDoor(BoardSide.Right, 0, 4, 0) });
 
             Assert.IsTrue(new BoardSolver().Solve(board, 1000).IsStuck);
@@ -47,8 +45,8 @@ namespace ColorBlockJam.Tests
         [Test]
         public void IceThawsOnceEnoughBlocksHaveLeft()
         {
-            var frozen = new BoardBlock(0, 0, new GridPoint(0, 0), Single, ice: 1);
-            var other = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
+            var frozen = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single, ice: 1);
+            var other = new BoardBlock(1, 1, new GridPoint(2, 0), TestShapes.Single);
             var board = new Board(3, 1, new[] { frozen, other }, Array.Empty<BoardDoor>());
 
             Assert.IsTrue(board.IsFrozen(frozen));
@@ -63,8 +61,8 @@ namespace ColorBlockJam.Tests
         [Test]
         public void TheSolverWaitsForIceToMelt()
         {
-            var frozen = new BoardBlock(0, 0, new GridPoint(0, 0), Single, ice: 1);
-            var other = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
+            var frozen = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single, ice: 1);
+            var other = new BoardBlock(1, 1, new GridPoint(2, 0), TestShapes.Single);
             var doors = new[] { new BoardDoor(BoardSide.Left, 0, 1, 0), new BoardDoor(BoardSide.Right, 0, 1, 1) };
             var board = new Board(3, 1, new[] { frozen, other }, doors);
 

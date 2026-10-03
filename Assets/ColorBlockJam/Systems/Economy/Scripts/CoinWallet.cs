@@ -5,7 +5,7 @@ namespace ColorBlockJam.Economy
 {
     public sealed class CoinWallet : ICoinWallet
     {
-        private const string CoinsKey = "economy.coins";
+        public const string CoinsKey = "economy.coins";
 
         private readonly IKeyValueStorage storage;
 

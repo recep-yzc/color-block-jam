@@ -8,12 +8,11 @@ namespace ColorBlockJam.Tests
     public sealed class BlockPickerTests
     {
         private const float Padding = 0.3f;
-        private static readonly GridPoint[] Single = { new(0, 0) };
 
         [Test]
         public void APressOnABlockPicksThatBlock()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(1, 1), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(1, 1), TestShapes.Single);
             var board = new Board(3, 3, new[] { block }, Array.Empty<BoardDoor>());
 
             Assert.AreSame(block, BlockPicker.Pick(board, new Vector2(1.5f, 1.5f), Padding, out var cell));
@@ -23,8 +22,8 @@ namespace ColorBlockJam.Tests
         [Test]
         public void APressInsideThePaddingPicksTheNearestBlock()
         {
-            var left = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
-            var right = new BoardBlock(1, 1, new GridPoint(2, 0), Single);
+            var left = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single);
+            var right = new BoardBlock(1, 1, new GridPoint(2, 0), TestShapes.Single);
             var board = new Board(3, 1, new[] { left, right }, Array.Empty<BoardDoor>());
 
             Assert.AreSame(left, BlockPicker.Pick(board, new Vector2(1.2f, 0.5f), Padding, out var leftCell));
@@ -35,7 +34,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void APressOutsideThePaddingPicksNothing()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single);
             var board = new Board(3, 1, new[] { block }, Array.Empty<BoardDoor>());
 
             Assert.IsNull(BlockPicker.Pick(board, new Vector2(1.5f, 0.5f), Padding, out _));
@@ -44,7 +43,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void ThePaddingReachesPastTheBoardEdge()
         {
-            var block = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
+            var block = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single);
             var board = new Board(2, 1, new[] { block }, Array.Empty<BoardDoor>());
 
             Assert.AreSame(block, BlockPicker.Pick(board, new Vector2(-0.2f, 0.5f), Padding, out _));
@@ -53,7 +52,7 @@ namespace ColorBlockJam.Tests
         [Test]
         public void ABlockThatLeftIsNeverPicked()
         {
-            var gone = new BoardBlock(0, 0, new GridPoint(0, 0), Single);
+            var gone = new BoardBlock(0, 0, new GridPoint(0, 0), TestShapes.Single);
             var board = new Board(2, 1, new[] { gone }, Array.Empty<BoardDoor>());
             board.Clear(gone);
 

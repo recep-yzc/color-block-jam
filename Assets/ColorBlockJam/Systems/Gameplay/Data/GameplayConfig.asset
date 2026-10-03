@@ -24,6 +24,8 @@ MonoBehaviour:
   exitDepth: 0.3
   exitSpeed: 12
   exitOvershoot: 0.5
+  lineUpShare: 0.6
+  exitShrink: 0.2
   doorOpenSquash: 0.35
   doorOpenDuration: 0.08
   doorHoldDuration: 0.18
@@ -36,7 +38,11 @@ MonoBehaviour:
   iceBurstColor: {r: 0.72, g: 0.9, b: 1, a: 1}
   frozenShakeStrength: 0.08
   frozenShakeDuration: 0.3
+  frozenShakeFrequency: 6
+  iceCountLift: 0.25
   smashDuration: 0.2
+  smashSpread: 1.2
+  smashHeight: 0.3
   stuckSearchBudget: 30000
   autoPlaySearchBudget: 60000
   autoPlayCellDuration: 0.08

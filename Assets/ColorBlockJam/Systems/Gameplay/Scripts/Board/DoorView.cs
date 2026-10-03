@@ -15,6 +15,7 @@ namespace ColorBlockJam.Gameplay
         private int start;
         private int end;
         private CancellationTokenSource playback;
+        private MotionHandle motion;
 
         public void Initialize(BoardSide doorSide, int from, int to, GameplayConfig gameplayConfig)
         {
@@ -41,18 +42,18 @@ namespace ColorBlockJam.Gameplay
         {
             playback?.Cancel();
             playback?.Dispose();
+            motion.TryCancel();
         }
 
         private async UniTaskVoid PlayEntryAsync(CancellationToken cancellationToken)
         {
             var open = new Vector3(1f, config.DoorOpenSquash, 1f);
 
-            var isCanceled = await LMotion.Create(transform.localScale, open, config.DoorOpenDuration)
+            motion.TryCancel();
+            motion = LMotion.Create(transform.localScale, open, config.DoorOpenDuration)
                 .WithEase(Ease.OutQuad)
-                .BindToLocalScale(transform)
-                .AddTo(this)
-                .ToUniTask(cancellationToken)
-                .SuppressCancellationThrow();
+                .BindToLocalScale(transform);
+            var isCanceled = await motion.ToUniTask(cancellationToken).SuppressCancellationThrow();
             if (isCanceled)
             {
                 return;
@@ -65,12 +66,10 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            await LMotion.Create(open, Vector3.one, config.DoorCloseDuration)
+            motion = LMotion.Create(open, Vector3.one, config.DoorCloseDuration)
                 .WithEase(Ease.OutBack)
-                .BindToLocalScale(transform)
-                .AddTo(this)
-                .ToUniTask(cancellationToken)
-                .SuppressCancellationThrow();
+                .BindToLocalScale(transform);
+            await motion.ToUniTask(cancellationToken).SuppressCancellationThrow();
         }
     }
 }

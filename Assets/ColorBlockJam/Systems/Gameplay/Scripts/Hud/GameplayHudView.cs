@@ -48,6 +48,12 @@ namespace ColorBlockJam.Gameplay
         public ActionButton PauseButton => pauseButton;
         public ActionButton AutoPlayButton => autoPlayButton;
 
+        protected override void OnDestroy()
+        {
+            blink.TryCancel();
+            base.OnDestroy();
+        }
+
         public void SetLevel(int level)
         {
             levelLabel.SetText("<size=40>Level</size><br>{0}", level);
@@ -91,8 +97,7 @@ namespace ColorBlockJam.Gameplay
                     blink = LMotion.Create(timerWarningColor, timerColor, timerBlinkDuration)
                         .WithLoops(-1, LoopType.Yoyo)
                         .WithScheduler(UIMotion.Scheduler)
-                        .BindToColor(timerLabel)
-                        .AddTo(this);
+                        .BindToColor(timerLabel);
                 }
 
                 return;

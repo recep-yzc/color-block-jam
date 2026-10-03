@@ -26,8 +26,7 @@ namespace ColorBlockJam.Gameplay
             motion.TryComplete();
             count.SetText("{0}", left);
             motion = LMotion.Punch.Create(Vector3.one, Vector3.one * punch, duration)
-                .BindToLocalScale(count.transform)
-                .AddTo(this);
+                .BindToLocalScale(count.transform);
         }
 
         public void Break(float duration)
@@ -37,8 +36,12 @@ namespace ColorBlockJam.Gameplay
             motion = LMotion.Create(Vector3.one, Vector3.zero, duration)
                 .WithEase(Ease.InBack)
                 .WithOnComplete(Remove)
-                .BindToLocalScale(shell.transform)
-                .AddTo(this);
+                .BindToLocalScale(shell.transform);
+        }
+
+        private void OnDestroy()
+        {
+            motion.TryCancel();
         }
 
         private void Remove()

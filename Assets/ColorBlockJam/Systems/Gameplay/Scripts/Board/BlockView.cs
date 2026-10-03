@@ -12,12 +12,6 @@ namespace ColorBlockJam.Gameplay
     public sealed class BlockView : MonoBehaviour
     {
         private const float MinMotionDuration = 0.05f;
-        private const float LineUpShare = 0.6f;
-        private const float LeftScale = 0.2f;
-        private const float SmashSpread = 1.2f;
-        private const float SmashHeight = 0.3f;
-        private const int ShakeFrequency = 6;
-        private const float IceCountLift = 0.25f;
 
         [Tooltip("Bloğun mesh'ini çizen çocuk obje. Kök objenin pivotu bloğun tabanında, zemin hizasındadır.")]
         [SerializeField] private MeshRenderer body;
@@ -39,6 +33,7 @@ namespace ColorBlockJam.Gameplay
         private MotionHandle liftMotion;
         private MotionHandle moveMotion;
         private MotionHandle shakeMotion;
+        private MotionHandle scaleMotion;
 
         public event Action<BlockView> Removed;
 
@@ -95,8 +90,7 @@ namespace ColorBlockJam.Gameplay
             moveMotion.TryCancel();
             moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration)
                 .WithEase(config.SnapEase)
-                .Bind(this, static (position, view) => view.MoveTo(position))
-                .AddTo(this);
+                .Bind(this, static (position, view) => view.MoveTo(position));
         }
 
         public UniTask SlideAsync(GridPoint cell, CancellationToken cancellationToken)
@@ -106,8 +100,7 @@ namespace ColorBlockJam.Gameplay
             var duration = Mathf.Max(MinMotionDuration, Vector2.Distance(cellPosition, target) * config.AutoPlayCellDuration);
             moveMotion = LMotion.Create(cellPosition, target, duration)
                 .WithEase(Ease.OutCubic)
-                .Bind(this, static (position, view) => view.MoveTo(position))
-                .AddTo(this);
+                .Bind(this, static (position, view) => view.MoveTo(position));
             return moveMotion.ToUniTask(cancellationToken);
         }
 
@@ -115,10 +108,9 @@ namespace ColorBlockJam.Gameplay
         {
             body.sharedMaterials = restMaterials;
             moveMotion.TryCancel();
-            moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration * LineUpShare)
+            moveMotion = LMotion.Create(cellPosition, new Vector2(cell.X, cell.Y), config.SnapDuration * config.LineUpShare)
                 .WithEase(Ease.OutQuad)
-                .Bind(this, static (position, view) => view.MoveTo(position))
-                .AddTo(this);
+                .Bind(this, static (position, view) => view.MoveTo(position));
             await moveMotion.ToUniTask(cancellationToken);
 
             await ExitAsync(direction, stepsToLeave, cancellationToken);
@@ -138,14 +130,13 @@ namespace ColorBlockJam.Gameplay
 
             moveMotion = LMotion.Create(cellPosition, target, duration)
                 .WithEase(Ease.InQuad)
-                .Bind(this, static (position, view) => view.MoveTo(position))
-                .AddTo(this);
-            var shrink = LMotion.Create(restScale, restScale * LeftScale, duration)
+                .Bind(this, static (position, view) => view.MoveTo(position));
+            scaleMotion.TryCancel();
+            scaleMotion = LMotion.Create(restScale, restScale * config.ExitShrink, duration)
                 .WithEase(Ease.InCubic)
-                .BindToLocalScale(transform)
-                .AddTo(this);
+                .BindToLocalScale(transform);
 
-            await UniTask.WhenAll(moveMotion.ToUniTask(cancellationToken), shrink.ToUniTask(cancellationToken));
+            await UniTask.WhenAll(moveMotion.ToUniTask(cancellationToken), scaleMotion.ToUniTask(cancellationToken));
             Removed?.Invoke(this);
             gameObject.SetActive(false);
         }
@@ -153,13 +144,13 @@ namespace ColorBlockJam.Gameplay
         public async UniTask SmashAsync(CancellationToken cancellationToken)
         {
             moveMotion.TryCancel();
+            scaleMotion.TryCancel();
             var restScale = transform.localScale;
-            var squashed = new Vector3(restScale.x * SmashSpread, restScale.y * SmashHeight, restScale.z * SmashSpread);
-            moveMotion = LMotion.Create(restScale, squashed, config.SmashDuration)
+            var squashed = new Vector3(restScale.x * config.SmashSpread, restScale.y * config.SmashHeight, restScale.z * config.SmashSpread);
+            scaleMotion = LMotion.Create(restScale, squashed, config.SmashDuration)
                 .WithEase(Ease.InBack)
-                .BindToLocalScale(transform)
-                .AddTo(this);
-            await moveMotion.ToUniTask(cancellationToken);
+                .BindToLocalScale(transform);
+            await scaleMotion.ToUniTask(cancellationToken);
 
             Removed?.Invoke(this);
             gameObject.SetActive(false);
@@ -169,9 +160,8 @@ namespace ColorBlockJam.Gameplay
         {
             shakeMotion.TryComplete();
             shakeMotion = LMotion.Punch.Create(0f, config.FrozenShakeStrength, config.FrozenShakeDuration)
-                .WithFrequency(ShakeFrequency)
-                .Bind(this, static (value, view) => view.SetShake(value))
-                .AddTo(this);
+                .WithFrequency(config.FrozenShakeFrequency)
+                .Bind(this, static (value, view) => view.SetShake(value));
         }
 
         public void ShowIce(int left)
@@ -194,6 +184,10 @@ namespace ColorBlockJam.Gameplay
 
         private void OnDestroy()
         {
+            liftMotion.TryCancel();
+            moveMotion.TryCancel();
+            shakeMotion.TryCancel();
+            scaleMotion.TryCancel();
             Destroy(mesh);
         }
 
@@ -201,7 +195,7 @@ namespace ColorBlockJam.Gameplay
         {
             var cell = BlockMarks.FindIceCell(block.Cells);
             var local = (new Vector2(cell.X + 0.5f, cell.Y + 0.5f) - middle) * ArtSpace.CellSize;
-            return new Vector3(local.x, mesh.bounds.max.y + IceCountLift, local.y);
+            return new Vector3(local.x, mesh.bounds.max.y + config.IceCountLift, local.y);
         }
 
         private void AnimateLift(float height)
@@ -209,8 +203,7 @@ namespace ColorBlockJam.Gameplay
             liftMotion.TryCancel();
             liftMotion = LMotion.Create(lift, height, config.LiftDuration)
                 .WithEase(Ease.OutQuad)
-                .Bind(this, static (value, view) => view.SetLift(value))
-                .AddTo(this);
+                .Bind(this, static (value, view) => view.SetLift(value));
         }
 
         private void MoveTo(Vector2 cell)

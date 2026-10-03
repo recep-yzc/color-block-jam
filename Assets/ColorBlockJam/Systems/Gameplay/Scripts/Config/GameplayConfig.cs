@@ -38,6 +38,10 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0.1f)] private float exitSpeed = 12f;
         [Tooltip("Çıkan bloğun gizlenmeden önce tahtanın ne kadar dışına kaydığı, hücre.")]
         [SerializeField, Min(0f)] private float exitOvershoot = 0.5f;
+        [Tooltip("Kapı önüne bırakılan bloğun kapıya hizalanırken oturma süresinin ne kadarını kullandığı.")]
+        [SerializeField, Range(0.1f, 1f)] private float lineUpShare = 0.6f;
+        [Tooltip("Çıkan bloğun kaybolurken küçüldüğü ölçek, kendi boyutuna oranla.")]
+        [SerializeField, Range(0f, 1f)] private float exitShrink = 0.2f;
         [Tooltip("Blok geçerken kapının basıldığı yükseklik, kendi yüksekliğine oranla.")]
         [SerializeField, Range(0.05f, 1f)] private float doorOpenSquash = 0.35f;
         [Tooltip("Kapının basılma süresi, saniye.")]
@@ -64,10 +68,18 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0f)] private float frozenShakeStrength = 0.08f;
         [Tooltip("Donmuş bloğun sallanma süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float frozenShakeDuration = 0.3f;
+        [Tooltip("Donmuş bloğun sallanırken kaç kez gidip geldiği.")]
+        [SerializeField, Min(1)] private int frozenShakeFrequency = 6;
+        [Tooltip("Buz sayısının bloğun üst yüzünden yüksekliği, sanat biriminde (bir hücre 2 birim).")]
+        [SerializeField, Min(0f)] private float iceCountLift = 0.25f;
 
         [Header("Breaking")]
         [Tooltip("Bir booster'ın kırdığı bloğun patlamadan önce ezilme süresi, saniye.")]
         [SerializeField, Min(0.01f)] private float smashDuration = 0.2f;
+        [Tooltip("Ezilen bloğun yanlara yayılması, kendi genişliğine oranla.")]
+        [SerializeField, Min(1f)] private float smashSpread = 1.2f;
+        [Tooltip("Ezilen bloğun patlamadan önceki yüksekliği, kendi yüksekliğine oranla.")]
+        [SerializeField, Range(0.05f, 1f)] private float smashHeight = 0.3f;
 
         [Header("Solver")]
         [Tooltip("Tahtanın hâlâ temizlenebilir olup olmadığını anlamak için aranan en fazla durum sayısı.")]
@@ -115,6 +127,8 @@ namespace ColorBlockJam.Gameplay
         public float ExitDepth => exitDepth;
         public float ExitSpeed => exitSpeed;
         public float ExitOvershoot => exitOvershoot;
+        public float LineUpShare => lineUpShare;
+        public float ExitShrink => exitShrink;
         public float DoorOpenSquash => doorOpenSquash;
         public float DoorOpenDuration => doorOpenDuration;
         public float DoorHoldDuration => doorHoldDuration;
@@ -127,7 +141,11 @@ namespace ColorBlockJam.Gameplay
         public Color IceBurstColor => iceBurstColor;
         public float FrozenShakeStrength => frozenShakeStrength;
         public float FrozenShakeDuration => frozenShakeDuration;
+        public int FrozenShakeFrequency => frozenShakeFrequency;
+        public float IceCountLift => iceCountLift;
         public float SmashDuration => smashDuration;
+        public float SmashSpread => smashSpread;
+        public float SmashHeight => smashHeight;
         public int StuckSearchBudget => stuckSearchBudget;
         public int AutoPlaySearchBudget => autoPlaySearchBudget;
         public float AutoPlayCellDuration => autoPlayCellDuration;

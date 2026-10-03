@@ -18,8 +18,6 @@ namespace ColorBlockJam.Pooling
             pool = new ObjectPool<T>(Create, OnGet, OnRelease, OnDestroy, collectionCheck: Application.isEditor);
         }
 
-        public int CountInactive => pool.CountInactive;
-
         public void Prewarm(int count)
         {
             var instances = new T[count];

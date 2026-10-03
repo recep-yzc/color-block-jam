@@ -24,8 +24,6 @@ namespace ColorBlockJam.Settings
             }
         }
 
-        public event Action<SettingKind, bool> Changed;
-
         public bool IsEnabled(SettingKind setting)
         {
             return values[setting];
@@ -40,7 +38,6 @@ namespace ColorBlockJam.Settings
 
             values[setting] = enabled;
             storage.SetBool(keys[setting], enabled);
-            Changed?.Invoke(setting, enabled);
         }
     }
 }

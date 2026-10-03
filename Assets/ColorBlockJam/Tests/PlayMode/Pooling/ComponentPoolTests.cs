@@ -56,7 +56,6 @@ namespace ColorBlockJam.Tests
         {
             pool.Prewarm(3);
 
-            Assert.AreEqual(3, pool.CountInactive);
             Assert.AreEqual(3, root.transform.childCount);
         }
     }

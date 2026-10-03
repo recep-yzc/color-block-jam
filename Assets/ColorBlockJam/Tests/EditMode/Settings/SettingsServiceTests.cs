@@ -16,29 +16,15 @@ namespace ColorBlockJam.Tests
         }
 
         [Test]
-        public void ChangedSettingIsSavedAndRaised()
+        public void AChangedSettingIsSaved()
         {
             var storage = new InMemoryStorage();
             var settings = new SettingsService(storage);
-            SettingKind? changed = null;
-            settings.Changed += (setting, _) => changed = setting;
 
             settings.SetEnabled(SettingKind.Music, false);
 
-            Assert.AreEqual(SettingKind.Music, changed);
+            Assert.IsFalse(settings.IsEnabled(SettingKind.Music));
             Assert.IsFalse(new SettingsService(storage).IsEnabled(SettingKind.Music));
-        }
-
-        [Test]
-        public void SettingTheSameValueRaisesNothing()
-        {
-            var settings = new SettingsService(new InMemoryStorage());
-            var raised = false;
-            settings.Changed += (_, _) => raised = true;
-
-            settings.SetEnabled(SettingKind.Sound, true);
-
-            Assert.IsFalse(raised);
         }
     }
 }

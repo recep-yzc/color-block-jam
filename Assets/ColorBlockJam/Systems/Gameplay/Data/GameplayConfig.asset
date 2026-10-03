@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GameplayConfig
   m_EditorClassIdentifier: 
   cellSize: 1
+  pickPadding: 0.3
   followSharpness: 26
   maxDragSpeed: 40
   cornerRounding: 0.3

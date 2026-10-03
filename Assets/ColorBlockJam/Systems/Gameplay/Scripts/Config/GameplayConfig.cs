@@ -11,6 +11,9 @@ namespace ColorBlockJam.Gameplay
         [SerializeField, Min(0.1f)] private float cellSize = 2f;
 
         [Header("Drag")]
+        [Tooltip("Blokların etrafındaki dokunma payı, hücre. Boş bir hücreye basıldığında bu pay içinde bir blok varsa " +
+                 "en yakını tutulur. 0 = sadece bloğun üstü.")]
+        [SerializeField, Range(0f, 0.5f)] private float pickPadding = 0.3f;
         [Tooltip("Sürüklenen bloğun parmağa ne kadar hızlı yetiştiği. Yüksek değer daha sıkı, düşük değer daha ağır " +
                  "hissettirir.")]
         [SerializeField, Min(1f)] private float followSharpness = 26f;
@@ -101,6 +104,7 @@ namespace ColorBlockJam.Gameplay
         [SerializeField] private BlockView blockViewPrefab;
 
         public float CellSize => cellSize;
+        public float PickPadding => pickPadding;
         public float FollowSharpness => followSharpness;
         public float MaxDragSpeed => maxDragSpeed;
         public float CornerRounding => cornerRounding;

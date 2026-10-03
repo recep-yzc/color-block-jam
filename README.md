@@ -9,13 +9,14 @@ Drag colored blocks around the board and slide each one out through a door of it
 1. Open the project with **Unity 2022.3.62f2**. Packages resolve from `Packages/manifest.json`: URP 14, Input System, UniTask, LitMotion, VContainer and TextMesh Pro.
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**. Set the Game view to a portrait resolution, such as 1080×1920 or 1080×2400.
 3. To build an APK, switch to Android in *File › Build Settings* and press **Build**. The build settings already list the scenes (Splash, Main, Gameplay), and the player settings use IL2CPP and ARM64.
-4. To run the tests, open *Window › General › Test Runner*. There are 78 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
+4. To run the tests, open *Window › General › Test Runner*. There are 83 EditMode tests and 3 PlayMode tests for the component pool. Among other things, they cover the board rules, the drag movement (sliding, rolling around corners, never overlapping, no allocations per frame), picking the nearest block within the margin, arrow blocks, ice and holes, the solver, the timer, its freeze and the time added to it, the wallet, the booster inventory and unlocks, the booster targets, the generator, and checks that every level and every booster that ships is sound, that each level earns its difficulty badge, and that the levels get harder over time.
 
 To reset progress, coins and boosters, use *Edit › Clear All PlayerPrefs*. The keys are `progression.currentLevel`, `economy.coins`, and `boosters.<id>.unlocked` and `boosters.<id>.count` for each booster.
 
 ### How to play
 
 - Drag a block with the mouse or a finger. The block slides until it meets something. If you push it past a corner, it rounds the bevel on a curve.
+- A press does not have to land exactly on a block. A press on an empty cell takes the nearest block within a margin around it (`pickPadding` on `GameplayConfig`, 0.3 of a cell), so a small block, or one at the edge of the board, is easy to grab. Boosters aim the same way.
 - A block leaves the board when you push it into a door of its own color, but only if its whole shape fits through that door. Dropping it right in front of such a door is enough: it goes in by itself.
 - **Arrow blocks** carry a double arrow and move only along it. They can only leave through a door ahead of them.
 - Some boards have **holes**: cells taken out of the board, with a wall around them. Blocks go around them like around the outer wall.

@@ -85,8 +85,7 @@ namespace ColorBlockJam.Gameplay
                 return;
             }
 
-            var pressed = new GridPoint((int)MathF.Floor(cell.X), (int)MathF.Floor(cell.Y));
-            var block = board.BlockAt(pressed);
+            var block = BlockPicker.Pick(board, cell, config.PickPadding, out var pressed);
             if (block == null || pressRouter.TryPick(block, pressed))
             {
                 return;

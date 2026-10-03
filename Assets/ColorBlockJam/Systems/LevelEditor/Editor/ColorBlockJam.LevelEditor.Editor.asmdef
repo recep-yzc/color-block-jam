@@ -5,7 +5,6 @@
         "ColorBlockJam.Level",
         "ColorBlockJam.Level.Data",
         "ColorBlockJam.Gameplay.Logic",
-        "ColorBlockJam.Gameplay",
         "ColorBlockJam.Core"
     ],
     "includePlatforms": [

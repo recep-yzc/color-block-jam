@@ -1,9 +1,7 @@
 using ColorBlockJam.Core.SceneManagement;
-using ColorBlockJam.Gameplay;
 using ColorBlockJam.Level;
 using UnityEditor;
 using UnityEditor.SceneManagement;
-using UnityEngine;
 
 namespace ColorBlockJam.LevelEditor
 {
@@ -29,19 +27,19 @@ namespace ColorBlockJam.LevelEditor
                 return;
             }
 
-            SessionState.SetString(EditorTestLevel.SessionKey, LevelSerializer.ToJson(level));
+            EditorTestLevel.Begin(level);
             EditorSceneManager.playModeStartScene = scene;
             EditorApplication.EnterPlaymode();
         }
 
         private static void OnPlayModeChanged(PlayModeStateChange change)
         {
-            if (change != PlayModeStateChange.EnteredEditMode || string.IsNullOrEmpty(SessionState.GetString(EditorTestLevel.SessionKey, null)))
+            if (change != PlayModeStateChange.EnteredEditMode || !EditorTestLevel.IsActive)
             {
                 return;
             }
 
-            SessionState.EraseString(EditorTestLevel.SessionKey);
+            EditorTestLevel.End();
             EditorSceneManager.playModeStartScene = null;
         }
 

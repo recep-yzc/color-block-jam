@@ -15,7 +15,7 @@ namespace ColorBlockJam.Gameplay
         }
 
         public int LevelNumber => progression.CurrentLevel;
-        public bool IsEditorTest => EditorTestLevel.TryGet(out _);
+        public bool IsEditorTest => EditorTestLevel.IsActive;
 
         public LevelData Load()
         {

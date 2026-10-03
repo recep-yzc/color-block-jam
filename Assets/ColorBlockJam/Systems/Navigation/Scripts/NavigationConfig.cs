@@ -22,6 +22,9 @@ namespace ColorBlockJam.Navigation
         [Tooltip("Kısa bir sürüklemede bile bırakınca sayfayı değiştiren hız, saniyede canvas birimi.")]
         [SerializeField, Min(0f)] private float swipeSpeedThreshold = 1500f;
 
+        [Tooltip("Parmak bu kadar saniye durup sonra bırakırsa savuruş sayılmaz; sayfa sadece mesafeye göre değişir.")]
+        [SerializeField, Min(0f)] private float flickTimeout = 0.1f;
+
         [Tooltip("İlk ve son sayfanın ötesinde içeriğin parmağı ne kadar izlediği. 0 = kilitli, 1 = serbest.")]
         [SerializeField, Range(0f, 1f)] private float edgeResistance = 0.3f;
 
@@ -58,6 +61,7 @@ namespace ColorBlockJam.Navigation
 
         public float SwipeDistanceThreshold => swipeDistanceThreshold;
         public float SwipeSpeedThreshold => swipeSpeedThreshold;
+        public float FlickTimeout => flickTimeout;
         public float EdgeResistance => edgeResistance;
 
         public float PageTransitionDuration => pageTransitionDuration;

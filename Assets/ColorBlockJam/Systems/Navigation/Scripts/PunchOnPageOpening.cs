@@ -17,11 +17,17 @@ namespace ColorBlockJam.Navigation
         [SerializeField, Min(1)] private int frequency = 5;
 
         private MotionHandle punch;
+        private Vector3 restScale;
+
+        private void Awake()
+        {
+            restScale = target.localScale;
+        }
 
         public void OnPageOpening()
         {
             punch.TryCancel();
-            punch = LMotion.Punch.Create(Vector3.one, Vector3.one * strength, duration)
+            punch = LMotion.Punch.Create(restScale, restScale * strength, duration)
                 .WithFrequency(frequency)
                 .WithScheduler(UIMotion.Scheduler)
                 .BindToLocalScale(target);

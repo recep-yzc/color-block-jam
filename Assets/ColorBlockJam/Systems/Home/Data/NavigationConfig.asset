@@ -21,6 +21,7 @@ MonoBehaviour:
   defaultPageId: home
   swipeDistanceThreshold: 0.2
   swipeSpeedThreshold: 1500
+  flickTimeout: 0.1
   edgeResistance: 0.3
   pageTransitionDuration: 0.3
   pageTransitionEase: 8

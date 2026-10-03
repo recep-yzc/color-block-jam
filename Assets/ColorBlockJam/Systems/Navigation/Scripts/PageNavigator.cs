@@ -20,6 +20,7 @@ namespace ColorBlockJam.Navigation
         private int currentIndex = -1;
         private float pageWidth;
         private float dragSpeed;
+        private float lastDragTime;
 
         public event Action<NavigationPage> PageOpening;
 
@@ -41,17 +42,16 @@ namespace ColorBlockJam.Navigation
             LayoutPages();
         }
 
-        public bool Open(string pageId, bool instant)
+        public void Open(string pageId, bool instant)
         {
             var index = pages.FindIndex(page => page.PageId == pageId);
             if (index < 0)
             {
                 Debug.LogWarning($"There is no page with id '{pageId}' under {name}.", this);
-                return false;
+                return;
             }
 
             OpenAt(index, instant);
-            return true;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -76,18 +76,21 @@ namespace ColorBlockJam.Navigation
             {
                 dragSpeed = delta / Time.unscaledDeltaTime;
             }
+
+            lastDragTime = Time.unscaledTime;
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
             var offset = -content.anchoredPosition.x / pageWidth - currentIndex;
             var targetIndex = currentIndex;
+            var releaseSpeed = Time.unscaledTime - lastDragTime > config.FlickTimeout ? 0f : dragSpeed;
 
-            if (offset > config.SwipeDistanceThreshold || dragSpeed < -config.SwipeSpeedThreshold)
+            if (offset > config.SwipeDistanceThreshold || releaseSpeed < -config.SwipeSpeedThreshold)
             {
                 targetIndex++;
             }
-            else if (offset < -config.SwipeDistanceThreshold || dragSpeed > config.SwipeSpeedThreshold)
+            else if (offset < -config.SwipeDistanceThreshold || releaseSpeed > config.SwipeSpeedThreshold)
             {
                 targetIndex--;
             }

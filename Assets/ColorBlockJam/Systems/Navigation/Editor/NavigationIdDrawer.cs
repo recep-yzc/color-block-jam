@@ -28,9 +28,9 @@ namespace ColorBlockJam.Navigation.Editor
                 selectedIndex = options.Count - 1;
             }
 
-            using (new EditorGUI.PropertyScope(position, label, property))
+            using (var scope = new EditorGUI.PropertyScope(position, label, property))
             {
-                var newIndex = EditorGUI.Popup(position, label.text, selectedIndex, options.ToArray());
+                var newIndex = EditorGUI.Popup(position, scope.content, selectedIndex, options.ConvertAll(option => new GUIContent(option)).ToArray());
                 if (newIndex != selectedIndex && newIndex < config.PageOrder.Count)
                 {
                     property.stringValue = config.PageOrder[newIndex];

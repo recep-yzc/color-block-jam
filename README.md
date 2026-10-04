@@ -1,8 +1,8 @@
 # Color Block Jam — Vertical Slice
 
-A vertical slice of Color Block Jam in Unity 2022.3.62f2 (URP), for 1080×1920 portrait screens. The Android build is [`ColorBlockJam.apk`](ColorBlockJam.apk) in the repository root.
+A vertical slice of Color Block Jam in Unity 2022.3.62f2 (URP), for 1080×1920 portrait screens. The required scope is complete, and so are the four optional items: the warning before saving an unsolvable level, working boosters, ice and arrow blocks. Holes, AUTO and a level generator are extras. The Android build is [`ColorBlockJam.apk`](ColorBlockJam.apk) in the repository root.
 
-## How to run
+## How to open and run the project
 
 1. Open the project with **Unity 2022.3.62f2**. The packages resolve from `Packages/manifest.json`.
 2. Open `Assets/ColorBlockJam/Scenes/Splash.unity` and press **Play**, with the Game view at 1080×1920 or 1080×2400 (20:9).
@@ -12,7 +12,7 @@ A vertical slice of Color Block Jam in Unity 2022.3.62f2 (URP), for 1080×1920 p
 
 **How to play.** Drag a block into a door of its color; it leaves when its whole shape fits through. Clear the board before the timer runs out. Arrow blocks move only along their arrow, a frozen block cannot move until as many other blocks as its number have left, and holes are cut out of the board. Boosters unlock at levels 2, 4, 6 and 8: Freeze stops the timer for 10 seconds, Hammer breaks a block, Rocket clears a row and Vacuum a color. **AUTO** lets the solver finish the level. In the editor and in development builds, → and ← jump between levels.
 
-## Level editor
+## How to open the editor and make a level
 
 Open it from **Color Block Jam › Level Editor**, by double-clicking a level file (`Systems/Level/Data/Levels/LevelNNN.json`), or with **Open Level Editor** on `LevelCatalog.asset`. The levels are on the left in play order, the board is in the middle, and the settings and tools are on the right. The controls have tooltips.
 
@@ -27,7 +27,7 @@ Open it from **Color Block Jam › Level Editor**, by double-clicking a level fi
 
 The editor and the game read one format, the level's JSON file (`LevelData`). `LevelCatalog.asset` lists the files in play order.
 
-## Architecture decisions
+## Architecture decisions and their reasons
 
 | Decision | Why |
 |---|---|
@@ -51,7 +51,7 @@ The editor and the game read one format, the level's JSON file (`LevelData`). `L
 | TextMesh Pro | Sharp text with outlines. |
 | 2D feature set, Device Simulator devices | The Sprite Editor for 9-slice borders, and phone screens to check the layout. |
 
-## Decisions on open points
+## Decisions on unclear requirements
 
 - **Levels.** The original game's levels were not supplied, so the levels are new. There are 50, all made with the editor: 1–3 by hand as tutorials, the rest with its generator, each proven solvable and rated by its moves.
 - **Timer.** It starts at the first touch on a block. At zero the level stops and **Out of Time!** offers 20 seconds for 100 coins; declining opens the fail popup.
@@ -59,11 +59,10 @@ The editor and the game read one format, the level's JSON file (`LevelData`). `L
 - **Pause** opens the settings with a **HOME** button; closing them resumes the level.
 - **Restart** builds the level again from its data. Coins and boosters spent during the attempt stay spent.
 - **Coins.** The player starts with 100 and earns 10, 20, 30 or 50 for a level by its difficulty. Coins buy extra time and boosters.
-- **Placeholders.** Lives show 5, and failing costs nothing. The Shop and Collection tabs open pages with only a title, the locked tabs do nothing, and the profile, plus, language, support, legal and restore buttons only give touch feedback.
-- **Optional scope.** All four items are done: the warning before saving an unsolvable level, working boosters, ice and arrow blocks. Holes, AUTO and the generator are extras.
 
-## Known issues and incomplete parts
+## Known problems and incomplete parts
 
+- **Placeholders**, as the case allows: lives show 5, and failing costs nothing. The Shop and Collection tabs open pages with only a title, the locked tabs do nothing, and the profile, plus, language, support, legal and restore buttons only give touch feedback.
 - The shipped levels never get stuck, because they are proven solvable and solvability does not change during play. To see the stuck fail, make an unsolvable level in the editor and press **▶ Play**.
 - On a very large custom level, **Check** may answer "no solution found within the budget" instead of yes or no.
 - After level 50 the levels start again from level 1, while the home screen keeps counting up.
@@ -80,10 +79,10 @@ The editor and the game read one format, the level's JSON file (`LevelData`). `L
 - Soft shadows and glows make automatic 9-slice borders unreliable, so the borders were set by hand.
 - There were no obstacle icons, and the Watch Ad button, coin pile and fail offer seen in the reference screens were not supplied, so they are left out.
 
-## LLM tools used
+## LLM tools and the parts they were used for
 
 **Claude Code** (Anthropic, Claude Opus 5.5 model) was a pair programmer throughout. It proposed the architecture, wrote most of the C# code, the shaders and the editor tooling, inspected the supplied models, wrote the tests and the commit messages, and drafted this README. I directed and reviewed every step.
 
-## Work time
+## Approximate work time
 
-By the commit history, about 23 hours in seven sessions, from 28 Sep 2026 20:10 to 4 Oct 2026 14:49.
+By the commit history, about 23 hours in seven sessions, from 28 Sep 2026 20:10 to 4 Oct 2026 15:14.

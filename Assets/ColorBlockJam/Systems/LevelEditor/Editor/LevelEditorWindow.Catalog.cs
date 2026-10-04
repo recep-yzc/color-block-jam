@@ -11,10 +11,8 @@ namespace ColorBlockJam.LevelEditor
     {
         private bool Save(bool asNew)
         {
-            var isChecked = result != null && resultRevision == revision && result.IsSolved;
-            if ((problems.Count > 0 || !isChecked) && !EditorUtility.DisplayDialog("Level Editor",
-                    problems.Count > 0 ? "The level has problems (see Check). Save anyway?" : "The level has not been checked as solvable. Save anyway?",
-                    "Save Anyway", "Cancel"))
+            var warning = SaveWarning();
+            if (warning != null && !EditorUtility.DisplayDialog("Level Editor", $"{warning} Save anyway?", "Save Anyway", "Cancel"))
             {
                 return false;
             }
@@ -39,6 +37,31 @@ namespace ColorBlockJam.LevelEditor
             SyncCatalog();
             ShowNotification(new GUIContent($"Saved {Path.GetFileName(path)}"));
             return true;
+        }
+
+        private string SaveWarning()
+        {
+            if (problems.Count > 0)
+            {
+                return "The level has problems (see Check).";
+            }
+
+            if (validation != null)
+            {
+                return "The level is still being checked, so it is not known yet whether it can be solved.";
+            }
+
+            if (result == null || resultRevision != revision)
+            {
+                return "The level has not been checked since the last change, so it may not be solvable.";
+            }
+
+            if (result.IsStuck)
+            {
+                return "This level cannot be solved: no order of moves clears the board.";
+            }
+
+            return result.IsSolved ? null : "No solution was found within the solver's budget, so the level may not be solvable.";
         }
 
         private string NextLevelPath()

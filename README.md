@@ -30,7 +30,7 @@ To reset progress, coins, boosters and the obstacles seen, use *Edit › Clear A
 - The HUD has these buttons:
   - **Restart** starts the level again.
   - **Pause** opens the settings with a **HOME** button that leaves the level; close them to play on. The level also pauses on the Android back button and, on a device, when the app loses focus. In the editor, clicking outside the Game view does not pause it.
-  - **AUTO** lets the solver play the level from where you are. A level AUTO wins counts as completed but pays no coins.
+  - **AUTO** lets the solver play the level from where you are. A level AUTO wins counts as completed and pays its reward like any other.
 - In the editor and in development builds, → and ← jump to the next and the previous level, to try levels quickly.
 - The first level that has arrow blocks, ice or holes opens with a popup that introduces each of them; **Continue** starts the level. An obstacle is introduced only once.
 - Boosters unlock as you play. At the start of the level a booster unlocks at, a popup presents it; press **Claim** and it rises into the bar under the board. Until then it is not shown.

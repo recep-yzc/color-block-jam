@@ -7,7 +7,7 @@ Color Block Jam'in Unity 2022.3.62f2 (URP) ile, 1080×1920 dikey ekran için yap
 1. Projeyi **Unity 2022.3.62f2** ile açın. Paketler `Packages/manifest.json` üzerinden yüklenir.
 2. `Assets/ColorBlockJam/Scenes/Splash.unity` sahnesini açıp **Play** butonuna basın. Game view'u 1080×1920 ya da 1080×2400 (20:9) yapın.
 3. Build için *File › Build Settings* kullanılır: sahneler (Splash, Main, Gameplay) listede hazır, Android IL2CPP ve ARM64 ile derlenir.
-4. *Window › General › Test Runner* 96 EditMode ve 3 PlayMode testini çalıştırır.
+4. *Window › General › Test Runner* 97 EditMode ve 3 PlayMode testini çalıştırır.
 5. *Edit › Clear All PlayerPrefs* ilerlemeyi, coinleri, booster'ları ve görülen engelleri sıfırlar.
 
 **Nasıl oynanır.** Bir bloğu sürükleyip kendi rengindeki bir kapıya itin; şeklinin tamamı kapıdan geçebiliyorsa tahtadan çıkar. Süre bitmeden tahtayı temizleyin. Ok bloklar yalnızca okları yönünde hareket eder. Donmuş bir blok, üzerindeki sayı kadar başka blok çıkana kadar hareket edemez. Delikler tahtadan çıkarılmış hücrelerdir. Booster'lar 2, 4, 6 ve 8. levellerde açılır: Freeze süreyi 10 saniye durdurur, Hammer bir bloğu kırar, Rocket bir satırı, Vacuum ise bir rengin bütün bloklarını temizler. **AUTO** leveli solver'a bitirtir. Editörde ve development build'lerde → ve ← tuşları leveller arasında geçiş yapar.
@@ -39,6 +39,7 @@ Editör ve oyun tek bir formatı, levelin JSON dosyasını (`LevelData`) okur. `
 | **Fiziksiz hareket.** Sürüklenen blok yolunu baştan sona tarar, değdiği yüzey boyunca kayar ve bevel'li köşelerin etrafından kavis çizerek döner. | Hareket kesin ve deterministiktir: bloklar asla iç içe geçmez ve sürükleme her karede bellek ayırmaz (bunu bir test kontrol eder). |
 | **Tek bir solver**: blok hamleleri üzerinde genişlik öncelikli arama, arka plan thread'inde çalışır. | Oyun takılan tahtayı fark eder, editör de aynı kodla levellerin çözülebilir olduğunu kanıtlar ve zorluklarını puanlar; bunu yaparken kare düşürmez. |
 | **Az çizim çağrısı (draw call).** Her blok ve tahta tek bir mesh; renkler vertex'lerde, materyaller ortak, tek bir toon shader, pool'dan gelen partiküller ve bir sprite atlası. | SRP Batcher ile bir level birkaç çizim çağrısında çizilir; bu da orta seviye telefonlara uygundur. |
+| **Shader'lar yükleme ekranında hazırlanır.** `ShaderVariants` koleksiyonu oyunun çizdiği varyantları Graphics Settings üzerinden önceden yükler. Splash sırasında `BoardWarmup` oyunun kendi koduyla kurduğu küçük bir tahtayı (bloklar, tutulan bloğun outline'ı, buz ve sayacı, kapı, zemin, partikül, gölge) splash kamerasından önce çizilen bir kamerayla, `WindowWarmup` da pencerelerin kullandığı her materyali splash'ın arkasında birer kez çizer. URP'nin kullanmadığı Built-in ve video shader'ları build'e girmez. | Vulkan bir shader'ı ancak ilk çiziminde, çizildiği hedefe ve vertex düzenine göre tamamlar. Bu iş yükleme ekranında yapıldığı için ilk blok tutuşunda, ilk patlamada ya da ilk popup'ta takılma olmaz. |
 | **Kayıtlar `IKeyValueStorage` üzerinden yapılır** (PlayerPrefs; uygulama odağı kaybettiğinde ya da kapanırken diske yazılır). | Depolama oyuna dokunmadan değiştirilebilir; editörden açılan test oyunu kayıtlarını bellekte tutar. |
 
 | Paket | Neden |
@@ -85,4 +86,4 @@ Editör ve oyun tek bir formatı, levelin JSON dosyasını (`LevelData`) okur. `
 
 ## Yaklaşık çalışma süresi
 
-Commit geçmişine göre yedi oturumda yaklaşık 24 saat: 28 Eylül 2026 20:10 ile 4 Ekim 2026 15:21 arası.
+Commit geçmişine göre yedi oturumda yaklaşık 24 saat: 28 Eylül 2026 20:10 ile 4 Ekim 2026 16:13 arası.

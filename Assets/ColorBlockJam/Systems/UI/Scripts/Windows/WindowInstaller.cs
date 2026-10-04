@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using ColorBlockJam.Core.Installers;
+using ColorBlockJam.Core.Startup;
 using UnityEngine;
 using VContainer;
 using VContainer.Unity;
@@ -17,6 +18,7 @@ namespace ColorBlockJam.UI.Windows
         public override void Install(IContainerBuilder builder)
         {
             builder.RegisterEntryPoint<WindowService>().WithParameter(layer).WithParameter<IReadOnlyList<WindowCatalog>>(catalogs);
+            builder.Register<WindowWarmup>(Lifetime.Singleton).As<IStartupTask>().WithParameter<IReadOnlyList<WindowCatalog>>(catalogs);
 
             foreach (var catalog in catalogs)
             {

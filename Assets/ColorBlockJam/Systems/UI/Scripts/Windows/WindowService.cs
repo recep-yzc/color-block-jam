@@ -124,6 +124,12 @@ namespace ColorBlockJam.UI.Windows
                 return;
             }
 
+            if (layer == null)
+            {
+                presenter.NotifyClosed(isCanceled: true);
+                return;
+            }
+
             var slot = slots[presenter];
             RefreshBackdrop();
             await slot.View.HideAsync();

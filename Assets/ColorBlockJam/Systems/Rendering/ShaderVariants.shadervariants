@@ -19,61 +19,6 @@ ShaderVariantCollection:
         passType: 0
       - keywords: UNITY_UI_CLIP_RECT
         passType: 0
-  - first: {fileID: 66, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 106, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: _SUNDISK_SIMPLE
-        passType: 0
-  - first: {fileID: 9000, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 9001, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 9002, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 9003, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 9004, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 9007, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 9101, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 9103, guid: 0000000000000000f000000000000000, type: 0}
-    second:
-      variants:
-      - keywords: 
-        passType: 0
-  - first: {fileID: 4800000, guid: d6dae50ee9e1bfa4db75f19f99355220, type: 3}
-    second:
-      variants:
-      - keywords: _OUTPUT_DEPTH
-        passType: 0
   - first: {fileID: 4800000, guid: 93446b5c5339d4f00b85c159e1159b7c, type: 3}
     second:
       variants:
@@ -103,8 +48,6 @@ ShaderVariantCollection:
       variants:
       - keywords: 
         passType: 8
-      - keywords: 
-        passType: 13
       - keywords: _MAIN_LIGHT_SHADOWS
         passType: 13
   - first: {fileID: 4800000, guid: 840bbdcf11604b3893a546d8cd0d0293, type: 3}

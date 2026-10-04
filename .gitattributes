@@ -87,3 +87,6 @@
 *.pdf   binary
 *.zip   binary
 *.unitypackage binary
+
+# Builds
+*.apk   binary

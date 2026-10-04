@@ -75,6 +75,7 @@ Editör ve oyun tek bir formatı, levelin JSON dosyasını (`LevelData`) okur. `
 
 - "Toggle off" sprite'ı yoktu; `btn_toggle_off.png` eklendi.
 - `BlockParts.fbx` ve `Arrows.fbx` XY düzleminde ve −Z'ye bakacak şekilde modellenmiş, `WallAndDoor.fbx` ve `GroundGrid.fbx` ise Y-up. Duvar, köşe ve kapı modelleri ayrıca baş aşağı, duvar da çeyrek tur dönük; `BoardArt` üzerindeki *Model turns* ayarı her birini düzeltir.
+- Modeller birbirine kusursuz oturmuyor; parçaların birleştiği yerlerde ince boşluklar kalıyor. Bu boşluklar kötü görünmesin diye URP asset'inde kenar yumuşatma (4x MSAA) açık.
 - `WallAndDoor.fbx` eksik bir gömülü dokuya referans veriyor, `corner_4` ise kullanılmayan bir blend shape içeriyor.
 - Booster ikonları (1024×1024) ve buz dokusu (2048×2048) ekrandaki boyutlarından çok büyük.
 - Yumuşak gölgeler ve parlamalar otomatik 9-slice kenarlarını güvenilmez kılıyor; kenarlar elle ayarlandı.
@@ -86,4 +87,4 @@ Editör ve oyun tek bir formatı, levelin JSON dosyasını (`LevelData`) okur. `
 
 ## Yaklaşık çalışma süresi
 
-Commit geçmişine göre yedi oturumda yaklaşık 24 saat: 28 Eylül 2026 20:10 ile 4 Ekim 2026 16:13 arası.
+Commit geçmişine göre yedi oturumda yaklaşık 25 saat: 28 Eylül 2026 20:10 ile 4 Ekim 2026 16:30 arası.
